@@ -11,7 +11,7 @@ from tabulate import tabulate
 
 
 # The main Prediction Guard API URL.
-url = "https://wbcdtyhyxh.us-east-1.awsapprunner.com"
+url = "https://api.predictionguard.com"
 
 
 # The animation for the loading spinner.
@@ -27,7 +27,7 @@ def animate():
         )
         sys.stdout.flush()
         time.sleep(0.1)
-    sys.stdout.write("\r\nProxy ready. 🎉     ")
+    #sys.stdout.write("\r\nProxy ready. 🎉     ")
 
 
 # The main Prediction Guard client class.
@@ -182,15 +182,40 @@ class Client:
             headers = {"Authorization": "Bearer " + self.token}
             response = requests.request("GET", url + "/proxy", headers=headers)
 
-            # If the request was successful, print the proxies.
+            # If the request was successful, print the proxy info.
             if response.status_code == 200:
                 proxies = response.json()
-                for proxies in proxies:
-                    if proxies["name"] == name:
-                        if proxies["status"] == "available":
+                for proxy in proxies:
+                    if proxy["name"] == name:
+                        if proxy["status"] == "available":
                             done = True
                         else:
                             time.sleep(0.2)
+
+        print("\n\nProxy created successfully!")
+        print("---------------------------")
+        print("Name: " + proxy["name"])
+        print("Task: " + proxy["task"])
+        print("Status: " + proxy["status"])
+        print("Failure Rate: " + str(proxy["failure_rate"]))
+
+    def delete_proxy(self, name: str):
+        """
+        Delete a proxy.
+        Args:
+           * name (str): The name of the proxy to delete.
+        """
+
+        # Delete the proxy.
+        headers = {"Authorization": "Bearer " + self.token}
+        params = {"name": name}
+        response = requests.request("DELETE", url + "/proxy", headers=headers, params=params)
+
+        # If the request was successful, print the proxy info.
+        if response.status_code == 200:
+            print("Proxy deleted successfully!")
+        else:
+            raise ValueError("Could not delete proxy. Please try again.")
 
     def predict(self, name: str, data: dict):
         """
