@@ -103,7 +103,7 @@ class Client:
                 "your access token and try again."
             )
 
-    def list_proxies(self):
+    def list_proxies(self, print_table: bool = True):
         """
         List all proxies associated with your Prediction Guard account.
         """
@@ -115,6 +115,12 @@ class Client:
         # If the request was successful, print the proxies.
         if response.status_code == 200:
             proxies = response.json()
+            if not proxies:
+                if print_table:
+                    print("No proxies found. Please create a proxy first.")
+                return []
+            if not print_table:
+                return proxies
             table = []
             for proxy in proxies:
                 table.append(
@@ -152,6 +158,15 @@ class Client:
            * task (str): The task to create the proxy for.
            * name (str): The name of the proxy.
         """
+
+        # Use list_proxies to determine if one already exists with the given name.
+        proxies = self.list_proxies(print_table=False)
+        for proxy in proxies:
+            if proxy["name"] == name:
+                raise ValueError(
+                    "A proxy with the name {} already exists. Please choose a "
+                    "different name.".format(name)
+                )
 
         # Change the global done variable to facilitate animation.
         global done
