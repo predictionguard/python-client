@@ -150,7 +150,7 @@ class Client:
         else:
             raise ValueError("Could not list proxies. Please try again.")
 
-    def create_proxy(self, task: str, name: str, examples: list, wait: bool):
+    def create_proxy(self, task: str, name: str, examples: list, wait: bool = True):
         """
         Create a new proxy.
         Args:
