@@ -36,8 +36,7 @@ class Client:
         """
         Initialize the client.
         Args:
-           * email (str): The email associated with your Prediction Guard account.
-           * password (str): The password associated with your Prediction Guard account.
+           * token (str): The user token associated with your Prediction Guard account.
         """
 
         # Get the email and password from the provided arguments.
@@ -151,13 +150,31 @@ class Client:
         else:
             raise ValueError("Could not list proxies. Please try again.")
 
-    def create_proxy(self, task: str, name: str, examples: list):
+    def create_proxy(self, task: str, name: str, examples: list, wait: bool):
         """
         Create a new proxy.
         Args:
            * task (str): The task to create the proxy for.
            * name (str): The name of the proxy.
+           * examples (list): A list of examples to use to create the proxy.
+           * wait (bool): Whether or not to wait for the proxy to be created.
         """
+
+        # Check the task name.
+        tasks = [
+            "text-gen",
+            "sentiment",
+            "qa",
+            "mt",
+            "fact",
+            "toxicity"
+        ]
+        if task not in tasks:
+            raise ValueError(
+                "Invalid task name. Please choose one of the following: {}".format(
+                    ", ".join(tasks)
+                )
+            )
 
         # Use list_proxies to determine if one already exists with the given name.
         proxies = self.list_proxies(print_table=False)
@@ -189,7 +206,13 @@ class Client:
         else:
             print(response)
             raise ValueError("Could not create proxy. Please try again.")
-
+        
+        # If the user does not want to wait for the proxy to be ready,
+        # return.
+        if not wait:
+            print("Proxy created successfully! (use client.list_proxies() to see status)")
+            return
+        
         t = threading.Thread(target=animate)
         t.start()
         while not done:
@@ -221,6 +244,16 @@ class Client:
            * name (str): The name of the proxy to delete.
         """
 
+        # Use list_proxies to determine if one already exists with the given name.
+        proxies = self.list_proxies(print_table=False)
+        names = []
+        for proxy in proxies:
+            names.append(proxy["name"])
+        if name not in names:
+            raise ValueError(
+                "Can't find a proxy with the name {}.".format(name)
+            )
+
         # Delete the proxy.
         headers = {"Authorization": "Bearer " + self.token}
         params = {"name": name}
@@ -237,7 +270,7 @@ class Client:
         Make a prediction using a proxy.
         Args:
            * name (str): The name of the proxy to make the prediction with.
-           * data (dict): A sample to submit for inference.
+           * data (dict): A input sample to submit for inference.
         """
 
         # Make a prediction using the proxy.
