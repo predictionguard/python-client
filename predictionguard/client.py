@@ -148,7 +148,12 @@ class Client:
                 )
             )
         else:
-            raise ValueError("Could not list proxies. Please try again.")
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not list proxies. " + err)
 
     def create_proxy(self, task: str, name: str, examples: list, wait: bool = True):
         """
@@ -263,7 +268,12 @@ class Client:
         if response.status_code == 200:
             print("Proxy deleted successfully!")
         else:
-            raise ValueError("Could not delete proxy. Please try again.")
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not delete proxy. " + err)
 
     def predict(self, name: str, data: dict):
         """
@@ -286,4 +296,11 @@ class Client:
             prediction = response.json()
             return prediction
         else:
-            raise ValueError("Could not make prediction. Please try again.")
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make prediction. " + err)
