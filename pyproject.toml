@@ -10,7 +10,7 @@ license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 description-file = "README.md"
-dependencies = ["tabulate", "requests"]
+dependencies = ["tabulate >=0.8.10", "requests >=2.27.1"]
 
 [project.urls]
 Home = "https://predictionguard.com"
