@@ -359,7 +359,7 @@ class Completion():
 
     @classmethod
     def create(self, model: str, prompt: Union[str, List[str]],
-                                output: Optional[Dict[str, Any]],
+                                output: Optional[Dict[str, Any]] = None,
                                 max_tokens: Optional[int] = 100,
                                 temperature: Optional[float] = 0.75,
                                 top_p: Optional[float] = 1.0,
