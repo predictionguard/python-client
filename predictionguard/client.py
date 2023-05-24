@@ -5,6 +5,7 @@ import time
 import sys
 import itertools
 import threading
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 from tabulate import tabulate
@@ -12,7 +13,7 @@ from tabulate import tabulate
 
 # The main Prediction Guard API URL.
 url = "https://api.predictionguard.com"
-
+#url = "http://localhost:8080"
 
 # The animation for the loading spinner.
 done = True
@@ -39,7 +40,7 @@ class Client:
            * token (str): The user token associated with your Prediction Guard account.
         """
 
-        # Get the email and password from the provided arguments.
+        # Get the access token.
         if token:
             self.token = token
 
@@ -304,3 +305,147 @@ class Client:
             except:
                 pass
             raise ValueError("Could not make prediction. " + err)
+        
+
+class Completion():
+    """
+    OpenAI-compatible completion API
+    """
+
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        Args:
+           * token (str): The user token associated with your Prediction Guard account.
+        """
+
+        # Try and get the access token.
+        self.token = os.environ.get("PREDICTIONGUARD_TOKEN")
+
+        # If the email and password are not in the environment variables,
+        # try to get the creds from a local config file.
+        if not self.token:
+            
+            # Get the path to the config file.
+            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
+
+            # If the config file does not exist, raise an error.
+            if not os.path.exists(config_path):
+                raise ValueError(
+                    "No access token provided and no predictionguard"
+                    " config file found. Please provide the access token as "
+                    "arguments or set the environment variable PREDICTIONGUARD_TOKEN."
+                )
+            else:
+                # Read the JSON config file.
+                with open(config_path, "r") as config_file:
+                    config = json.load(config_file)
+
+                # Get the email and password from the config file.
+                if "token" not in config:
+                    raise ValueError(
+                        "Imporperly formatted predictionguard config "
+                        "file at ~/.predictionguard."
+                    )
+                else:
+                    self.token = base64.b64decode(config["token"]).decode("utf-8")
+
+        # Connect to Prediction Guard and set the access token.
+        try:
+            Client(token=self.token)
+        except:
+            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+
+    @classmethod
+    def create(self, model: str, prompt: Union[str, List[str]],
+                                output: Optional[Dict[str, Any]],
+                                max_tokens: Optional[int] = 100,
+                                temperature: Optional[float] = 0.75,
+                                top_p: Optional[float] = 1.0,
+                                top_k: Optional[int] = 50) -> Dict[str, Any]:
+        """
+        Creates a completion request for the Prediction Guard /completions API.
+
+        :param model: The ID(s) of the model to use.
+        :param prompt: The prompt(s) to generate completions for.
+        :param max_tokens: The maximum number of tokens to generate in the completion(s).
+        :param temperature: The sampling temperature to use.
+        :param top_p: The nucleus sampling probability to use.
+        :param n: The number of completions to generate.
+        :return: A dictionary containing the completion response.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Create a list of tuples, each containing all the parameters for 
+        # a call to _generate_completion
+        args = (model, prompt, output, max_tokens, temperature, top_p, top_k)
+
+        # Run _generate_completion
+        choices = self._generate_completion(*args)
+        return choices
+    
+    @classmethod
+    def _generate_completion(self, model, prompt, output, max_tokens, temperature, top_p, top_k):
+        """
+        Function to generate a single completion. 
+        """
+
+        # Make a prediction using the proxy.
+        headers = {"Authorization": "Bearer " + self.token}
+        if "openai" in model.lower():
+            if os.environ.get("OPENAI_API_KEY") != "":
+                headers["OpenAI-ApiKey"] = os.environ.get("OPENAI_API_KEY")
+            else:
+                raise ValueError("OpenAI API key not set. Please set the environment variable OPENAI_API_KEY.")
+        payload_dict = {
+            "model": model,
+            "prompt": prompt,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k
+        }
+        if output:
+            payload_dict["output"] = output
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/completions", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make prediction. " + err)
+
+    @classmethod
+    def list_models(self) -> List[str]:
+        return {
+            "Dolly-7B",
+            "Dolly-3B",
+            "h2oGPT-6_9B",
+            "RedPajama-INCITE-Instruct-7B",
+            "Camel-5B",
+            "Pythia-6_9-Deduped",
+            "MPT-7B-Instruct",
+            "OpenAI-text-davinci-003",
+            "OpenAI-text-davinci-002",
+            "OpenAI-text-curie-001",
+            "OpenAI-text-babbage-001",
+            "OpenAI-text-ada-001",
+            "OpenAI-davinci",
+            "OpenAI-curie",
+            "OpenAI-babbage",
+            "OpenAI-ada"
+        }
