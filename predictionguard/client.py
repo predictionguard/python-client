@@ -439,6 +439,7 @@ class Completion():
             "Camel-5B",
             "Pythia-6_9-Deduped",
             "MPT-7B-Instruct",
+            "Falcon-7B-Instruct",
             "OpenAI-text-davinci-003",
             "OpenAI-text-davinci-002",
             "OpenAI-text-curie-001",
