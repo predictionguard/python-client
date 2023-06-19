@@ -440,6 +440,7 @@ class Completion():
             "Pythia-6_9-Deduped",
             "MPT-7B-Instruct",
             "Falcon-7B-Instruct",
+            "Falcon-40B-Instruct",
             "OpenAI-text-davinci-003",
             "OpenAI-text-davinci-002",
             "OpenAI-text-curie-001",
@@ -448,5 +449,7 @@ class Completion():
             "OpenAI-davinci",
             "OpenAI-curie",
             "OpenAI-babbage",
-            "OpenAI-ada"
+            "OpenAI-ada",
+            "WizardCoder",
+            "StarCoder"
         }
