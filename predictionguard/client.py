@@ -431,25 +431,10 @@ class Completion():
 
     @classmethod
     def list_models(self) -> List[str]:
-        return {
-            "Dolly-7B",
-            "Dolly-3B",
-            "h2oGPT-6_9B",
-            "RedPajama-INCITE-Instruct-7B",
-            "Camel-5B",
-            "Pythia-6_9-Deduped",
-            "MPT-7B-Instruct",
-            "Falcon-7B-Instruct",
-            "Falcon-40B-Instruct",
-            "OpenAI-text-davinci-003",
-            "OpenAI-text-davinci-002",
-            "OpenAI-text-curie-001",
-            "OpenAI-text-babbage-001",
-            "OpenAI-text-ada-001",
-            "OpenAI-davinci",
-            "OpenAI-curie",
-            "OpenAI-babbage",
-            "OpenAI-ada",
-            "WizardCoder",
-            "StarCoder"
-        }
+
+        # Get the list of current models.
+        headers = {"Authorization": "Bearer " + self.token}
+        url = url + "/completions"
+        response = requests.request("GET", url + "/completions", headers=headers)
+
+        return response.json()
