@@ -395,7 +395,11 @@ class Completion():
 
         # Make a prediction using the proxy.
         headers = {"Authorization": "Bearer " + self.token}
-        if "openai" in model.lower():
+        if isinstance(model, list):
+            model_join = ",".join(model)
+        else:
+            model_join = model
+        if "openai" in model_join.lower():
             if os.environ.get("OPENAI_API_KEY") != "":
                 headers["OpenAI-ApiKey"] = os.environ.get("OPENAI_API_KEY")
             else:
@@ -432,9 +436,11 @@ class Completion():
     @classmethod
     def list_models(self) -> List[str]:
 
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
         # Get the list of current models.
         headers = {"Authorization": "Bearer " + self.token}
-        url = url + "/completions"
         response = requests.request("GET", url + "/completions", headers=headers)
 
-        return response.json()
+        return list(response.json())
