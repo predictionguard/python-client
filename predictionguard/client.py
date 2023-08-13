@@ -444,3 +444,190 @@ class Completion():
         response = requests.request("GET", url + "/completions", headers=headers)
 
         return list(response.json())
+    
+
+class Factuality():
+
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        Args:
+           * token (str): The user token associated with your Prediction Guard account.
+        """
+
+        # Try and get the access token.
+        self.token = os.environ.get("PREDICTIONGUARD_TOKEN")
+
+        # If the email and password are not in the environment variables,
+        # try to get the creds from a local config file.
+        if not self.token:
+            
+            # Get the path to the config file.
+            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
+
+            # If the config file does not exist, raise an error.
+            if not os.path.exists(config_path):
+                raise ValueError(
+                    "No access token provided and no predictionguard"
+                    " config file found. Please provide the access token as "
+                    "arguments or set the environment variable PREDICTIONGUARD_TOKEN."
+                )
+            else:
+                # Read the JSON config file.
+                with open(config_path, "r") as config_file:
+                    config = json.load(config_file)
+
+                # Get the email and password from the config file.
+                if "token" not in config:
+                    raise ValueError(
+                        "Imporperly formatted predictionguard config "
+                        "file at ~/.predictionguard."
+                    )
+                else:
+                    self.token = base64.b64decode(config["token"]).decode("utf-8")
+
+        # Connect to Prediction Guard and set the access token.
+        try:
+            Client(token=self.token)
+        except:
+            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+
+    @classmethod
+    def check(self, reference: str,
+                    text: str) -> Dict[str, Any]:
+        """
+        Creates a factuality checking request for the Prediction Guard /factuality API.
+
+        :param reference: The reference text used to check for factual consistency.
+        :param text: The text to check for factual consistency.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Run _generate_score
+        choices = self._generate_score(reference, text)
+        return choices
+    
+    @classmethod
+    def _generate_score(self, reference, text):
+        """
+        Function to generate a single factuality score. 
+        """
+
+        # Make a prediction using the proxy.
+        headers = {"Authorization": "Bearer " + self.token}
+        payload_dict = {
+            "reference": reference,
+            "text": text
+        }
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/factuality", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not check factuality. " + err)
+        
+
+class Toxicity():
+
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        Args:
+           * token (str): The user token associated with your Prediction Guard account.
+        """
+
+        # Try and get the access token.
+        self.token = os.environ.get("PREDICTIONGUARD_TOKEN")
+
+        # If the email and password are not in the environment variables,
+        # try to get the creds from a local config file.
+        if not self.token:
+            
+            # Get the path to the config file.
+            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
+
+            # If the config file does not exist, raise an error.
+            if not os.path.exists(config_path):
+                raise ValueError(
+                    "No access token provided and no predictionguard"
+                    " config file found. Please provide the access token as "
+                    "arguments or set the environment variable PREDICTIONGUARD_TOKEN."
+                )
+            else:
+                # Read the JSON config file.
+                with open(config_path, "r") as config_file:
+                    config = json.load(config_file)
+
+                # Get the email and password from the config file.
+                if "token" not in config:
+                    raise ValueError(
+                        "Imporperly formatted predictionguard config "
+                        "file at ~/.predictionguard."
+                    )
+                else:
+                    self.token = base64.b64decode(config["token"]).decode("utf-8")
+
+        # Connect to Prediction Guard and set the access token.
+        try:
+            Client(token=self.token)
+        except:
+            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+
+    @classmethod
+    def check(self, text: str) -> Dict[str, Any]:
+        """
+        Creates a toxicity checking request for the Prediction Guard /toxicity API.
+
+        :param text: The text to check for toxicity.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Run _generate_score
+        choices = self._generate_score(text)
+        return choices
+    
+    @classmethod
+    def _generate_score(self, text):
+        """
+        Function to generate a single toxicity score. 
+        """
+
+        # Make a prediction using the proxy.
+        headers = {"Authorization": "Bearer " + self.token}
+        payload_dict = {"text": text}
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/toxicity", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not check toxicity. " + err)
