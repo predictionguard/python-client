@@ -12,7 +12,16 @@ from tabulate import tabulate
 
 
 # The main Prediction Guard API URL.
-url = "https://api.predictionguard.com"
+if os.environ.get("PREDICTIONGUARD_URL") == None and os.environ.get("PREDICTIONGUARD_URL") == "":
+    url = "https://api.predictionguard.com"
+else:
+    url = os.environ.get("PREDICTIONGUARD_URL")
+    if url[0:8] != "https://" or url[-4::] != ".com":
+        url = os.environ.get("URL")
+        if url[0:8] != "https://":
+            url = "https://" + url
+        if url[-4::] != ".com":
+            url = url + ".com"
 #url = "http://localhost:8080"
 
 # The animation for the loading spinner.
