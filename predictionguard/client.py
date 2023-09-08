@@ -12,7 +12,7 @@ from tabulate import tabulate
 
 
 # The main Prediction Guard API URL.
-if os.environ.get("PREDICTIONGUARD_URL") == None and os.environ.get("PREDICTIONGUARD_URL") == "":
+if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGUARD_URL") == "":
     url = "https://api.predictionguard.com"
 else:
     url = os.environ.get("PREDICTIONGUARD_URL")
