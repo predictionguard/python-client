@@ -17,7 +17,6 @@ if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGU
 else:
     url = os.environ.get("PREDICTIONGUARD_URL")
     if url[0:8] != "https://" or url[-4::] != ".com":
-        url = os.environ.get("URL")
         if url[0:8] != "https://":
             url = "https://" + url
         if url[-4::] != ".com":
