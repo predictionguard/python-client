@@ -19,8 +19,8 @@ else:
     if url[0:8] != "https://" or url[-4::] != ".com":
         if url[0:8] != "https://":
             url = "https://" + url
-        if url[-4::] != ".com":
-            url = url + ".com"
+        #if url[-4::] != ".com":
+        #    url = url + ".com"
 #url = "http://localhost:8080"
 
 # The animation for the loading spinner.
@@ -363,7 +363,8 @@ class Completion():
         try:
             Client(token=self.token)
         except:
-            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+            if "api.predictionguard.com" in url:
+                raise ValueError("Could not connect to Prediction Guard with the provided token.")
 
     @classmethod
     def create(self, model: str, prompt: Union[str, List[str]],
@@ -402,7 +403,10 @@ class Completion():
         """
 
         # Make a prediction using the proxy.
-        headers = {"Authorization": "Bearer " + self.token}
+        if "api.predictionguard.com" in url:
+            headers = {"Authorization": "Bearer " + self.token}
+        else:
+            headers = {"x-api-key": self.token}
         if isinstance(model, list):
             model_join = ",".join(model)
         else:
@@ -448,7 +452,11 @@ class Completion():
         self._connect()
 
         # Get the list of current models.
-        headers = {"Authorization": "Bearer " + self.token}
+        if "api.predictionguard.com" in url:
+            headers = {"Authorization": "Bearer " + self.token}
+        else:
+            headers = {"x-api-key": self.token}
+ 
         response = requests.request("GET", url + "/completions", headers=headers)
 
         return list(response.json())
@@ -499,7 +507,8 @@ class Factuality():
         try:
             Client(token=self.token)
         except:
-            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+            if "api.predictionguard.com" in url:
+                raise ValueError("Could not connect to Prediction Guard with the provided token.")
 
     @classmethod
     def check(self, reference: str,
@@ -525,7 +534,12 @@ class Factuality():
         """
 
         # Make a prediction using the proxy.
-        headers = {"Authorization": "Bearer " + self.token}
+        if "api.predictionguard.com" in url:
+            headers = {"Authorization": "Bearer " + self.token}
+        else:
+            headers = {"x-api-key": self.token}
+ 
+
         payload_dict = {
             "reference": reference,
             "text": text
@@ -595,7 +609,8 @@ class Toxicity():
         try:
             Client(token=self.token)
         except:
-            raise ValueError("Could not connect to Prediction Guard with the provided token.")
+            if "api.predictionguard.com" in url:
+                raise ValueError("Could not connect to Prediction Guard with the provided token.")
 
     @classmethod
     def check(self, text: str) -> Dict[str, Any]:
@@ -619,7 +634,12 @@ class Toxicity():
         """
 
         # Make a prediction using the proxy.
-        headers = {"Authorization": "Bearer " + self.token}
+        if "api.predictionguard.com" in url:
+            headers = {"Authorization": "Bearer " + self.token}
+        else:
+            headers = {"x-api-key": self.token}
+ 
+
         payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
         response = requests.request(
