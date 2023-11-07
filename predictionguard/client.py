@@ -117,6 +117,7 @@ class Client:
         """
 
         # Get the proxies associated with the user.
+        headers = {"x-api-key": self.token}
         headers = {"Authorization": "Bearer " + self.token}
         response = requests.request("GET", url + "/proxy", headers=headers)
 
@@ -204,6 +205,7 @@ class Client:
         done = False
 
         # Create the proxy.
+        headers = {"x-api-key": self.token}
         headers = {"Authorization": "Bearer " + self.token}
         payload = json.dumps(examples)
 
@@ -231,6 +233,7 @@ class Client:
         t.start()
         while not done:
             # Wait for the proxy to be ready.
+            headers = {"x-api-key": self.token}
             headers = {"Authorization": "Bearer " + self.token}
             response = requests.request("GET", url + "/proxy", headers=headers)
 
@@ -269,6 +272,7 @@ class Client:
             )
 
         # Delete the proxy.
+        headers = {"x-api-key": self.token}
         headers = {"Authorization": "Bearer " + self.token}
         params = {"name": name}
         response = requests.request("DELETE", url + "/proxy", headers=headers, params=params)
@@ -293,6 +297,7 @@ class Client:
         """
 
         # Make a prediction using the proxy.
+        headers = {"x-api-key": self.token}
         headers = {"Authorization": "Bearer " + self.token}
         payload = json.dumps(data)
         params = {"name": name}
@@ -403,10 +408,8 @@ class Completion():
         """
 
         # Make a prediction using the proxy.
-        if "api.predictionguard.com" in url:
-            headers = {"Authorization": "Bearer " + self.token}
-        else:
-            headers = {"x-api-key": self.token}
+        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
         if isinstance(model, list):
             model_join = ",".join(model)
         else:
@@ -452,10 +455,8 @@ class Completion():
         self._connect()
 
         # Get the list of current models.
-        if "api.predictionguard.com" in url:
-            headers = {"Authorization": "Bearer " + self.token}
-        else:
-            headers = {"x-api-key": self.token}
+        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
  
         response = requests.request("GET", url + "/completions", headers=headers)
 
@@ -534,11 +535,8 @@ class Factuality():
         """
 
         # Make a prediction using the proxy.
-        if "api.predictionguard.com" in url:
-            headers = {"Authorization": "Bearer " + self.token}
-        else:
-            headers = {"x-api-key": self.token}
- 
+        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {
             "reference": reference,
@@ -634,11 +632,8 @@ class Toxicity():
         """
 
         # Make a prediction using the proxy.
-        if "api.predictionguard.com" in url:
-            headers = {"Authorization": "Bearer " + self.token}
-        else:
-            headers = {"x-api-key": self.token}
- 
+        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
