@@ -95,7 +95,10 @@ class Client:
 
     def connect_client(self) -> None:
         # Connect to the Prediction Guard API.
-        headers = {"Content-Type": "application/json"}
+        headers = {
+                "Content-Type": "application/json",
+                "x-api-key": self.token
+                }
         params = {"token": self.token}
 
         response = requests.request(
