@@ -89,8 +89,12 @@ class Client:
             raise ValueError(
                 "Could not connect to Prediction Guard API with the given token. "
                 "Please check your access token and try again."
-            )
-        
+            ) 
+        return str(self.token)
+
+    def get_token(self) -> str:
+        return self.token
+
 
 class Completion():
     """
@@ -102,7 +106,9 @@ class Completion():
         """
         Initialize a Prediction Guard client to check access.
         """
-        Client()
+
+        client = Client()
+        self.token = client.get_token()
 
     @classmethod
     def create(self, model: str, prompt: Union[str, List[str]],
@@ -142,7 +148,7 @@ class Completion():
 
         # Make a prediction using the proxy.
         headers = {
-                "x-api-key": self.token,
+                "x-api-key": "" + self.token,
                 "Authorization": "Bearer " + self.token
                 }
         if isinstance(model, list):
@@ -207,7 +213,8 @@ class Factuality():
         """
         Initialize a Prediction Guard client to check access.
         """
-        Client()
+        client = Client()
+        self.token = client.get_token()
 
     @classmethod
     def check(self, reference: str,
@@ -269,7 +276,8 @@ class Toxicity():
         """
         Initialize a Prediction Guard client to check access.
         """
-        Client()
+        client = Client()
+        self.token = client.get_token()
 
     @classmethod
     def check(self, text: str) -> Dict[str, Any]:
