@@ -75,11 +75,10 @@ class Client:
                 "Content-Type": "application/json",
                 "x-api-key": self.token
                 }
-        params = {"token": self.token}
 
         # Try listing models to make sure we can connect.
         response = requests.request(
-            "GET", url + "/completions", headers=headers, params=params
+            "GET", url + "/completions", headers=headers
         )
 
         # If the connection was unsuccessful, raise an exception.
