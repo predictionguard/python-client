@@ -146,10 +146,7 @@ class Completion():
         """
 
         # Make a prediction using the proxy.
-        headers = {
-                "x-api-key": "" + self.token,
-                "Authorization": "Bearer " + self.token
-                }
+        headers = {"x-api-key": "" + self.token}
         if isinstance(model, list):
             model_join = ",".join(model)
         else:
@@ -195,15 +192,102 @@ class Completion():
         self._connect()
 
         # Get the list of current models.
-        headers = {
-                "x-api-key": self.token,
-                "Authorization": "Bearer " + self.token
-                }
+        headers = {"x-api-key": self.token}
  
         response = requests.request("GET", url + "/completions", headers=headers)
 
         return list(response.json())
     
+
+class Chat():
+    """
+    Chat API
+    """
+
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access
+        """
+        client = Client()
+        self.token = client.get_token()
+
+    @classmethod
+    def create(
+        self, 
+        model: str,
+        messages: List[Dict[str, str]]
+        ) -> Dict[str, Any]:
+        """
+        Creates a chat request for the Prediction Guard /chat API.
+
+        :param model: The ID(s) of the model to use.
+        :param role: The role associated with the content.
+        :param content: The text to generate chat for.
+        :return: A dictionary containing the chat response.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Create a list of tuples, each containing all the parameters for 
+        # a call to _generate_completion
+        args = (model, messages)
+
+        # Run _generate_chat
+        choices = self._generate_chat(*args)
+        return choices
+
+    @classmethod
+    def _generate_chat(self, model, messages):
+        """
+        Function to generate a single chat response.
+        """
+        
+        headers = {"x-api-key": self.token}
+
+        payload_dict = {
+            "model": model,
+            "messages": messages
+        }
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/chat", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make prediction. " + err)
+    
+    @classmethod
+    def list_models(self) -> List[str]:
+        # Commented out parts are there for easier fix when
+        # functionality for this call on chat endpoint added
+        model_list = ["Neural-Chat-7B", "Notus-7B", "Zephyr-7B-Beta"]
+
+        # Make sure we can connect to prediction guard.
+        # self._connect()
+
+        # Get the list of current models.
+        # headers = {
+        #         "x-api-key": self.token
+        #         }
+ 
+        # response = requests.request("GET", url + "/chat", headers=headers)
+
+        # return list(response.json())
+        return model_list 
+
 
 class Factuality():
 
@@ -239,10 +323,7 @@ class Factuality():
         """
 
         # Make a prediction using the proxy.
-        headers = {
-                "x-api-key": self.token,
-                "Authorization": "Bearer " + self.token
-                }
+        headers = {"x-api-key": self.token}
 
         payload_dict = {
             "reference": reference,
@@ -300,10 +381,7 @@ class Toxicity():
         """
 
         # Make a prediction using the proxy.
-        headers = {
-                "x-api-key": self.token,
-                "Authorization": "Bearer " + self.token
-                }
+        headers = {"x-api-key": self.token}
 
         payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
