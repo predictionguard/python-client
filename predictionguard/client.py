@@ -222,8 +222,7 @@ class Chat():
         Creates a chat request for the Prediction Guard /chat API.
 
         :param model: The ID(s) of the model to use.
-        :param role: The role associated with the content.
-        :param content: The text to generate chat for.
+        :param messages: The content of the call, an array of dictionaries containing a role and content.
         :return: A dictionary containing the chat response.
         """
 
