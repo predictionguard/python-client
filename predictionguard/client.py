@@ -124,7 +124,7 @@ class Completion():
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
-        :param n: The number of completions to generate.
+        :param top_k: The multinomial distribution sampling
         :return: A dictionary containing the completion response.
         """
 
@@ -227,6 +227,7 @@ class Chat():
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
+        :param top_k: The multinomial distribution sampling
         :return: A dictionary containing the chat response.
         """
 
