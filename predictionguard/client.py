@@ -213,16 +213,20 @@ class Chat():
         self.token = client.get_token()
 
     @classmethod
-    def create(
-        self, 
-        model: str,
-        messages: List[Dict[str, str]]
-        ) -> Dict[str, Any]:
+    def create(self, model: str, messages: List[Dict[str, str]],
+                                output: Optional[Dict[str, Any]] = None,
+                                max_tokens: Optional[int] = 100,
+                                temperature: Optional[float] = 0.75,
+                                top_p: Optional[float] = 1.0,
+                                top_k: Optional[int] = 50) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
 
         :param model: The ID(s) of the model to use.
         :param messages: The content of the call, an array of dictionaries containing a role and content.
+        :param max_tokens: The maximum number of tokens to generate in the completion(s).
+        :param temperature: The sampling temperature to use.
+        :param top_p: The nucleus sampling probability to use.
         :return: A dictionary containing the chat response.
         """
 
@@ -231,14 +235,14 @@ class Chat():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_completion
-        args = (model, messages)
+        args = (model, messages, output, max_tokens, temperature, top_p, top_k)
 
         # Run _generate_chat
         choices = self._generate_chat(*args)
         return choices
 
     @classmethod
-    def _generate_chat(self, model, messages):
+    def _generate_chat(self, model, messages, output, max_tokens, temperature, top_p, top_k):
         """
         Function to generate a single chat response.
         """
@@ -257,8 +261,14 @@ class Chat():
 
         payload_dict = {
             "model": model,
-            "messages": messages
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k
         }
+        if output:
+            payload_dict["output"] = output
         payload = json.dumps(payload_dict)
         response = requests.request(
             "POST", url + "/chat", headers=headers, data=payload
