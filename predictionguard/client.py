@@ -220,7 +220,6 @@ class Chat():
         self, 
         model: str,
         messages: List[Dict[str, str]],
-        input: Optional[Dict[str, Any]] = None,
         ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
@@ -235,14 +234,14 @@ class Chat():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_completion
-        args = (model, messages, input)
+        args = (model, messages)
 
         # Run _generate_chat
         choices = self._generate_chat(*args)
         return choices
 
     @classmethod
-    def _generate_chat(self, model, messages, input):
+    def _generate_chat(self, model, messages):
         """
         Function to generate a single chat response.
         """
@@ -263,8 +262,7 @@ class Chat():
             "model": model,
             "messages": messages
         }
-        if input:
-            payload_dict["input"] = input
+        
         payload = json.dumps(payload_dict)
         response = requests.request(
             "POST", url + "/chat", headers=headers, data=payload
