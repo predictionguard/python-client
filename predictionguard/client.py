@@ -111,6 +111,7 @@ class Completion():
 
     @classmethod
     def create(self, model: str, prompt: Union[str, List[str]],
+                                input: Optional[Dict[str, Any]] = None,
                                 output: Optional[Dict[str, Any]] = None,
                                 max_tokens: Optional[int] = 100,
                                 temperature: Optional[float] = 0.75,
@@ -133,14 +134,14 @@ class Completion():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_completion
-        args = (model, prompt, output, max_tokens, temperature, top_p, top_k)
+        args = (model, prompt, input, output, max_tokens, temperature, top_p, top_k)
 
         # Run _generate_completion
         choices = self._generate_completion(*args)
         return choices
     
     @classmethod
-    def _generate_completion(self, model, prompt, output, max_tokens, temperature, top_p, top_k):
+    def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p, top_k):
         """
         Function to generate a single completion. 
         """
@@ -164,6 +165,8 @@ class Completion():
             "top_p": top_p,
             "top_k": top_k
         }
+        if input:
+            payload_dict["input"] = input
         if output:
             payload_dict["output"] = output
         payload = json.dumps(payload_dict)
@@ -216,7 +219,7 @@ class Chat():
     def create(
         self, 
         model: str,
-        messages: List[Dict[str, str]]
+        messages: List[Dict[str, str]],
         ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
@@ -259,6 +262,7 @@ class Chat():
             "model": model,
             "messages": messages
         }
+        
         payload = json.dumps(payload_dict)
         response = requests.request(
             "POST", url + "/chat", headers=headers, data=payload
@@ -411,3 +415,122 @@ class Toxicity():
             except:
                 pass
             raise ValueError("Could not check toxicity. " + err)
+        
+
+class PII():
+    
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        """
+        client = Client()
+        self.token = client.get_token()
+
+    @classmethod
+    def check(self, prompt: str, replace: bool, replace_method: str) -> Dict[str, Any]:
+        """
+        Creates a PII checking request for the Prediction Guard /PII API.
+
+        :param text: The text to check for PII.
+        :param replace: Whether to replace PII if it is present.
+        :param replace_method: Method to replace PII if it is present.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Run _check_pii
+        choices = self._check_pii(prompt, replace, replace_method)
+        return choices
+
+    @classmethod
+    def _check_pii(self, prompt, replace, replace_method):
+        """
+        Function to check for PII.
+        """
+
+        headers = {"x-api-key": self.token}
+
+        payload_dict = {
+            "prompt": prompt,
+            "replace": replace,
+            "replace_method": replace_method
+            }
+
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/PII", headers=headers, data=payload
+        )
+
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not check PII. " + err)
+
+
+class Injection():
+    
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        """
+        client = Client()
+        self.token = client.get_token()
+
+    @classmethod
+    def check(self, prompt: str, detect: bool) -> Dict[str, Any]:
+        """
+        Creates a prompt injection check request in the Prediction Guard /injection API.
+
+        :param prompt: Prompt to test for injection.
+        :param detect: Whether to detect the prompt for injections.
+        """
+        
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Run _check_injection
+        choices = self._check_injection(prompt, detect)
+        return choices
+    
+    @classmethod
+    def _check_injection(self, prompt, detect):
+        """
+        Function to check if prompt is a prompt injection.
+        """
+
+        headers = {"x-api-key": self.token}
+
+        payload = {
+            "prompt": prompt,
+            "detect": detect
+        }
+
+        payload = json.dumps(payload)
+
+        response = requests.request(
+            "POST", url + "/injection", headers=headers, data=payload
+        )
+
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not check for injection. " + err)
