@@ -233,7 +233,7 @@ class Chat():
         self._connect()
 
         # Create a list of tuples, each containing all the parameters for 
-        # a call to _generate_completion
+        # a call to _generate_chat
         args = (model, messages)
 
         # Run _generate_chat
@@ -300,6 +300,77 @@ class Chat():
 
         # return list(response.json())
         return model_list 
+
+
+class Translate():
+    
+    @classmethod
+    def _connect(self) -> None:
+        """
+        Initialize a Prediction Guard client to check access.
+        """
+        client = Client()
+        self.token = client.get_token()
+
+    @classmethod
+    def create(
+        self,
+        text: str,
+        source_lang: str,
+        target_lang: str
+        ) -> Dict[str, Any]:
+
+        """
+        Creates a translate request to the Prediction Guard /translate API.
+
+        :param text: The text to be translated.
+        :param source_lang: The language the text is currently in.
+        :param target_lang: The language the text will be translated to.
+        :result: A dictionary containing the translate response.
+        """
+
+        # Make sure we can connect to prediction guard.
+        self._connect()
+
+        # Create a list of tuples, each containing all the parameters for 
+        # a call to _generate_translation
+        args = (text, source_lang, target_lang)
+
+        # Run _generate_translation
+        choices = self._generate_translation(*args)
+        return choices
+
+    @classmethod
+    def _generate_translation(self, text, source_lang, target_lang):
+        """
+        Function to generate a translation response.
+        """
+
+        headers = {"x-api-key": self.token}
+
+        payload_dict = {
+            "text": text,
+            "source_lang": source_lang,
+            "target_lang": target_lang
+        }
+        payload = json.dumps(payload_dict)
+        response = requests.request(
+            "POST", url + "/translate", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make translation. " + err)
 
 
 class Factuality():
