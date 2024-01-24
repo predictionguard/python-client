@@ -8,7 +8,7 @@ import requests
 
 # The main Prediction Guard API URL.
 if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGUARD_URL") == "":
-    url = "https://api.predictionguard.com"
+    url = "https://api.predictionguard.com/v1"
 else:
     url = os.environ.get("PREDICTIONGUARD_URL")
     
@@ -265,7 +265,7 @@ class Chat():
         
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", url + "/chat", headers=headers, data=payload
+            "POST", url + "/chat/completions", headers=headers, data=payload
         )
 
         # If the request was successful, print the proxies.
@@ -286,7 +286,12 @@ class Chat():
     def list_models(self) -> List[str]:
         # Commented out parts are there for easier fix when
         # functionality for this call on chat endpoint added
-        model_list = ["Neural-Chat-7B", "Notus-7B", "Zephyr-7B-Beta"]
+        model_list = [
+            "deepseek-coder-6.7b-instruct", 
+            "Neural-Chat-7B", 
+            "Nous-Hermes-2-SOLAR_10.7B", 
+            "Yi-34B-Chat"
+            ]
 
         # Make sure we can connect to prediction guard.
         # self._connect()
