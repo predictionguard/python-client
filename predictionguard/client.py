@@ -252,16 +252,6 @@ class Chat():
         
         headers = {"x-api-key": self.token}
 
-        message_list = []
-        for items in messages:
-            message_list.append(items["content"])
-
-        message_full = " ".join(message_list)
-        if len(message_full.split(" ")) > 650:
-            raise ValueError(
-                "Your total prompt size exceeds the current limit for chat models. Consider sending fewer messages or a smaller system prompt"
-                )
-
         payload_dict = {
             "model": model,
             "messages": messages,
