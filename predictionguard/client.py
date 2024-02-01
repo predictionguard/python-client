@@ -115,8 +115,8 @@ class Completion():
                                 output: Optional[Dict[str, Any]] = None,
                                 max_tokens: Optional[int] = 100,
                                 temperature: Optional[float] = 0.75,
-                                top_p: Optional[float] = 1.0,
-                                top_k: Optional[int] = 50) -> Dict[str, Any]:
+                                top_p: Optional[float] = 1.0
+                                ) -> Dict[str, Any]:
         """
         Creates a completion request for the Prediction Guard /completions API.
 
@@ -127,7 +127,6 @@ class Completion():
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
-        :param n: The number of completions to generate.
         :return: A dictionary containing the completion response.
         """
 
@@ -136,14 +135,14 @@ class Completion():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_completion
-        args = (model, prompt, input, output, max_tokens, temperature, top_p, top_k)
+        args = (model, prompt, input, output, max_tokens, temperature, top_p)
 
         # Run _generate_completion
         choices = self._generate_completion(*args)
         return choices
     
     @classmethod
-    def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p, top_k):
+    def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
         """
         Function to generate a single completion. 
         """
@@ -164,8 +163,7 @@ class Completion():
             "prompt": prompt,
             "max_tokens": max_tokens,
             "temperature": temperature,
-            "top_p": top_p,
-            "top_k": top_k
+            "top_p": top_p
         }
         if input:
             payload_dict["input"] = input
@@ -224,6 +222,9 @@ class Chat():
         messages: List[Dict[str, str]],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
+        max_tokens: Optional[int] = 100,
+        temperature: Optional[float] = 0.75,
+        top_p: Optional[float] = 1.0
         ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
@@ -232,6 +233,9 @@ class Chat():
         :param messages: The content of the call, an array of dictionaries containing a role and content.
         :param input: A dictionary containing the PII and injection arguments.
         :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
+        :param max_tokens: The maximum amount of tokens the model should return.
+        :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
+        :param top_p: The sampling for the model to use.
         :return: A dictionary containing the chat response.
         """
 
@@ -240,33 +244,26 @@ class Chat():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_chat
-        args = (model, messages, input, output)
+        args = (model, messages, input, output, max_tokens, temperature, top_p)
 
         # Run _generate_chat
         choices = self._generate_chat(*args)
         return choices
 
     @classmethod
-    def _generate_chat(self, model, messages, input, output):
+    def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p):
         """
         Function to generate a single chat response.
         """
         
         headers = {"x-api-key": self.token}
 
-        message_list = []
-        for items in messages:
-            message_list.append(items["content"])
-
-        message_full = " ".join(message_list)
-        if len(message_full.split(" ")) > 650:
-            raise ValueError(
-                "Your total prompt size exceeds the current limit for chat models. Consider sending fewer messages or a smaller system prompt"
-                )
-
         payload_dict = {
             "model": model,
-            "messages": messages
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "top_p": top_p
         }
         
         if input:
