@@ -8,7 +8,7 @@ import requests
 
 # The main Prediction Guard API URL.
 if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGUARD_URL") == "":
-    url = "https://api.predictionguard.com/v1"
+    url = "https://api.predictionguard.com"
 else:
     url = os.environ.get("PREDICTIONGUARD_URL")
     
@@ -122,6 +122,8 @@ class Completion():
 
         :param model: The ID(s) of the model to use.
         :param prompt: The prompt(s) to generate completions for.
+        :param input: 
+        :param output: 
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
@@ -220,12 +222,16 @@ class Chat():
         self, 
         model: str,
         messages: List[Dict[str, str]],
+        input: Optional[Dict[str, Any]] = None,
+        output: Optional[Dict[str, Any]] = None,
         ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
 
         :param model: The ID(s) of the model to use.
         :param messages: The content of the call, an array of dictionaries containing a role and content.
+        :param input: A dictionary containing the PII and injection arguments.
+        :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
         :return: A dictionary containing the chat response.
         """
 
@@ -234,14 +240,14 @@ class Chat():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_chat
-        args = (model, messages)
+        args = (model, messages, input, output)
 
         # Run _generate_chat
         choices = self._generate_chat(*args)
         return choices
 
     @classmethod
-    def _generate_chat(self, model, messages):
+    def _generate_chat(self, model, messages, input, output):
         """
         Function to generate a single chat response.
         """
@@ -263,6 +269,11 @@ class Chat():
             "messages": messages
         }
         
+        if input:
+            payload_dict["input"] = input
+        if output:
+            payload_dict["output"] = output
+
         payload = json.dumps(payload_dict)
         response = requests.request(
             "POST", url + "/chat/completions", headers=headers, data=payload
