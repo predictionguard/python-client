@@ -122,8 +122,8 @@ class Completion():
 
         :param model: The ID(s) of the model to use.
         :param prompt: The prompt(s) to generate completions for.
-        :param input: 
-        :param output: 
+        :param input: A dictionary containing the PII and injection arguments.
+        :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
