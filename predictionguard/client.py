@@ -73,7 +73,7 @@ class Client:
         # Prepare the proper headers.
         headers = {
                 "Content-Type": "application/json",
-                "x-api-key": self.token
+                "Authorization": "Bearer " + self.token
                 }
 
         # Try listing models to make sure we can connect.
@@ -148,7 +148,7 @@ class Completion():
         """
 
         # Make a prediction using the proxy.
-        headers = {"x-api-key": "" + self.token}
+        headers = {"Authorization": "Bearer " + self.token}
         if isinstance(model, list):
             model_join = ",".join(model)
         else:
@@ -256,7 +256,7 @@ class Chat():
         Function to generate a single chat response.
         """
         
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {
             "model": model,
@@ -359,7 +359,7 @@ class Translate():
         Function to generate a translation response.
         """
 
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {
             "text": text,
@@ -420,7 +420,7 @@ class Factuality():
         """
 
         # Make a prediction using the proxy.
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {
             "reference": reference,
@@ -478,7 +478,7 @@ class Toxicity():
         """
 
         # Make a prediction using the proxy.
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
@@ -534,7 +534,7 @@ class PII():
         Function to check for PII.
         """
 
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload_dict = {
             "prompt": prompt,
@@ -593,7 +593,7 @@ class Injection():
         Function to check if prompt is a prompt injection.
         """
 
-        headers = {"x-api-key": self.token}
+        headers = {"Authorization": "Bearer " + self.token}
 
         payload = {
             "prompt": prompt,
