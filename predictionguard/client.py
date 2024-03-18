@@ -283,7 +283,7 @@ class Chat():
     def list_models(self) -> List[str]:
         # Commented out parts are there for easier fix when
         # functionality for this call on chat endpoint added
-        model_list = ["deepseek-coder-6.7b-instruct", "Neural-Chat-7B", "Nous-Hermes-2-SOLAR-10.7B", "Yi-34B-Chat"]
+        model_list = ["deepseek-coder-6.7b-instruct", "Neural-Chat-7B", "Hermes-2-Pro-Mistral-7B", "Yi-34B-Chat"]
 
         # Make sure we can connect to prediction guard.
         # self._connect()
@@ -496,7 +496,7 @@ class PII():
         self.token = client.get_token()
 
     @classmethod
-    def check(self, prompt: str, replace: bool, replace_method: str) -> Dict[str, Any]:
+    def check(self, prompt: str, replace: bool, replace_method: Optional[str] = "random") -> Dict[str, Any]:
         """
         Creates a PII checking request for the Prediction Guard /PII API.
 
