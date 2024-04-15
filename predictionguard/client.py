@@ -115,8 +115,7 @@ class Completions():
                                 output: Optional[Dict[str, Any]] = None,
                                 max_tokens: Optional[int] = 100,
                                 temperature: Optional[float] = 0.75,
-                                top_p: Optional[float] = 1.0,
-                                stream: Optional[bool] = False
+                                top_p: Optional[float] = 1.0
                                 ) -> Dict[str, Any]:
         """
         Creates a completion request for the Prediction Guard /completions API.
@@ -128,7 +127,6 @@ class Completions():
         :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
-        :param stream: A boolean enabled or disabling streaming model output.
         :return: A dictionary containing the completion response.
         """
 
@@ -137,22 +135,21 @@ class Completions():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_completion
-        args = (model, prompt, input, output, max_tokens, temperature, top_p, stream)
+        args = (model, prompt, input, output, max_tokens, temperature, top_p)
 
         # Run _generate_completion
         choices = self._generate_completion(*args)
         return choices
     
     @classmethod
-    def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p, streaming):
+    def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
         """
         Function to generate a single completion. 
         """
 
         # Make a prediction using the proxy.
         headers = {
-            "Authorization": "Bearer " + self.token,
-            "Accept": "text/event-stream"
+            "Authorization": "Bearer " + self.token
             }
         if isinstance(model, list):
             model_join = ",".join(model)
@@ -168,8 +165,7 @@ class Completions():
             "prompt": prompt,
             "max_tokens": max_tokens,
             "temperature": temperature,
-            "top_p": top_p,
-            "stream": stream
+            "top_p": top_p
         }
         if input:
             payload_dict["input"] = input
@@ -181,19 +177,20 @@ class Completions():
         )
 
         payload = json.dumps(payload_dict)
-        with requests.request("POST", url=url, stream=streaming, headers=headers, data=payload) as stream:
-                for chunk in stream.iter_lines():
-                    if 'data' in str(chunk):
-                        yield json.loads(chunk.decode('utf-8').split('data:')[1].strip())
-                    else:
-                        # Check if there is a json body in the response. Read that in,
-                        # print out the error field in the json body, and raise an exception.
-                        err = ""
-                        try:
-                            err = chunk.json()["error"]
-                        except:
-                            pass
-                        raise ValueError("Could not make prediction. " + err)
+        
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make prediction. " + err)
 
     @classmethod
     def list_models(self) -> List[str]:
@@ -231,8 +228,7 @@ class Chat():
         output: Optional[Dict[str, Any]] = None,
         max_tokens: Optional[int] = 100,
         temperature: Optional[float] = 0.75,
-        top_p: Optional[float] = 1.0,
-        stream: Optional[bool] = False
+        top_p: Optional[float] = 1.0
         ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
@@ -244,7 +240,6 @@ class Chat():
         :param max_tokens: The maximum amount of tokens the model should return.
         :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
         :param top_p: The sampling for the model to use.
-        :param stream: A boolean enabled or disabling streaming model output.
         :return: A dictionary containing the chat response.
         """
 
@@ -253,21 +248,20 @@ class Chat():
 
         # Create a list of tuples, each containing all the parameters for 
         # a call to _generate_chat
-        args = (model, messages, input, output, max_tokens, temperature, top_p, stream)
+        args = (model, messages, input, output, max_tokens, temperature, top_p)
 
         # Run _generate_chat
         choices = self._generate_chat(*args)
         return choices
 
     @classmethod
-    def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p, streaming):
+    def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p):
         """
         Function to generate a single chat response.
         """
         
         headers = {
-            "Authorization": "Bearer " + self.token,
-            "Accept": "text/event-stream"
+            "Authorization": "Bearer " + self.token
             }
 
         payload_dict = {
@@ -284,19 +278,23 @@ class Chat():
             payload_dict["output"] = output
 
         payload = json.dumps(payload_dict)
-        with requests.request("POST", url=url, stream=streaming, headers=headers, data=payload) as stream:
-                for chunk in stream.iter_lines():
-                    if 'data' in str(chunk):
-                        yield json.loads(chunk.decode('utf-8').split('data:')[1].strip())
-                    else:
-                        # Check if there is a json body in the response. Read that in,
-                        # print out the error field in the json body, and raise an exception.
-                        err = ""
-                        try:
-                            err = chunk.json()["error"]
-                        except:
-                            pass
-                        raise ValueError("Could not make prediction. " + err)
+        response = requests.request(
+            "POST", url + "/chat/completions", headers=headers, data=payload
+        )
+
+        # If the request was successful, print the proxies.
+        if response.status_code == 200:
+            ret = response.json()
+            return ret
+        else:
+            # Check if there is a json body in the response. Read that in,
+            # print out the error field in the json body, and raise an exception.
+            err = ""
+            try:
+                err = response.json()["error"]
+            except:
+                pass
+            raise ValueError("Could not make prediction. " + err)
                     
     @classmethod
     def list_models(self) -> List[str]:
