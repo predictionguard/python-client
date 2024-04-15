@@ -1,4 +1,5 @@
 """Create controlled and compliant AI systems with PredictionGuard."""
-from .client import Client, Completion, Chat, Translate, Factuality, Toxicity, PII, Injection
+from .client import Client, PredictionGuard
 
-__version__ = "1.9.2"
+
+__version__ = "2.0.0"
