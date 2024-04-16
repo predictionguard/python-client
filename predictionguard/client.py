@@ -19,18 +19,18 @@ class PredictionGuard():
         """
         Initialize the client.
         Args:
-        * api_key (str): The user token associated with your Prediction Guard account.
+        * api_key (str): The user api_key associated with your Prediction Guard account.
         """
 
-        # Get the access token.
+        # Get the access api_key.
         if api_key:
             self.api_key = api_key
 
-            # Cache the token locally.
+            # Cache the api_key locally.
             config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
             with open(config_path, "w") as config_file:
-                token_encoded = base64.b64encode(api_key.encode("utf-8")).decode("utf-8")
-                config = {"token": token_encoded}
+                api_key_encoded = base64.b64encode(api_key.encode("utf-8")).decode("utf-8")
+                config = {"api_key": api_key_encoded}
                 json.dump(config, config_file)
 
         else:
@@ -38,7 +38,7 @@ class PredictionGuard():
                 "Please enter a Prediction Guard Token."
             )
 
-        # Connect to Prediction Guard and set the access token.
+        # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
 
     def connect_client(self) -> None:
@@ -46,7 +46,7 @@ class PredictionGuard():
         # Prepare the proper headers.
         headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.token
+                "Authorization": "Bearer " + self.api_key
                 }
 
         # Try listing models to make sure we can connect.
@@ -59,13 +59,13 @@ class PredictionGuard():
             pass
         else:
             raise ValueError(
-                "Could not connect to Prediction Guard API with the given token. "
-                "Please check your access token and try again."
+                "Could not connect to Prediction Guard API with the given api_key. "
+                "Please check your access api_key and try again."
             ) 
-        return str(self.token)
+        return str(self.api_key)
 
-    def get_token(self) -> str:
-        return self.token
+    def get_api_key(self) -> str:
+        return self.api_key
 
     class completions():
         """
@@ -78,7 +78,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def create(self, model: str, prompt: Union[str, List[str]],
@@ -120,7 +120,7 @@ class PredictionGuard():
 
             # Make a prediction using the proxy.
             headers = {
-                "Authorization": "Bearer " + self.token
+                "Authorization": "Bearer " + self.api_key
                 }
             if isinstance(model, list):
                 model_join = ",".join(model)
@@ -168,7 +168,7 @@ class PredictionGuard():
             self._connect()
 
             # Get the list of current models.
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
     
             response = requests.request("GET", url + "/completions", headers=headers)
 
@@ -187,7 +187,7 @@ class PredictionGuard():
                 Initialize a Prediction Guard client to check access
                 """
                 client = PredictionGuard()
-                self.token = client.get_token()
+                self.api_key = client.get_api_key()
 
             @classmethod
             def create(
@@ -231,7 +231,7 @@ class PredictionGuard():
                 """
                 
                 headers = {
-                    "Authorization": "Bearer " + self.token
+                    "Authorization": "Bearer " + self.api_key
                     }
 
                 payload_dict = {
@@ -282,7 +282,7 @@ class PredictionGuard():
 
                 # Get the list of current models.
                 # headers = {
-                #         "x-api-key": self.token
+                #         "x-api-key": self.api_key
                 #         }
         
                 # response = requests.request("GET", url + "/chat", headers=headers)
@@ -299,7 +299,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def create(
@@ -335,7 +335,7 @@ class PredictionGuard():
             Function to generate a translation response.
             """
 
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
 
             payload_dict = {
                 "text": text,
@@ -370,7 +370,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def check(self, reference: str,
@@ -396,7 +396,7 @@ class PredictionGuard():
             """
 
             # Make a prediction using the proxy.
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
 
             payload_dict = {
                 "reference": reference,
@@ -430,7 +430,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def check(self, text: str) -> Dict[str, Any]:
@@ -454,7 +454,7 @@ class PredictionGuard():
             """
 
             # Make a prediction using the proxy.
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
 
             payload_dict = {"text": text}
             payload = json.dumps(payload_dict)
@@ -485,7 +485,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def check(self, prompt: str, replace: bool, replace_method: Optional[str] = "random") -> Dict[str, Any]:
@@ -510,7 +510,7 @@ class PredictionGuard():
             Function to check for PII.
             """
 
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
 
             payload_dict = {
                 "prompt": prompt,
@@ -545,7 +545,7 @@ class PredictionGuard():
             Initialize a Prediction Guard client to check access.
             """
             client = PredictionGuard()
-            self.token = client.get_token()
+            self.api_key = client.get_api_key()
 
         @classmethod
         def check(self, prompt: str, detect: bool) -> Dict[str, Any]:
@@ -569,7 +569,7 @@ class PredictionGuard():
             Function to check if prompt is a prompt injection.
             """
 
-            headers = {"Authorization": "Bearer " + self.token}
+            headers = {"Authorization": "Bearer " + self.api_key}
 
             payload = {
                 "prompt": prompt,
