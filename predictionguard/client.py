@@ -34,9 +34,30 @@ class PredictionGuard():
                 json.dump(config, config_file)
 
         else:
-            raise ValueError(
-                "Please enter a Prediction Guard Token."
-            )
+            # Get the path to the config file.
+            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
+
+            # If the config file does not exist, raise an error.
+            if not os.path.exists(config_path):
+                raise ValueError(
+                    "No api_key provided and no predictionguard"
+                    " config file found. Please provide the api_key as "
+                    "client = PredictionGuard(api_key=<your_api_key>)"
+                )
+            
+            else:
+                # Read the JSON config file.
+                with open(config_path, "r") as config_file:
+                    config = json.load(config_file)
+
+                # Get the token from the config file.
+                if "api_key" not in config:
+                    raise ValueError(
+                        "Improperly formatted predictionguard config "
+                        "file at ~/.predictionguard."
+                    )
+                else:
+                    self.api_key = base64.b64decode(config["api_key"]).decode("utf-8")
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
