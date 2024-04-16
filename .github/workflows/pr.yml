@@ -36,4 +36,4 @@ jobs:
                 uses: AsifArmanRahman/to-pypi-using-flit@v1
                 with:
                     password: ${{ secrets.TESTPYPI_API_TOKEN }}
-                    repository-url: https://test.pypi.org/project/predictionguard/
+                    repository-url: https://test.pypi.org/legacy/
