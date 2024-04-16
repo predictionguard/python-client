@@ -11,58 +11,32 @@ if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGU
     url = "https://api.predictionguard.com"
 else:
     url = os.environ.get("PREDICTIONGUARD_URL")
-    
 
-class Client():
-    def __init__(self, token: str = None) -> None:
+
+# The main Prediction Guard client class.
+class PredictionGuard():
+    def __init__(self, api_key: str = None) -> None:
         """
         Initialize the client.
         Args:
-           * token (str): The user token associated with your Prediction Guard account.
+        * api_key (str): The user token associated with your Prediction Guard account.
         """
 
         # Get the access token.
-        if token:
-            self.token = token
+        if api_key:
+            self.api_key = api_key
 
             # Cache the token locally.
             config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
             with open(config_path, "w") as config_file:
-                token_encoded = base64.b64encode(token.encode("utf-8")).decode("utf-8")
+                token_encoded = base64.b64encode(api_key.encode("utf-8")).decode("utf-8")
                 config = {"token": token_encoded}
                 json.dump(config, config_file)
 
         else:
-            # Try and get the token from the environment variables.
-            self.token = os.environ.get("PREDICTIONGUARD_TOKEN")
-
-            # If the token is not in the environment variables,
-            # try to get the creds from a local config file.
-            if not self.token:
-                # Get the path to the config file.
-                config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
-
-                # If the config file does not exist, raise an error.
-                if not os.path.exists(config_path):
-                    raise ValueError(
-                        "No access token provided and no predictionguard"
-                        " config file found. Please provide the access token as "
-                        "arguments or set the environment variable PREDICTIONGUARD_TOKEN."
-                    )
-                
-                else:
-                    # Read the JSON config file.
-                    with open(config_path, "r") as config_file:
-                        config = json.load(config_file)
-
-                    # Get the token from the config file.
-                    if "token" not in config:
-                        raise ValueError(
-                            "Imporperly formatted predictionguard config "
-                            "file at ~/.predictionguard."
-                        )
-                    else:
-                        self.token = base64.b64decode(config["token"]).decode("utf-8")
+            raise ValueError(
+                "Please enter a Prediction Guard Token."
+            )
 
         # Connect to Prediction Guard and set the access token.
         self.connect_client()
@@ -93,10 +67,6 @@ class Client():
     def get_token(self) -> str:
         return self.token
 
-# The main Prediction Guard client class.
-class PredictionGuard():
-
-
     class completions():
         """
         OpenAI-compatible completion API
@@ -107,7 +77,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
@@ -216,7 +186,7 @@ class PredictionGuard():
                 """
                 Initialize a Prediction Guard client to check access
                 """
-                client = Client()
+                client = PredictionGuard()
                 self.token = client.get_token()
 
             @classmethod
@@ -328,7 +298,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
@@ -399,7 +369,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
@@ -459,7 +429,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
@@ -514,7 +484,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
@@ -574,7 +544,7 @@ class PredictionGuard():
             """
             Initialize a Prediction Guard client to check access.
             """
-            client = Client()
+            client = PredictionGuard()
             self.token = client.get_token()
 
         @classmethod
