@@ -1,10 +1,10 @@
-name: test-release
+name: branch-test
 
 # Controls when the workflow will run
 on:
     
     # Workflow will run when a release has been published for the package
-    push:
+    pull_request:
         branches:
             - main
 
