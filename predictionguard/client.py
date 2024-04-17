@@ -6,61 +6,54 @@ from typing import Any, Dict, List, Optional, Union
 import requests
 
 
-# The main Prediction Guard API URL.
-if os.environ.get("PREDICTIONGUARD_URL") == None or os.environ.get("PREDICTIONGUARD_URL") == "":
-    url = "https://api.predictionguard.com"
-else:
-    url = os.environ.get("PREDICTIONGUARD_URL")
-
-
 # The main Prediction Guard client class.
-class PredictionGuard():
-    def __init__(self, api_key: str = None) -> None:
+class PredictionGuard:
+    def __init__(
+            self, 
+            api_key: str = None,
+            url: str = "https://api.predictionguard.com"
+            ) -> None:
         """
         Initialize the client.
         Args:
         * api_key (str): The user api_key associated with your Prediction Guard account.
+        * url (str): The url for the Prediction Guard API of your choice.
         """
 
         # Get the access api_key.
         if api_key:
             self.api_key = api_key
-
-            # Cache the api_key locally.
-            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
-            with open(config_path, "w") as config_file:
-                api_key_encoded = base64.b64encode(api_key.encode("utf-8")).decode("utf-8")
-                config = {"api_key": api_key_encoded}
-                json.dump(config, config_file)
+ 
+        # Try and get the api_key from the environment variables
+        elif "PREDICTIONGUARD_API_KEY" in os.environ:
+            self.api_key = os.environ.get("PREDICTIONGUARD_API_KEY")
 
         else:
-            # Get the path to the config file.
-            config_path = os.path.join(os.path.expanduser("~"), ".predictionguard")
+            raise ValueError(
+                "No api_key provided or in environment. "
+                "Please provide the api_key as "
+                "client = PredictionGuard(api_key=<your_api_key>) "
+                "or as PREDICTIONGUARD_API_KEY in your environment."
+            )
 
-            # If the config file does not exist, raise an error.
-            if not os.path.exists(config_path):
-                raise ValueError(
-                    "No api_key provided and no predictionguard"
-                    " config file found. Please provide the api_key as "
-                    "client = PredictionGuard(api_key=<your_api_key>)"
-                )
-            
-            else:
-                # Read the JSON config file.
-                with open(config_path, "r") as config_file:
-                    config = json.load(config_file)
-
-                # Get the token from the config file.
-                if "api_key" not in config:
-                    raise ValueError(
-                        "Improperly formatted predictionguard config "
-                        "file at ~/.predictionguard."
-                    )
-                else:
-                    self.api_key = base64.b64decode(config["api_key"]).decode("utf-8")
+        if "PREDICTIONGUARD_URL" in os.environ:
+            self.url = os.environ["PREDICTIONGUARD_URL"]
+        
+        else:
+            self.url = url
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
+
+        # Pass Prediction Guard class variables to inner classes
+        self.completions = self.Completions(self.api_key, self.url)
+        self.chat = self.Chat(self.api_key, self.url)
+        self.translate = self.Translate(self.api_key, self.url)
+        self.factuality = self.Factuality(self.api_key, self.url)
+        self.toxicity = self.Toxicity(self.api_key, self.url)
+        self.pii = self.Pii(self.api_key, self.url)
+        self.injection = self.Injection(self.api_key, self.url)
+
 
     def connect_client(self) -> None:
 
@@ -72,36 +65,35 @@ class PredictionGuard():
 
         # Try listing models to make sure we can connect.
         response = requests.request(
-            "GET", url + "/completions", headers=headers
+            "GET", self.url + "/completions", headers=headers
         )
 
         # If the connection was unsuccessful, raise an exception.
         if response.status_code == 200:
             pass
-        else:
+        elif response.status_code == 403:
             raise ValueError(
                 "Could not connect to Prediction Guard API with the given api_key. "
                 "Please check your access api_key and try again."
-            ) 
-        return str(self.api_key)
+            )
+        elif response.status_code == 404:
+            raise ValueError(
+                "Could not connect to Prediction Guard API with given url. "
+                "Please check url specified, if no url specified, "
+                "Please contact support."
+            )
+        
+        return str(self.api_key), str(self.url)
 
-    def get_api_key(self) -> str:
-        return self.api_key
 
-    class completions():
+    class Completions:
         """
         OpenAI-compatible completion API
         """
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
-
-        @classmethod
         def create(self, model: str, prompt: Union[str, List[str]],
                                     input: Optional[Dict[str, Any]] = None,
                                     output: Optional[Dict[str, Any]] = None,
@@ -122,9 +114,6 @@ class PredictionGuard():
             :return: A dictionary containing the completion response.
             """
 
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_completion
             args = (model, prompt, input, output, max_tokens, temperature, top_p)
@@ -133,7 +122,6 @@ class PredictionGuard():
             choices = self._generate_completion(*args)
             return choices
         
-        @classmethod
         def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
             """
             Function to generate a single completion. 
@@ -165,7 +153,7 @@ class PredictionGuard():
                 payload_dict["output"] = output
             payload = json.dumps(payload_dict)
             response = requests.request(
-                "POST", url + "/completions", headers=headers, data=payload
+                "POST", self.url + "/completions", headers=headers, data=payload
             )
 
             # If the request was successful, print the proxies.
@@ -182,35 +170,30 @@ class PredictionGuard():
                     pass
                 raise ValueError("Could not make prediction. " + err)
 
-        @classmethod
         def list_models(self) -> List[str]:
-
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Get the list of current models.
             headers = {"Authorization": "Bearer " + self.api_key}
     
-            response = requests.request("GET", url + "/completions", headers=headers)
+            response = requests.request("GET", self.url + "/completions", headers=headers)
 
             return list(response.json())
         
     
-    class chat():
-        class completions():
+    class Chat:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
+
+            self.completions = self.Completions(self.api_key, self.url)
+
+        class Completions:
             """
             Chat API
             """
+            def __init__(self, api_key, url):
+                self.api_key = api_key
+                self.url = url
 
-            @classmethod
-            def _connect(self) -> None:
-                """
-                Initialize a Prediction Guard client to check access
-                """
-                client = PredictionGuard()
-                self.api_key = client.get_api_key()
-
-            @classmethod
             def create(
                 self, 
                 model: str,
@@ -234,9 +217,6 @@ class PredictionGuard():
                 :return: A dictionary containing the chat response.
                 """
 
-                # Make sure we can connect to prediction guard.
-                self._connect()
-
                 # Create a list of tuples, each containing all the parameters for 
                 # a call to _generate_chat
                 args = (model, messages, input, output, max_tokens, temperature, top_p)
@@ -245,7 +225,6 @@ class PredictionGuard():
                 choices = self._generate_chat(*args)
                 return choices
 
-            @classmethod
             def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p):
                 """
                 Function to generate a single chat response.
@@ -270,7 +249,7 @@ class PredictionGuard():
 
                 payload = json.dumps(payload_dict)
                 response = requests.request(
-                    "POST", url + "/chat/completions", headers=headers, data=payload
+                    "POST", self.url + "/chat/completions", headers=headers, data=payload
                 )
 
                 # If the request was successful, print the proxies.
@@ -287,7 +266,6 @@ class PredictionGuard():
                         pass
                     raise ValueError("Could not make prediction. " + err)
                             
-            @classmethod
             def list_models(self) -> List[str]:
                 # Commented out parts are there for easier fix when
                 # functionality for this call on chat endpoint added
@@ -298,31 +276,22 @@ class PredictionGuard():
                     "Yi-34B-Chat"
                     ]
 
-                # Make sure we can connect to prediction guard.
-                # self._connect()
-
                 # Get the list of current models.
                 # headers = {
                 #         "x-api-key": self.api_key
                 #         }
         
-                # response = requests.request("GET", url + "/chat", headers=headers)
+                # response = requests.request("GET", self.url + "/chat", headers=headers)
 
                 # return list(response.json())
                 return model_list
         
 
-    class translate():
-    
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
+    class Translate:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
         def create(
             self,
             text: str,
@@ -339,9 +308,6 @@ class PredictionGuard():
             :result: A dictionary containing the translate response.
             """
 
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_translation
             args = (text, source_lang, target_lang)
@@ -350,7 +316,6 @@ class PredictionGuard():
             choices = self._generate_translation(*args)
             return choices
 
-        @classmethod
         def _generate_translation(self, text, source_lang, target_lang):
             """
             Function to generate a translation response.
@@ -365,7 +330,7 @@ class PredictionGuard():
             }
             payload = json.dumps(payload_dict)
             response = requests.request(
-                "POST", url + "/translate", headers=headers, data=payload
+                "POST", self.url + "/translate", headers=headers, data=payload
             )
 
             # If the request was successful, print the proxies.
@@ -383,17 +348,11 @@ class PredictionGuard():
                 raise ValueError("Could not make translation. " + err)
             
 
-    class factuality():
+    class Factuality:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
-
-        @classmethod
         def check(self, reference: str,
                         text: str) -> Dict[str, Any]:
             """
@@ -403,14 +362,10 @@ class PredictionGuard():
             :param text: The text to check for factual consistency.
             """
 
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Run _generate_score
             choices = self._generate_score(reference, text)
             return choices
         
-        @classmethod
         def _generate_score(self, reference, text):
             """
             Function to generate a single factuality score. 
@@ -425,7 +380,7 @@ class PredictionGuard():
             }
             payload = json.dumps(payload_dict)
             response = requests.request(
-                "POST", url + "/factuality", headers=headers, data=payload
+                "POST", self.url + "/factuality", headers=headers, data=payload
             )
 
             # If the request was successful, print the proxies.
@@ -443,17 +398,11 @@ class PredictionGuard():
                 raise ValueError("Could not check factuality. " + err)
             
 
-    class toxicity():
+    class Toxicity:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
-
-        @classmethod
         def check(self, text: str) -> Dict[str, Any]:
             """
             Creates a toxicity checking request for the Prediction Guard /toxicity API.
@@ -461,14 +410,10 @@ class PredictionGuard():
             :param text: The text to check for toxicity.
             """
 
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Run _generate_score
             choices = self._generate_score(text)
             return choices
         
-        @classmethod
         def _generate_score(self, text):
             """
             Function to generate a single toxicity score. 
@@ -480,7 +425,7 @@ class PredictionGuard():
             payload_dict = {"text": text}
             payload = json.dumps(payload_dict)
             response = requests.request(
-                "POST", url + "/toxicity", headers=headers, data=payload
+                "POST", self.url + "/toxicity", headers=headers, data=payload
             )
 
             # If the request was successful, print the proxies.
@@ -498,17 +443,11 @@ class PredictionGuard():
                 raise ValueError("Could not check toxicity. " + err)
                 
 
-    class pii():
-        
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
+    class Pii:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
         def check(self, prompt: str, replace: bool, replace_method: Optional[str] = "random") -> Dict[str, Any]:
             """
             Creates a PII checking request for the Prediction Guard /PII API.
@@ -518,14 +457,10 @@ class PredictionGuard():
             :param replace_method: Method to replace PII if it is present.
             """
 
-            # Make sure we can connect to prediction guard.
-            self._connect()
-
             # Run _check_pii
             choices = self._check_pii(prompt, replace, replace_method)
             return choices
 
-        @classmethod
         def _check_pii(self, prompt, replace, replace_method):
             """
             Function to check for PII.
@@ -541,7 +476,7 @@ class PredictionGuard():
 
             payload = json.dumps(payload_dict)
             response = requests.request(
-                "POST", url + "/PII", headers=headers, data=payload
+                "POST", self.url + "/PII", headers=headers, data=payload
             )
 
             if response.status_code == 200:
@@ -558,17 +493,11 @@ class PredictionGuard():
                 raise ValueError("Could not check PII. " + err)
             
 
-    class injection():
+    class Injection:
+        def __init__(self, api_key, url):
+            self.api_key = api_key
+            self.url = url
 
-        @classmethod
-        def _connect(self) -> None:
-            """
-            Initialize a Prediction Guard client to check access.
-            """
-            client = PredictionGuard()
-            self.api_key = client.get_api_key()
-
-        @classmethod
         def check(self, prompt: str, detect: bool) -> Dict[str, Any]:
             """
             Creates a prompt injection check request in the Prediction Guard /injection API.
@@ -576,15 +505,11 @@ class PredictionGuard():
             :param prompt: Prompt to test for injection.
             :param detect: Whether to detect the prompt for injections.
             """
-            
-            # Make sure we can connect to prediction guard.
-            self._connect()
 
             # Run _check_injection
             choices = self._check_injection(prompt, detect)
             return choices
         
-        @classmethod
         def _check_injection(self, prompt, detect):
             """
             Function to check if prompt is a prompt injection.
@@ -600,7 +525,7 @@ class PredictionGuard():
             payload = json.dumps(payload)
 
             response = requests.request(
-                "POST", url + "/injection", headers=headers, data=payload
+                "POST", self.url + "/injection", headers=headers, data=payload
             )
 
             if response.status_code == 200:
