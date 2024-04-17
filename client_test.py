@@ -106,7 +106,7 @@ def test_chat_completions_create():
     )
     
 
-    #assert response["choices"][0]["status"] == "success"
+    assert response["choices"][0]["status"] == "success"
     assert len(response["choices"][0]["message"]["content"]) > 0
 
 
