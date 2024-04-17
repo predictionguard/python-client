@@ -2,4 +2,4 @@
 from .client import PredictionGuard
 
 
-__version__ = "1.9.8.19"
+__version__ = "2.0.0"
