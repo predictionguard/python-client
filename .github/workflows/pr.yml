@@ -17,8 +17,8 @@ jobs:
     - name: Install Requirements
       run: pip install -r requirements.txt
 
-    - name: Test Package
-      run: pytest
+    - name: Run Tests
+      run: pytest client_test.py
       env:
         PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY}}
         PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL}}
