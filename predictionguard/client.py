@@ -11,7 +11,7 @@ class PredictionGuard:
     def __init__(
             self, 
             api_key: str = None,
-            url: str = "https://api.predictionguard.com"
+            url: str = None
             ) -> None:
         """
         Initialize the client.
@@ -36,11 +36,15 @@ class PredictionGuard:
                 "or as PREDICTIONGUARD_API_KEY in your environment."
             )
 
-        if "PREDICTIONGUARD_URL" in os.environ:
-            self.url = os.environ["PREDICTIONGUARD_URL"]
-        
-        else:
+        if url:
             self.url = url
+
+        else:
+            if "PREDICTIONGUARD_URL" in os.environ:
+                self.url = os.environ["PREDICTIONGUARD_URL"]
+        
+            else:
+                self.url = "https://api.predictionguard.com"
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
