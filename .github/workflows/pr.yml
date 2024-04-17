@@ -1,9 +1,24 @@
 name: branch-test
 
-# Controls when the workflow will run
 on:
-    
-    # Workflow will run when a release has been published for the package
-    pull_request:
-        branches:
-            - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  tests:
+    name: Installing requirements and testing functions
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install Requirements
+      run: pip install -r requirements.txt
+
+    - name: Test Package
+      run: pytest
+      env:
+        PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY}}
+        PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL}}
