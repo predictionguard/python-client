@@ -286,7 +286,7 @@ class Chat():
         model_list = [
             "deepseek-coder-6.7b-instruct", 
             "Hermes-2-Pro-Mistral-7B", 
-            "Meta-Llama3-8B-Instruct", 
+            "Meta-Llama-3-8B-Instruct", 
             "Neural-Chat-7B", 
             "Yi-34B-Chat"
             ]
