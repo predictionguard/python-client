@@ -283,7 +283,13 @@ class Chat():
     def list_models(self) -> List[str]:
         # Commented out parts are there for easier fix when
         # functionality for this call on chat endpoint added
-        model_list = ["deepseek-coder-6.7b-instruct", "Neural-Chat-7B", "Hermes-2-Pro-Mistral-7B", "Yi-34B-Chat"]
+        model_list = [
+            "deepseek-coder-6.7b-instruct", 
+            "Hermes-2-Pro-Mistral-7B", 
+            "Meta-Llama-3-8B-Instruct", 
+            "Neural-Chat-7B", 
+            "Yi-34B-Chat"
+            ]
 
         # Make sure we can connect to prediction guard.
         # self._connect()
