@@ -80,7 +80,7 @@ def test_completions_create_stream():
 
     response_list = []
     for res in test_client.completions.create(
-        model="Neural-Chat-7B",
+        model=os.environ["TEST_MODEL_NAME"],
         prompt="Tell me a joke.",
         stream=True
     ):
@@ -129,7 +129,7 @@ def test_chat_completions_create_stream():
 
     response_list = []
     for res in test_client.chat.completions.create(
-        model="Neural-Chat-7B",
+        model=os.environ["TEST_MODEL_NAME"],
         messages=[
             {
                 "role": "system",
