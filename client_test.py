@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 import pytest
 
@@ -115,6 +116,34 @@ def test_chat_completions_list_models():
     response = test_client.chat.completions.list_models()
 
     assert len(response) > 0
+
+
+#------------------------#
+#    Embeddings Tests    #
+#------------------------#
+
+def test_embeddings_create_no_image():
+    test_client = PredictionGuard()
+
+    response = test_client.embeddings.create(
+        model="Bridge",
+        text="How many computer does it take to screw in a lightbulb?"
+    )
+
+    assert len(response["choices"][0]["embedding"]) > 0
+    assert type(response["choices"][0]["embedding"][0]) == float
+
+def test_embeddings_create_image():
+    test_client = PredictionGuard()
+
+    response = test_client.embeddings.create(
+        model="Bridge",
+        text="How many computer does it take to screw in a lightbulb?",
+        image=Path("fixtures/test_image.jpeg")
+    )
+
+    assert len(response["choices"][0]["embedding"]) > 0
+    assert type(response["choices"][0]["embedding"][0]) == float
 
 
 #-----------------------#

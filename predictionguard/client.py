@@ -52,6 +52,7 @@ class PredictionGuard:
         # Pass Prediction Guard class variables to inner classes
         self.completions = self.Completions(self.api_key, self.url)
         self.chat = self.Chat(self.api_key, self.url)
+        self.embeddings = self.Embeddings(self.api_key, self.url)
         self.translate = self.Translate(self.api_key, self.url)
         self.factuality = self.Factuality(self.api_key, self.url)
         self.toxicity = self.Toxicity(self.api_key, self.url)
@@ -292,17 +293,87 @@ class PredictionGuard:
                 return model_list
         
 
+    class Embeddings:
+        def __init__(self, api_key, url):
+            self.api_ket = api_key
+            self.url = url
+
+        def create(
+                self,
+                model,
+                text: str,
+                image: Optional[] = None,
+        ) -> Dict[str, Any]:
+            
+            """
+            Creates an embeddings request to the Prediction Guard /embeddings API
+            
+            :param model: Model to use for embeddings
+            :param text: Text to embed
+            :param image: Image to embed
+            :result: 
+            """
+
+            # Create a list of tuples, each containing all the parameters for 
+            # a call to _generate_translation
+            args = (model, text, image)
+
+            # Run _generate_translation
+            choices = self._generate_translation(*args)
+            return choices
+
+        def _generate_embeddings(self, model, text, image):
+            """
+            Function to generate an embeddings response.
+            """
+
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
+
+            if image is None:
+                image_input = ""
+            else:
+                with open(image, "rb") as image_file:
+                    image_input = base64.b64encode(image_file.read())
+
+            payload_dict = {
+                "model": model,
+                "text": text,
+                "image": image_input
+            }
+            payload = json.dumps(payload_dict)
+            response = requests.request(
+                "POST", self.url + "/embeddings", headers=headers, data=payload
+            )
+
+            # If the request was successful, print the proxies.
+            if response.status_code == 200:
+                ret = response.json()
+                return ret
+            else:
+                # Check if there is a json body in the response. Read that in,
+                # print out the error field in the json body, and raise an exception.
+                err = ""
+                try:
+                    err = response.json()["error"]
+                except:
+                    pass
+                raise ValueError("Could not make translation. " + err)
+
+
     class Translate:
         def __init__(self, api_key, url):
             self.api_key = api_key
             self.url = url
 
         def create(
-            self,
-            text: str,
-            source_lang: str,
-            target_lang: str
-            ) -> Dict[str, Any]:
+                self,
+                text: str,
+                source_lang: str,
+                target_lang: str
+        ) -> Dict[str, Any]:
 
             """
             Creates a translate request to the Prediction Guard /translate API.
