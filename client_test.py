@@ -126,7 +126,7 @@ def test_embeddings_create_no_image():
     test_client = PredictionGuard()
 
     response = test_client.embeddings.create(
-        model="Bridge",
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
         text="How many computer does it take to screw in a lightbulb?"
     )
 
@@ -137,7 +137,7 @@ def test_embeddings_create_image():
     test_client = PredictionGuard()
 
     response = test_client.embeddings.create(
-        model="Bridge",
+        model=["TEST_EMBEDDINGS_MODEL"],
         text="How many computer does it take to screw in a lightbulb?",
         image=Path("fixtures/test_image.jpeg")
     )
