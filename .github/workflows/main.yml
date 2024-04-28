@@ -27,6 +27,7 @@ jobs:
         env:
           PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY }}
           PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL }}
+          TEST_MODEL_NAME: ${{ secrets.TEST_MODEL_NAME }}
 
       - name: To PyPI using Flit
         uses: AsifArmanRahman/to-pypi-using-flit@v1
