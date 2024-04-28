@@ -1,5 +1,4 @@
 import os
-import json
 import re
 
 import pytest
@@ -68,7 +67,7 @@ def test_completions_create():
     test_client = PredictionGuard()
 
     response = test_client.completions.create(
-        model="Neural-Chat-7B",
+        model=os.environ["TEST_MODEL_NAME"],
         prompt="Tell me a joke"
     )
 
@@ -92,7 +91,7 @@ def test_chat_completions_create():
     test_client = PredictionGuard()
 
     response = test_client.chat.completions.create(
-        model="Neural-Chat-7B",
+        model=os.environ["TEST_MODEL_NAME"],
         messages=[
             {
                 "role": "system",
