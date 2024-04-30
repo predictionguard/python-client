@@ -144,28 +144,65 @@ def test_chat_completions_list_models():
 #    Embeddings Tests    #
 #------------------------#
 
-def test_embeddings_create_no_image():
+def test_embeddings_create_text():
     test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "How many computers does it take to screw in a lightbulb?"
+        }
+    ]
 
     response = test_client.embeddings.create(
         model=os.environ["TEST_EMBEDDINGS_MODEL"],
-        text="How many computer does it take to screw in a lightbulb?"
+        input=inputs
     )
 
-    assert len(response["choices"][0]["embedding"]) > 0
-    assert type(response["choices"][0]["embedding"][0]) == float
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
 
 def test_embeddings_create_image():
     test_client = PredictionGuard()
 
+    inputs = [
+        {
+            "image": Path("fixtures/test_image.jpeg")
+        }
+    ]
+
     response = test_client.embeddings.create(
-        model=["TEST_EMBEDDINGS_MODEL"],
-        text="How many computer does it take to screw in a lightbulb?",
-        image=Path("fixtures/test_image.jpeg")
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
     )
 
-    assert len(response["choices"][0]["embedding"]) > 0
-    assert type(response["choices"][0]["embedding"][0]) == float
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+
+
+def test_embeddings_create_both():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "How many computers does it take to screw in a lightbulb?",
+            "image": Path("fixtures/test_image.jpeg")
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert len(response["data"]) > 1
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+    assert response["data"][1]["status"] == "success"
+    assert len(response["data"][1]["embedding"]) > 0
+    assert type(response["data"][1]["embedding"][0]) == float
 
 
 #-----------------------#

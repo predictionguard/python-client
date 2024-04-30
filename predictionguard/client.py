@@ -321,8 +321,8 @@ class PredictionGuard:
 
         def create(
                 self,
-                model,
-                text: str,
+                model: str,
+                input: List[Dict[str, str]],
                 image: Optional[] = None,
         ) -> Dict[str, Any]:
             
@@ -330,20 +330,20 @@ class PredictionGuard:
             Creates an embeddings request to the Prediction Guard /embeddings API
             
             :param model: Model to use for embeddings
-            :param text: Text to embed
+            :param input: Text to embed
             :param image: Image to embed
             :result: 
             """
 
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_translation
-            args = (model, text, image)
+            args = (model, input, image)
 
             # Run _generate_translation
             choices = self._generate_translation(*args)
             return choices
 
-        def _generate_embeddings(self, model, text, image):
+        def _generate_embeddings(self, model, input, image):
             """
             Function to generate an embeddings response.
             """
@@ -353,15 +353,21 @@ class PredictionGuard:
                 "Authorization": "Bearer " + self.api_key
                 }
 
-            if image is None:
-                image_input = ""
-            else:
-                with open(image, "rb") as image_file:
-                    image_input = base64.b64encode(image_file.read())
+            inputs = []
+            for item in input:
+                item_dict = {}
+                if "text" in item.keys():
+                    item_dict["text"] = item["text"]
+                if "image" in item.keys():
+                    with open(item["image"], "rb") as image_file:
+                        image_input = base64.b64encode(image_file.read())
+                    item_dict["image"] = item["image"]
+                
+                inputs.append(item_dict)
 
             payload_dict = {
                 "model": model,
-                "text": text,
+                "input": input,
                 "image": image_input
             }
             payload = json.dumps(payload_dict)
