@@ -44,7 +44,7 @@ class PredictionGuard:
                 self.url = os.environ["PREDICTIONGUARD_URL"]
         
             else:
-                self.url = "https://api.predictionguard.com"
+                self.url = "https://staging.predictionguard.com"
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
@@ -103,8 +103,7 @@ class PredictionGuard:
                                     output: Optional[Dict[str, Any]] = None,
                                     max_tokens: Optional[int] = 100,
                                     temperature: Optional[float] = 0.75,
-                                    top_p: Optional[float] = 1.0,
-                                    stream: Optional[bool] = False
+                                    top_p: Optional[float] = 1.0
                                     ) -> Dict[str, Any]:
             """
             Creates a completion request for the Prediction Guard /completions API.
@@ -116,24 +115,19 @@ class PredictionGuard:
             :param max_tokens: The maximum number of tokens to generate in the completion(s).
             :param temperature: The sampling temperature to use.
             :param top_p: The nucleus sampling probability to use.
-            :param stream: Option to stream the API response
             :return: A dictionary containing the completion response.
             """
 
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_completion
-            args = (model, prompt, input, output, max_tokens, temperature, top_p, stream)
+            args = (model, prompt, input, output, max_tokens, temperature, top_p)
 
             # Run _generate_completion
             choices = self._generate_completion(*args)
-            
-            if stream is True:
-                for choice in choices:
-                    yield choice
-            else:
-                return choices
+
+            return choices
         
-        def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p, stream):
+        def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
             """
             Function to generate a single completion. 
             """
@@ -143,22 +137,13 @@ class PredictionGuard:
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key
                 }
-            if isinstance(model, list):
-                model_join = ",".join(model)
-            else:
-                model_join = model
-            if "openai" in model_join.lower():
-                if os.environ.get("OPENAI_API_KEY") != "":
-                    headers["OpenAI-ApiKey"] = os.environ.get("OPENAI_API_KEY")
-                else:
-                    raise ValueError("OpenAI API key not set. Please set the environment variable OPENAI_API_KEY.")
+
             payload_dict = {
                 "model": model,
                 "prompt": prompt,
                 "max_tokens": max_tokens,
                 "temperature": temperature,
-                "top_p": top_p,
-                "stream": stream
+                "top_p": top_p
             }
             if input:
                 payload_dict["input"] = input
@@ -166,34 +151,22 @@ class PredictionGuard:
                 payload_dict["output"] = output
             payload = json.dumps(payload_dict)
 
-            if stream is True:
-                with requests.post(
-                    self.url + "/completions", headers=headers, data=payload, stream=True
-                ) as response:
-                    response.raise_for_status()
-                    
-                    for line in response.iter_lines():
-                        if line:
-                            decoded_line = line.decode("utf-8")
-                            yield decoded_line
-
+            response = requests.request(
+                "POST", self.url + "/completions", headers=headers, data=payload
+            )
+            # If the request was successful, print the proxies.
+            if response.status_code == 200:
+                ret = response.json()
+                return ret
             else:
-                response = requests.request(
-                    "POST", self.url + "/completions", headers=headers, data=payload, stream=stream
-                )
-                # If the request was successful, print the proxies.
-                if response.status_code == 200:
-                    ret = response.json()
-                    return ret
-                else:
-                    # Check if there is a json body in the response. Read thhether the API response should be streamedat in,
-                    # print out the error field in the json body, and raise an exception.
-                    err = ""
-                    try:
-                        err = response.json()["error"]
-                    except:
-                        pass
-                    raise ValueError("Could not make prediction. " + err)
+                # Check if there is a json body in the response. Read thhether the API response should be streamedat in,
+                # print out the error field in the json body, and raise an exception.
+                err = ""
+                try:
+                    err = response.json()["error"]
+                except:
+                    pass
+                raise ValueError("Could not make prediction. " + err)
 
         def list_models(self) -> List[str]:
             # Get the list of current models.
@@ -286,9 +259,9 @@ class PredictionGuard:
 
                 payload = json.dumps(payload_dict)
 
-                if stream is True:
-                    with requests.post(
-                        self.url, "/chat/completions", headers=headers, data=payload, stream=stream
+                if stream == True:
+                    with requests.request(
+                        "POST", self.url + "/chat/completions", headers=headers, data=payload, stream=stream
                     ) as response:
                         response.raise_for_status()
                         
@@ -298,8 +271,9 @@ class PredictionGuard:
                                 yield decoded_line
 
                 else:
+                    print("hello")
                     response = requests.request(
-                        "POST", self.url + "/chat/completions", headers=headers, data=payload, stream=stream
+                        "POST", self.url + "/chat/completions", headers=headers, data=payload
                     )
                     # If the request was successful, print the proxies.
                     if response.status_code == 200:

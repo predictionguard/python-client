@@ -75,27 +75,12 @@ def test_completions_create():
     assert len(response["choices"][0]["text"]) > 0
 
 
-def test_completions_create_stream():
-    test_client = PredictionGuard()
-
-    response_list = []
-    for res in test_client.completions.create(
-        model=os.environ["TEST_MODEL_NAME"],
-        prompt="Tell me a joke.",
-        stream=True
-    ):
-        response_list.append(res)
-
-    assert len(response_list) > 1
-
-
 def test_completions_list_models():
     test_client = PredictionGuard()
 
     response = test_client.completions.list_models()
 
     assert len(response) > 0
-import json
 
 
 #------------------#
@@ -142,6 +127,7 @@ def test_chat_completions_create_stream():
         ],
         stream=True
     ):
+        print(res)
         response_list.append(res)
 
     assert len(response_list) > 1
