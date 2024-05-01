@@ -44,7 +44,7 @@ class PredictionGuard:
                 self.url = os.environ["PREDICTIONGUARD_URL"]
         
             else:
-                self.url = "https://api.predictionguard.com"
+                self.url = "https://staging.predictionguard.com"
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
@@ -124,6 +124,7 @@ class PredictionGuard:
 
             # Run _generate_completion
             choices = self._generate_completion(*args)
+
             return choices
         
         def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
@@ -133,17 +134,10 @@ class PredictionGuard:
 
             # Make a prediction using the proxy.
             headers = {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key
                 }
-            if isinstance(model, list):
-                model_join = ",".join(model)
-            else:
-                model_join = model
-            if "openai" in model_join.lower():
-                if os.environ.get("OPENAI_API_KEY") != "":
-                    headers["OpenAI-ApiKey"] = os.environ.get("OPENAI_API_KEY")
-                else:
-                    raise ValueError("OpenAI API key not set. Please set the environment variable OPENAI_API_KEY.")
+
             payload_dict = {
                 "model": model,
                 "prompt": prompt,
@@ -156,16 +150,16 @@ class PredictionGuard:
             if output:
                 payload_dict["output"] = output
             payload = json.dumps(payload_dict)
+
             response = requests.request(
                 "POST", self.url + "/completions", headers=headers, data=payload
             )
-
             # If the request was successful, print the proxies.
             if response.status_code == 200:
                 ret = response.json()
                 return ret
             else:
-                # Check if there is a json body in the response. Read that in,
+                # Check if there is a json body in the response. Read thhether the API response should be streamedat in,
                 # print out the error field in the json body, and raise an exception.
                 err = ""
                 try:
@@ -176,7 +170,10 @@ class PredictionGuard:
 
         def list_models(self) -> List[str]:
             # Get the list of current models.
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
     
             response = requests.request("GET", self.url + "/completions", headers=headers)
 
@@ -206,7 +203,8 @@ class PredictionGuard:
                 output: Optional[Dict[str, Any]] = None,
                 max_tokens: Optional[int] = 100,
                 temperature: Optional[float] = 0.75,
-                top_p: Optional[float] = 1.0
+                top_p: Optional[float] = 1.0,
+                stream: Optional[bool] = False
                 ) -> Dict[str, Any]:
                 """
                 Creates a chat request for the Prediction Guard /chat API.
@@ -218,23 +216,55 @@ class PredictionGuard:
                 :param max_tokens: The maximum amount of tokens the model should return.
                 :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
                 :param top_p: The sampling for the model to use.
+                :param stream: Option to stream the API response 
                 :return: A dictionary containing the chat response.
                 """
 
                 # Create a list of tuples, each containing all the parameters for 
                 # a call to _generate_chat
-                args = (model, messages, input, output, max_tokens, temperature, top_p)
+                args = (model, messages, input, output, max_tokens, temperature, top_p, stream)
 
                 # Run _generate_chat
                 choices = self._generate_chat(*args)
+
                 return choices
 
-            def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p):
+            def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p, stream):
                 """
                 Function to generate a single chat response.
                 """
                 
+                def return_dict(url, headers, payload):
+                    response = requests.request(
+                        "POST", url + "/chat/completions", headers=headers, data=payload
+                    )
+                    # If the request was successful, print the proxies.
+                    if response.status_code == 200:
+                        ret = response.json()
+                        return ret
+                    else:
+                        # Check if there is a json body in the response. Read that in,
+                        # print out the error field in the json body, and raise an exception.
+                        err = ""
+                        try:
+                            err = response.json()["error"]
+                        except:
+                            pass
+                        raise ValueError("Could not make prediction. " + err)
+
+                def stream_generator(url, headers, payload, stream):
+                    with requests.post(
+                        url + "/chat/completions", headers=headers, data=payload, stream=stream
+                    ) as response:
+                        response.raise_for_status()
+
+                        for line in response.iter_lines():
+                            if line:
+                                decoded_line = line.decode("utf-8")
+                                yield decoded_line
+
                 headers = {
+                    "Content-Type": "application/json",
                     "Authorization": "Bearer " + self.api_key
                     }
 
@@ -243,7 +273,8 @@ class PredictionGuard:
                     "messages": messages,
                     "max_tokens": max_tokens,
                     "temperature": temperature,
-                    "top_p": top_p
+                    "top_p": top_p,
+                    "stream": stream
                 }
                 
                 if input:
@@ -252,24 +283,13 @@ class PredictionGuard:
                     payload_dict["output"] = output
 
                 payload = json.dumps(payload_dict)
-                response = requests.request(
-                    "POST", self.url + "/chat/completions", headers=headers, data=payload
-                )
 
-                # If the request was successful, print the proxies.
-                if response.status_code == 200:
-                    ret = response.json()
-                    return ret
+                if stream == True:
+                    return stream_generator(self.url, headers, payload, stream)
+
                 else:
-                    # Check if there is a json body in the response. Read that in,
-                    # print out the error field in the json body, and raise an exception.
-                    err = ""
-                    try:
-                        err = response.json()["error"]
-                    except:
-                        pass
-                    raise ValueError("Could not make prediction. " + err)
-                            
+                    return return_dict(self.url, headers, payload)
+
             def list_models(self) -> List[str]:
                 # Commented out parts are there for easier fix when
                 # functionality for this call on chat endpoint added
@@ -283,10 +303,11 @@ class PredictionGuard:
 
                 # Get the list of current models.
                 # headers = {
-                #         "x-api-key": self.api_key
+                #         "Content-Type": "application/json",
+                #         "Authorization": "Bearer " + self.api_key
                 #         }
         
-                # response = requests.request("GET", self.url + "/chat", headers=headers)
+                # response = requests.request("GET", self.url + "/chat/completions", headers=headers)
 
                 # return list(response.json())
                 return model_list
@@ -326,7 +347,10 @@ class PredictionGuard:
             Function to generate a translation response.
             """
 
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
 
             payload_dict = {
                 "text": text,
@@ -377,7 +401,10 @@ class PredictionGuard:
             """
 
             # Make a prediction using the proxy.
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
 
             payload_dict = {
                 "reference": reference,
@@ -425,7 +452,10 @@ class PredictionGuard:
             """
 
             # Make a prediction using the proxy.
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
 
             payload_dict = {"text": text}
             payload = json.dumps(payload_dict)
@@ -471,7 +501,10 @@ class PredictionGuard:
             Function to check for PII.
             """
 
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
 
             payload_dict = {
                 "prompt": prompt,
@@ -520,7 +553,10 @@ class PredictionGuard:
             Function to check if prompt is a prompt injection.
             """
 
-            headers = {"Authorization": "Bearer " + self.api_key}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
 
             payload = {
                 "prompt": prompt,

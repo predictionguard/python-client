@@ -104,9 +104,31 @@ def test_chat_completions_create():
         ]
     )
     
-
     assert response["choices"][0]["status"] == "success"
     assert len(response["choices"][0]["message"]["content"]) > 0
+
+
+def test_chat_completions_create_stream():
+    test_client = PredictionGuard()
+
+    response_list = []
+    for res in test_client.chat.completions.create(
+        model=os.environ["TEST_MODEL_NAME"],
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a helpful chatbot."
+            },
+            {
+                "role": "user",
+                "content": "Tell me a joke."
+            }
+        ],
+        stream=True
+    ):
+        response_list.append(res)
+
+    assert len(response_list) > 1
 
 
 def test_chat_completions_list_models():
