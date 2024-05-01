@@ -227,17 +227,42 @@ class PredictionGuard:
                 # Run _generate_chat
                 choices = self._generate_chat(*args)
 
-                if stream is True:
-                    for choice in choices:
-                        yield choice
-                else:
-                    return choices
+                return choices
 
             def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p, stream):
                 """
                 Function to generate a single chat response.
                 """
                 
+                def return_dict(url, headers, payload):
+                    response = requests.request(
+                        "POST", url + "/chat/completions", headers=headers, data=payload
+                    )
+                    # If the request was successful, print the proxies.
+                    if response.status_code == 200:
+                        ret = response.json()
+                        return ret
+                    else:
+                        # Check if there is a json body in the response. Read that in,
+                        # print out the error field in the json body, and raise an exception.
+                        err = ""
+                        try:
+                            err = response.json()["error"]
+                        except:
+                            pass
+                        raise ValueError("Could not make prediction. " + err)
+
+                def stream_generator(url, headers, payload, stream):
+                    with requests.post(
+                        url + "/chat/completions", headers=headers, data=payload, stream=stream
+                    ) as response:
+                        response.raise_for_status()
+
+                        for line in response.iter_lines():
+                            if line:
+                                decoded_line = line.decode("utf-8")
+                                yield decoded_line
+
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + self.api_key
@@ -260,35 +285,11 @@ class PredictionGuard:
                 payload = json.dumps(payload_dict)
 
                 if stream == True:
-                    with requests.request(
-                        "POST", self.url + "/chat/completions", headers=headers, data=payload, stream=stream
-                    ) as response:
-                        response.raise_for_status()
-                        
-                        for line in response.iter_lines():
-                            if line:
-                                decoded_line = line.decode("utf-8")
-                                yield decoded_line
+                    return stream_generator(self.url, headers, payload, stream)
 
                 else:
-                    print("hello")
-                    response = requests.request(
-                        "POST", self.url + "/chat/completions", headers=headers, data=payload
-                    )
-                    # If the request was successful, print the proxies.
-                    if response.status_code == 200:
-                        ret = response.json()
-                        return ret
-                    else:
-                        # Check if there is a json body in the response. Read that in,
-                        # print out the error field in the json body, and raise an exception.
-                        err = ""
-                        try:
-                            err = response.json()["error"]
-                        except:
-                            pass
-                        raise ValueError("Could not make prediction. " + err)
-                            
+                    return return_dict(self.url, headers, payload)
+
             def list_models(self) -> List[str]:
                 # Commented out parts are there for easier fix when
                 # functionality for this call on chat endpoint added

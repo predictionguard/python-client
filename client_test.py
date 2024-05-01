@@ -104,7 +104,6 @@ def test_chat_completions_create():
         ]
     )
     
-
     assert response["choices"][0]["status"] == "success"
     assert len(response["choices"][0]["message"]["content"]) > 0
 
@@ -127,7 +126,6 @@ def test_chat_completions_create_stream():
         ],
         stream=True
     ):
-        print(res)
         response_list.append(res)
 
     assert len(response_list) > 1
