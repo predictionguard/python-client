@@ -48,7 +48,7 @@ class PredictionGuard:
                 self.url = os.environ["PREDICTIONGUARD_URL"]
         
             else:
-                self.url = "https://staging.predictionguard.com"
+                self.url = "https://api.predictionguard.com"
 
         # Connect to Prediction Guard and set the access api_key.
         self.connect_client()
