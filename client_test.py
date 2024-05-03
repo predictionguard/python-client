@@ -205,7 +205,7 @@ def test_embeddings_create_image_url():
 
     inputs = [
         {
-            "image": "htfrom pathlib import Pathtps://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg"
+            "image": "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg"
         }
     ]
 
