@@ -1,9 +1,13 @@
-import os
-import json
 import base64
-from typing import Any, Dict, List, Optional, Union
-
+import json
+import os
+import re
 import requests
+from typing import Any, Dict, List, Optional, Union
+import urllib.request
+import urllib.parse
+
+from PIL import Image
 
 
 # The main Prediction Guard client class.
@@ -52,6 +56,7 @@ class PredictionGuard:
         # Pass Prediction Guard class variables to inner classes
         self.completions = self.Completions(self.api_key, self.url)
         self.chat = self.Chat(self.api_key, self.url)
+        self.embeddings = self.Embeddings(self.api_key, self.url)
         self.translate = self.Translate(self.api_key, self.url)
         self.factuality = self.Factuality(self.api_key, self.url)
         self.toxicity = self.Toxicity(self.api_key, self.url)
@@ -313,17 +318,148 @@ class PredictionGuard:
                 return model_list
         
 
+    class Embeddings:
+        def __init__(self, api_key, url):
+<<<<<<< HEAD
+            self.api_key = api_key
+=======
+            self.api_ket = api_key
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+            self.url = url
+
+        def create(
+                self,
+                model: str,
+                input: List[Dict[str, str]],
+<<<<<<< HEAD
+=======
+                image: Optional[] = None,
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+        ) -> Dict[str, Any]:
+            
+            """
+            Creates an embeddings request to the Prediction Guard /embeddings API
+            
+            :param model: Model to use for embeddings
+<<<<<<< HEAD
+            :param input: List of Dictionaries containing input data with text and image keys.
+=======
+            :param input: Text to embed
+            :param image: Image to embed
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+            :result: 
+            """
+
+            # Create a list of tuples, each containing all the parameters for 
+            # a call to _generate_translation
+<<<<<<< HEAD
+            args = (model, input)
+
+            # Run _generate_embeddings
+            choices = self._generate_embeddings(*args)
+            return choices
+
+        def _generate_embeddings(self, model, input):
+=======
+            args = (model, input, image)
+
+            # Run _generate_translation
+            choices = self._generate_translation(*args)
+            return choices
+
+        def _generate_embeddings(self, model, input, image):
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+            """
+            Function to generate an embeddings response.
+            """
+
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key
+                }
+
+            inputs = []
+            for item in input:
+                item_dict = {}
+                if "text" in item.keys():
+                    item_dict["text"] = item["text"]
+                if "image" in item.keys():
+<<<<<<< HEAD
+                    image_url_check = urllib.parse.urlparse(item["image"])
+
+                    if os.path.exists(item["image"]):
+                        with open(item["image"], "rb") as image_file:
+                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+
+                    elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", item["image"]):
+                        if base64.b64encode(base64.b64decode(item["image"])).decode('utf-8') == item["image"]:
+                            image_input = item["image"]
+
+                    elif image_url_check.scheme in ("http", "https", "ftp"):
+                        urllib.request.urlretrieve(item["image"], "temp.jpg")
+                        temp_image = "temp.jpg"
+                        with open(temp_image, "rb") as image_file:
+                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                        os.remove(temp_image)
+
+                    else:
+                        raise ValueError("Please enter a valid base64 encoded image, image file, or image url.")
+
+                    item_dict["image"] = image_input
+=======
+                    with open(item["image"], "rb") as image_file:
+                        image_input = base64.b64encode(image_file.read())
+                    item_dict["image"] = item["image"]
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+                
+                inputs.append(item_dict)
+
+            payload_dict = {
+                "model": model,
+<<<<<<< HEAD
+                "input": inputs
+            }
+
+=======
+                "input": input,
+                "image": image_input
+            }
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+            payload = json.dumps(payload_dict)
+            response = requests.request(
+                "POST", self.url + "/embeddings", headers=headers, data=payload
+            )
+
+            # If the request was successful, print the proxies.
+            if response.status_code == 200:
+                ret = response.json()
+                return ret
+            else:
+                # Check if there is a json body in the response. Read that in,
+                # print out the error field in the json body, and raise an exception.
+                err = ""
+                try:
+                    err = response.json()["error"]
+                except:
+                    pass
+<<<<<<< HEAD
+                raise ValueError("Could not generate embeddings. " + err)
+=======
+                raise ValueError("Could not make translation. " + err)
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
+
+
     class Translate:
         def __init__(self, api_key, url):
             self.api_key = api_key
             self.url = url
 
         def create(
-            self,
-            text: str,
-            source_lang: str,
-            target_lang: str
-            ) -> Dict[str, Any]:
+                self,
+                text: str,
+                source_lang: str,
+                target_lang: str
+        ) -> Dict[str, Any]:
 
             """
             Creates a translate request to the Prediction Guard /translate API.

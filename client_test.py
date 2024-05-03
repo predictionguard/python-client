@@ -1,9 +1,11 @@
 import os
 import re
+import base64
 
 import pytest
 
 from predictionguard import PredictionGuard
+
 
 #----------------------#
 #    Auth/URL Tests    #
@@ -75,6 +77,23 @@ def test_completions_create():
     assert len(response["choices"][0]["text"]) > 0
 
 
+def test_completions_create_batch():
+    test_client = PredictionGuard()
+
+    response = test_client.completions.create(
+        model=os.environ["TEST_MODEL_NAME"],
+        prompt=[
+            "Tell me a joke.",
+            "Tell me a cool fact."
+        ]
+    )
+
+    assert len(response["choices"]) > 1
+    assert response["choices"][0]["status"] == "success"
+    assert response["choices"][1]["status"] == "success"
+    assert len(response["choices"][0]["text"]) > 0
+    assert len(response["choices"][1]["text"]) > 0
+
 def test_completions_list_models():
     test_client = PredictionGuard()
 
@@ -137,6 +156,188 @@ def test_chat_completions_list_models():
     response = test_client.chat.completions.list_models()
 
     assert len(response) > 0
+
+
+#------------------------#
+#    Embeddings Tests    #
+#------------------------#
+
+def test_embeddings_create_text():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "How many computers does it take to screw in a lightbulb?"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+
+
+def test_embeddings_create_image_file():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "image": "fixtures/test_image.jpeg"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+
+
+def test_embeddings_create_image_url():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "image": "htfrom pathlib import Pathtps://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+    
+
+def test_embeddings_create_image_b64():
+    test_client = PredictionGuard()
+
+    with open("fixtures/test_image.jpeg", "rb") as image_file:
+        b64_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+    inputs = [
+        {
+            "image": b64_image
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+
+
+def test_embeddings_create_both():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "Tell me a joke.",
+            "image": "fixtures/test_image.jpeg"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"])
+
+
+def test_embeddings_create_text_batch():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "Tell me a joke."
+        },
+        {
+            "text": "Tell me a fact."
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert len(response["data"]) > 1
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+    assert response["data"][1]["status"] == "success"
+    assert len(response["data"][1]["embedding"]) > 0
+    assert type(response["data"][1]["embedding"][0]) == float
+
+
+def test_embeddings_create_image_batch():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "image": "fixtures/test_image.jpeg"
+        },
+        {
+            "image": "fixtures/test_image.jpeg"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert len(response["data"]) > 1
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+    assert response["data"][1]["status"] == "success"
+    assert len(response["data"][1]["embedding"]) > 0
+    assert type(response["data"][1]["embedding"][0]) == float
+
+
+def test_embeddings_create_both_batch():
+    test_client = PredictionGuard()
+
+    inputs = [
+        {
+            "text": "Tell me a joke.",
+            "image": "fixtures/test_image.jpeg"
+        },
+        {
+            "text": "Tell me a fun fact.",
+            "image": "fixtures/test_image.jpeg"
+        }
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"],
+        input=inputs
+    )
+
+    assert len(response["data"]) > 1
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+    assert response["data"][1]["status"] == "success"
+    assert len(response["data"][1]["embedding"]) > 0
+    assert type(response["data"][1]["embedding"][0]) == float
 
 
 #-----------------------#
@@ -218,6 +419,7 @@ def test_injection_check():
 
     assert response["checks"][0]["status"] == "success"
     assert type(response["checks"][0]["probability"]) == float
+
 
 #-----------------------#
 #    No API Key Test    #
