@@ -320,25 +320,39 @@ class PredictionGuard:
 
     class Embeddings:
         def __init__(self, api_key, url):
+<<<<<<< HEAD
             self.api_key = api_key
+=======
+            self.api_ket = api_key
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
             self.url = url
 
         def create(
                 self,
                 model: str,
                 input: List[Dict[str, str]],
+<<<<<<< HEAD
+=======
+                image: Optional[] = None,
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
         ) -> Dict[str, Any]:
             
             """
             Creates an embeddings request to the Prediction Guard /embeddings API
             
             :param model: Model to use for embeddings
+<<<<<<< HEAD
             :param input: List of Dictionaries containing input data with text and image keys.
+=======
+            :param input: Text to embed
+            :param image: Image to embed
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
             :result: 
             """
 
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_translation
+<<<<<<< HEAD
             args = (model, input)
 
             # Run _generate_embeddings
@@ -346,6 +360,15 @@ class PredictionGuard:
             return choices
 
         def _generate_embeddings(self, model, input):
+=======
+            args = (model, input, image)
+
+            # Run _generate_translation
+            choices = self._generate_translation(*args)
+            return choices
+
+        def _generate_embeddings(self, model, input, image):
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
             """
             Function to generate an embeddings response.
             """
@@ -361,6 +384,7 @@ class PredictionGuard:
                 if "text" in item.keys():
                     item_dict["text"] = item["text"]
                 if "image" in item.keys():
+<<<<<<< HEAD
                     image_url_check = urllib.parse.urlparse(item["image"])
 
                     if os.path.exists(item["image"]):
@@ -382,14 +406,25 @@ class PredictionGuard:
                         raise ValueError("Please enter a valid base64 encoded image, image file, or image url.")
 
                     item_dict["image"] = image_input
+=======
+                    with open(item["image"], "rb") as image_file:
+                        image_input = base64.b64encode(image_file.read())
+                    item_dict["image"] = item["image"]
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
                 
                 inputs.append(item_dict)
 
             payload_dict = {
                 "model": model,
+<<<<<<< HEAD
                 "input": inputs
             }
 
+=======
+                "input": input,
+                "image": image_input
+            }
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
             payload = json.dumps(payload_dict)
             response = requests.request(
                 "POST", self.url + "/embeddings", headers=headers, data=payload
@@ -407,7 +442,11 @@ class PredictionGuard:
                     err = response.json()["error"]
                 except:
                     pass
+<<<<<<< HEAD
                 raise ValueError("Could not generate embeddings. " + err)
+=======
+                raise ValueError("Could not make translation. " + err)
+>>>>>>> c85eca6325a8d31345b23debc857e95cced2e536
 
 
     class Translate:

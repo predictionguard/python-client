@@ -1,6 +1,5 @@
 import os
 import re
-from pathlib import Path
 import base64
 
 import pytest
@@ -95,7 +94,6 @@ def test_completions_create_batch():
     assert len(response["choices"][0]["text"]) > 0
     assert len(response["choices"][1]["text"]) > 0
 
-
 def test_completions_list_models():
     test_client = PredictionGuard()
 
@@ -182,6 +180,7 @@ def test_embeddings_create_text():
     assert len(response["data"][0]["embedding"]) > 0
     assert type(response["data"][0]["embedding"][0]) == float
 
+
 def test_embeddings_create_image_file():
     test_client = PredictionGuard()
 
@@ -206,7 +205,7 @@ def test_embeddings_create_image_url():
 
     inputs = [
         {
-            "image": "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg"
+            "image": "htfrom pathlib import Pathtps://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg"
         }
     ]
 
@@ -240,6 +239,7 @@ def test_embeddings_create_image_b64():
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
     assert type(response["data"][0]["embedding"][0]) == float
+
 
 def test_embeddings_create_both():
     test_client = PredictionGuard()
@@ -285,6 +285,7 @@ def test_embeddings_create_text_batch():
     assert len(response["data"][1]["embedding"]) > 0
     assert type(response["data"][1]["embedding"][0]) == float
 
+
 def test_embeddings_create_image_batch():
     test_client = PredictionGuard()
 
@@ -309,6 +310,7 @@ def test_embeddings_create_image_batch():
     assert response["data"][1]["status"] == "success"
     assert len(response["data"][1]["embedding"]) > 0
     assert type(response["data"][1]["embedding"][0]) == float
+
 
 def test_embeddings_create_both_batch():
     test_client = PredictionGuard()
