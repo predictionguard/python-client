@@ -266,7 +266,18 @@ class PredictionGuard:
                         for line in response.iter_lines():
                             if line:
                                 decoded_line = line.decode("utf-8")
-                                yield decoded_line
+                                formatted_return = "{" + (decoded_line.replace('data', '"data"', 1)) + "}"
+                                try:
+                                    dict_return = json.loads(formatted_return)
+                                except json.decoder.JSONDecodeError:
+                                    pass
+                                else:
+                                    try:
+                                        dict_return["data"]["choices"][0]["delta"]["content"]
+                                    except KeyError:
+                                        pass
+                                    else:
+                                        yield dict_return
 
                 headers = {
                     "Content-Type": "application/json",
