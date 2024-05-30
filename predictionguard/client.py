@@ -305,8 +305,8 @@ class PredictionGuard:
                                         with open(temp_image, "rb") as image_file:
                                             image_input = base64.b64encode(image_file.read()).decode("utf-8")
                                         os.remove(temp_image)
-                                image_data_uri = "data:image/jpeg;base64," + image_input
-                                entry["image_url"]["url"] = image_data_uri
+                                    image_data_uri = "data:image/jpeg;base64," + image_input
+                                    entry["image_url"]["url"] = image_data_uri
                             elif entry["type"] == "text":
                                 continue   
                             else:
