@@ -184,7 +184,7 @@ class PredictionGuard:
 
             return list(response.json())
         
-    
+
     class Chat:
         def __init__(self, api_key, url):
             self.api_key = api_key
