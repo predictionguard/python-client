@@ -203,7 +203,7 @@ class PredictionGuard:
             def create(
                 self, 
                 model: str,
-                messages: List[Dict[str, str]],
+                messages: List[Dict[str, Any]],
                 input: Optional[Dict[str, Any]] = None,
                 output: Optional[Dict[str, Any]] = None,
                 max_tokens: Optional[int] = 100,
@@ -284,6 +284,35 @@ class PredictionGuard:
                     "Authorization": "Bearer " + self.api_key
                     }
 
+                for message in messages:
+                    if type(message["content"]) == list:
+                        for entry in message["content"]:
+                            if entry["type"] == "image_url":
+                                image_data = entry["image_url"]["url"]
+                                if stream == True:
+                                    raise ValueError("Streaming is not currently supported when using vision.")
+                                else:
+                                    image_url_check = urllib.parse.urlparse(image_data)
+                                    if os.path.exists(image_data):
+                                        with open(image_data, "rb") as image_file:
+                                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+
+                                    elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", image_data):
+                                        if base64.b64encode(base64.b64decode(image_data)).decode('utf-8') == image_data:
+                                            image_input = image_data
+
+                                    elif image_url_check.scheme in ("http", "https", "ftp"):
+                                        urllib.request.urlretrieve(image_data, "temp.jpg")
+                                        temp_image = "temp.jpg"
+                                        with open(temp_image, "rb") as image_file:
+                                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                                        os.remove(temp_image)
+                                entry["image_url"]["url"] = image_input
+                            elif entry["type"] == "text":
+                                continue   
+                            else:
+                                raise ValueError("Please enter a valid base64 encoded image, image file, or image url.")
+
                 payload_dict = {
                     "model": model,
                     "messages": messages,
@@ -296,7 +325,12 @@ class PredictionGuard:
                 if input:
                     payload_dict["input"] = input
                 if output:
-                    payload_dict["output"] = output
+                    if stream == True:
+                        raise ValueError("Factuality and toxicity checks are not supported when streaming is enabled.")
+                    else:
+                        payload_dict["output"] = output
+
+                print(payload_dict)
 
                 payload = json.dumps(payload_dict)
 
@@ -312,7 +346,7 @@ class PredictionGuard:
                 model_list = [
                     "deepseek-coder-6.7b-instruct", 
                     "Hermes-2-Pro-Mistral-7B",
-                    "Meta-Llama-3-8B-Instruct",
+                    "Hermes-2-Pro-Llama-3-8B",
                     "Neural-Chat-7B", 
                     "Yi-34B-Chat"
                     ]
