@@ -19,8 +19,8 @@ jobs:
           python-version: 3.9
           cache: pip
 
-      - name: Install Requirements
-        run: pip install -r requirements.txt
+      - name: Install Pytest
+        run: pip install -r pytest
 
       - name: Run Tests
         run: pytest client_test.py

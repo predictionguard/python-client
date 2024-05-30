@@ -7,8 +7,6 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
 
-from PIL import Image
-
 
 # The main Prediction Guard client class.
 class PredictionGuard:
