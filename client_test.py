@@ -200,7 +200,8 @@ def test_chat_completions_create_vision_image_file():
         ]
     )
 
-    assert response
+    assert response["choices"][0]["status"] == "success"
+    assert len(response["choices"][0]["message"]["content"]) > 0
 
 
 def test_chat_completions_create_vision_image_url():
@@ -227,7 +228,8 @@ def test_chat_completions_create_vision_image_url():
         ]
     )
 
-    assert response
+    assert response["choices"][0]["status"] == "success"
+    assert len(response["choices"][0]["message"]["content"]) > 0
 
 
 def test_chat_completions_create_vision_image_b64():
@@ -257,7 +259,8 @@ def test_chat_completions_create_vision_image_b64():
         ]
     )
 
-    assert response
+    assert response["choices"][0]["status"] == "success"
+    assert len(response["choices"][0]["message"]["content"]) > 0
 
 
 def test_chat_completions_create_vision_stream_fail():
@@ -285,7 +288,8 @@ def test_chat_completions_create_vision_stream_fail():
                         }
                     ]
                 }
-            ]
+            ],
+            stream=True
         ):
             response_list.append(res)
 
