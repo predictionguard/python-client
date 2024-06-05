@@ -1,0 +1,38 @@
+name: branch-build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+          cache: pip
+
+      - name: Install Pytest
+        run: pip install pytest
+
+      - name: Run Tests
+        run: pytest client_test.py
+        env:
+          PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY }}
+          PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL }}
+          TEST_MODEL_NAME: ${{ secrets.TEST_MODEL_NAME }}
+          TEST_EMBEDDINGS_MODEL: ${{ secrets.TEST_EMBEDDINGS_MODEL }}
+          TEST_VISION_MODEL: ${{ secrets.TEST_VISION_MODEL }}
+
+      - name: To PyPI using Flit
+        uses: AsifArmanRahman/to-pypi-using-flit@v1
+        with:
+          password: ${{ secrets.TESTPYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/

@@ -1,0 +1,27 @@
+name: branch-test
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  tests:
+    name: Installing requirements and testing functions
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install Pytest
+      run: pip install pytest
+
+    - name: Run Tests
+      run: pytest client_test.py
+      env:
+        PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY}}
+        PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL}}
+        TEST_MODEL_NAME: ${{ secrets.TEST_MODEL_NAME }}
+        TEST_EMBEDDINGS_MODEL: ${{ secrets.TEST_EMBEDDINGS_MODEL }}
+        TEST_VISION_MODEL: ${{ secrets.TEST_VISION_MODEL }}
