@@ -13,12 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.9
-          cache: pip
-
       - name: To PyPI using Flit
         uses: AsifArmanRahman/to-pypi-using-flit@v1
         with:
