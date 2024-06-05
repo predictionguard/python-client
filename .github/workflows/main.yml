@@ -20,7 +20,7 @@ jobs:
           cache: pip
 
       - name: Install Pytest
-        run: pip install -r pytest
+        run: pip install pytest
 
       - name: Run Tests
         run: pytest client_test.py
