@@ -338,7 +338,7 @@ class PredictionGuard:
                 else:
                     return return_dict(self.url, headers, payload)
 
-            def list_models(self) -> Dict[List[str]]:
+            def list_models(self) -> Dict[str, List[str]]:
                 # Commented out parts are there for easier fix when
                 # functionality for this call on chat endpoint added
                 model_list = {
