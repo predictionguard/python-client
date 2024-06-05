@@ -338,16 +338,21 @@ class PredictionGuard:
                 else:
                     return return_dict(self.url, headers, payload)
 
-            def list_models(self) -> List[str]:
+            def list_models(self) -> Dict[List[str]]:
                 # Commented out parts are there for easier fix when
                 # functionality for this call on chat endpoint added
-                model_list = [
-                    "deepseek-coder-6.7b-instruct", 
-                    "Hermes-2-Pro-Mistral-7B",
-                    "Hermes-2-Pro-Llama-3-8B",
-                    "Neural-Chat-7B", 
-                    "Yi-34B-Chat"
+                model_list = {
+                    "Chat Models": [
+                        "deepseek-coder-6.7b-instruct", 
+                        "Hermes-2-Pro-Mistral-7B",
+                        "Hermes-2-Pro-Llama-3-8B",
+                        "llama-3-sqlcoder-8b",
+                        "Neural-Chat-7B",
+                    ],
+                    "Vision Model": [
+                        "llava-1.5-7b-hf"
                     ]
+                }
 
                 # Get the list of current models.
                 # headers = {

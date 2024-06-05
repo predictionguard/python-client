@@ -4,14 +4,14 @@ This package provides functionality developed to simplify interfacing with [Pred
 
 ## Documentation
 
-See the [API documentation](https://docs.predictionguard.com/python).
+See the [API documentation](https://docs.predictionguard.com/).
 
 ## Installation
 
 The package can be installed with `pip`:
 
 ```bash
-pip install --upgrade predictionguard
+pip install predictionguard
 ```
 
 ### Requirements
@@ -20,47 +20,49 @@ pip install --upgrade predictionguard
 
 ## Quick Start
 
-To use this library, you must have an access token and specify it as a string when creating the `pg.Client` object. Access tokens can be created through the Prediction Guard platform (link coming soon). This is a basic example that:
+To use this library, you must have an api key. You can set it two ways: as an environment variable name `PREDICTIONGUARD_API_KEY` or when creating the client object. API Keys can be acquired [here](https://mailchi.mp/predictionguard/getting-started). This is a basic example that:
 
 1. Instantiates a Prediction Guard client
 2. Defines some example model input/ output
-3. Creates a prediction proxy endpoint
-4. Uses the endpoint to make a prediction
+3. Creates a request to the Prediction Guard API
+4. Formats the API response in a clean, readable way.
 
 ```python
-import predictionguard as pg
+import json
+import os
 
-# Initialize a Prediction Guard client.
-client = Client(token=<your access token>)
+from predictionguard import PredictionGuard
 
-# Create some examples illustrating the kind of predictions you
-# want to make (domain/ use case specific).
-examples = [
- {
-   "input": {
-     "phrase": "I'm so excited about Prediction Guard. It's gonna be awesome!"
-   },
-   "output": {
-     "sentiment": "POS"
-   }
- },
- {
-   "input": {
-     "phrase": "AI development without Prediction Guard is bad. It's really terrible."
-   },
-   "output": {
-     "sentiment": "NEG"
-   }
- }
+
+# You can set you Prediction Guard API Key as an env variable,
+# or when creating the client object
+os.environ["PREDICTIONGUARD_API_KEY"]
+
+client = PredictionGuard(
+    api_key="<your Prediction Guard API Key"
+)
+
+messages = [
+    {
+        "role": "system",
+        "content": "You are a helpful chatbot that helps people learn."
+    },
+    {
+        "role": "user",
+        "content": "What is a good way to learn to code?"
+    }
 ]
 
-# Create a prediction "proxy." This proxy will save your examples, evaluate
-# SOTA models to find the best one for your use case, and expose the best model
-# at an endpoint corresponding to the proxy.
-client.create_proxy(task='sentiment', name='my-sentiment-proxy', examples=examples)
+result = client.chat.completions.create(
+    "model": "Hermes-2-Pro-Llama-3-8B",
+    "messages": messages,
+    "max_tokens": 100
+)
 
-# Now your ready to start getting reliable, future proof predictions. No fuss!
-client.predict(name='test-client-sentiment4', data={
- "phrase": "Isn't this great! I'm so happy I'm using Prediction Guard"
-})
+print(json.dumps(
+    result,
+    sort_keys=True,
+    indent=4,
+    separators=(',', ': ')
+))
 ```
