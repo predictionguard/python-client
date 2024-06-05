@@ -349,7 +349,7 @@ class PredictionGuard:
                         "llama-3-sqlcoder-8b",
                         "Neural-Chat-7B",
                     ],
-                    "Vision Model": [
+                    "Vision Models": [
                         "llava-1.5-7b-hf"
                     ]
                 }
@@ -457,6 +457,14 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not generate embeddings. " + err)
+            
+        def list_models(self) -> Dict[str, List[str]]:
+
+            model_list = [
+                "bridgetower-large-itm-mlm-itc"
+            ]
+
+            return model_list
 
 
     class Translate:

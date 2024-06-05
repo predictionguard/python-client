@@ -300,6 +300,8 @@ def test_chat_completions_list_models():
     response = test_client.chat.completions.list_models()
 
     assert len(response) > 0
+    assert len(response["Chat Models"]) > 0
+    assert len(response["Vision Models"]) > 0
 
 
 #------------------------#
@@ -482,6 +484,14 @@ def test_embeddings_create_both_batch():
     assert response["data"][1]["status"] == "success"
     assert len(response["data"][1]["embedding"]) > 0
     assert type(response["data"][1]["embedding"][0]) == float
+
+
+def test_embeddings_list_models():
+    test_client = PredictionGuard()
+
+    response = test_client.embeddings.list_models()
+
+    assert len(response) > 0
 
 
 #-----------------------#
