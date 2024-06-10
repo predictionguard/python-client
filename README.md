@@ -39,7 +39,7 @@ from predictionguard import PredictionGuard
 os.environ["PREDICTIONGUARD_API_KEY"]
 
 client = PredictionGuard(
-    api_key="<your Prediction Guard API Key"
+    api_key="<your Prediction Guard API Key>"
 )
 
 messages = [
