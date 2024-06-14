@@ -39,7 +39,7 @@ from predictionguard import PredictionGuard
 os.environ["PREDICTIONGUARD_API_KEY"]
 
 client = PredictionGuard(
-    api_key="<your Prediction Guard API Key"
+    api_key="<your Prediction Guard API Key>"
 )
 
 messages = [
@@ -54,9 +54,9 @@ messages = [
 ]
 
 result = client.chat.completions.create(
-    "model": "Hermes-2-Pro-Llama-3-8B",
-    "messages": messages,
-    "max_tokens": 100
+    model="Hermes-2-Pro-Llama-3-8B",
+    messages=messages,
+    max_tokens=100
 )
 
 print(json.dumps(
