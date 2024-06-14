@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
 
+from .version import __version__
+
 
 # The main Prediction Guard client class.
 class PredictionGuard:
@@ -67,8 +69,11 @@ class PredictionGuard:
         # Prepare the proper headers.
         headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
+
+        print(headers)
 
         # Try listing models to make sure we can connect.
         response = requests.request(
@@ -138,7 +143,8 @@ class PredictionGuard:
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload_dict = {
@@ -175,7 +181,8 @@ class PredictionGuard:
             # Get the list of current models.
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
     
             response = requests.request("GET", self.url + "/completions", headers=headers)
@@ -279,7 +286,8 @@ class PredictionGuard:
 
                 headers = {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + self.api_key
+                    "Authorization": "Bearer " + self.api_key,
+                    "User-Agent": "Prediction Guard Python Client: " + __version__
                     }
 
                 for message in messages:
@@ -357,7 +365,8 @@ class PredictionGuard:
                 # Get the list of current models.
                 # headers = {
                 #         "Content-Type": "application/json",
-                #         "Authorization": "Bearer " + self.api_key
+                #         "Authorization": "Bearer " + self.api_key,
+                #         "User-Agent": "Prediction Guard Python Client: " + __version__
                 #         }
         
                 # response = requests.request("GET", self.url + "/chat/completions", headers=headers)
@@ -401,7 +410,8 @@ class PredictionGuard:
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             inputs = []
@@ -503,7 +513,8 @@ class PredictionGuard:
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload_dict = {
@@ -557,7 +568,8 @@ class PredictionGuard:
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload_dict = {
@@ -608,7 +620,8 @@ class PredictionGuard:
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload_dict = {"text": text}
@@ -657,7 +670,8 @@ class PredictionGuard:
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload_dict = {
@@ -709,7 +723,8 @@ class PredictionGuard:
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
             payload = {
