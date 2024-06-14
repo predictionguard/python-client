@@ -73,8 +73,6 @@ class PredictionGuard:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        print(headers)
-
         # Try listing models to make sure we can connect.
         response = requests.request(
             "GET", self.url + "/completions", headers=headers
