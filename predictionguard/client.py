@@ -10,24 +10,21 @@ import urllib.parse
 from .version import __version__
 
 
-# The main Prediction Guard client class.
 class PredictionGuard:
-    def __init__(
-            self, 
-            api_key: str = None,
-            url: str = None
-            ) -> None:
+    """PredictionGuard provides access the Prediction Guard API."""
+
+    def __init__(self, api_key: Optional[str] = None, url: Optional[str] = None) -> None:
         """
         Initialize the client.
-        Args:
-        * api_key (str): The user api_key associated with your Prediction Guard account.
-        * url (str): The url for the Prediction Guard API of your choice.
+
+        :param api_key: api_key represents PG api key.
+        :param url: url represents the transport and domain:port
         """
 
         # Get the access api_key.
         if api_key:
             self.api_key = api_key
- 
+
         # Try and get the api_key from the environment variables
         elif "PREDICTIONGUARD_API_KEY" in os.environ:
             self.api_key = os.environ.get("PREDICTIONGUARD_API_KEY")
@@ -46,7 +43,7 @@ class PredictionGuard:
         else:
             if "PREDICTIONGUARD_URL" in os.environ:
                 self.url = os.environ["PREDICTIONGUARD_URL"]
-        
+
             else:
                 self.url = "https://api.predictionguard.com"
 
@@ -63,20 +60,20 @@ class PredictionGuard:
         self.pii = self.Pii(self.api_key, self.url)
         self.injection = self.Injection(self.api_key, self.url)
 
-
     def connect_client(self) -> None:
+        """
+        Connects
+        """
 
         # Prepare the proper headers.
         headers = {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.api_key,
+            "User-Agent": "Prediction Guard Python Client: " + __version__,
+        }
 
         # Try listing models to make sure we can connect.
-        response = requests.request(
-            "GET", self.url + "/completions", headers=headers
-        )
+        response = requests.request("GET", self.url + "/completions", headers=headers)
 
         # If the connection was unsuccessful, raise an exception.
         if response.status_code == 200:
@@ -92,25 +89,28 @@ class PredictionGuard:
                 "Please check url specified, if no url specified, "
                 "Please contact support."
             )
-        
-        return str(self.api_key), str(self.url)
 
+        return str(self.api_key), str(self.url)
 
     class Completions:
         """
         OpenAI-compatible completion API
         """
+
         def __init__(self, api_key, url):
             self.api_key = api_key
             self.url = url
 
-        def create(self, model: str, prompt: Union[str, List[str]],
-                                    input: Optional[Dict[str, Any]] = None,
-                                    output: Optional[Dict[str, Any]] = None,
-                                    max_tokens: Optional[int] = 100,
-                                    temperature: Optional[float] = 0.75,
-                                    top_p: Optional[float] = 1.0
-                                    ) -> Dict[str, Any]:
+        def create(
+            self,
+            model: str,
+            prompt: Union[str, List[str]],
+            input: Optional[Dict[str, Any]] = None,
+            output: Optional[Dict[str, Any]] = None,
+            max_tokens: Optional[int] = 100,
+            temperature: Optional[float] = 0.75,
+            top_p: Optional[float] = 1.0,
+        ) -> Dict[str, Any]:
             """
             Creates a completion request for the Prediction Guard /completions API.
 
@@ -124,7 +124,7 @@ class PredictionGuard:
             :return: A dictionary containing the completion response.
             """
 
-            # Create a list of tuples, each containing all the parameters for 
+            # Create a list of tuples, each containing all the parameters for
             # a call to _generate_completion
             args = (model, prompt, input, output, max_tokens, temperature, top_p)
 
@@ -132,25 +132,27 @@ class PredictionGuard:
             choices = self._generate_completion(*args)
 
             return choices
-        
-        def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
+
+        def _generate_completion(
+            self, model, prompt, input, output, max_tokens, temperature, top_p
+        ):
             """
-            Function to generate a single completion. 
+            Function to generate a single completion.
             """
 
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
 
             payload_dict = {
                 "model": model,
                 "prompt": prompt,
                 "max_tokens": max_tokens,
                 "temperature": temperature,
-                "top_p": top_p
+                "top_p": top_p,
             }
             if input:
                 payload_dict["input"] = input
@@ -180,13 +182,14 @@ class PredictionGuard:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
-    
-            response = requests.request("GET", self.url + "/completions", headers=headers)
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
+
+            response = requests.request(
+                "GET", self.url + "/completions", headers=headers
+            )
 
             return list(response.json())
-        
 
     class Chat:
         def __init__(self, api_key, url):
@@ -199,12 +202,13 @@ class PredictionGuard:
             """
             Chat API
             """
+
             def __init__(self, api_key, url):
                 self.api_key = api_key
                 self.url = url
 
             def create(
-                self, 
+                self,
                 model: str,
                 messages: List[Dict[str, Any]],
                 input: Optional[Dict[str, Any]] = None,
@@ -212,8 +216,8 @@ class PredictionGuard:
                 max_tokens: Optional[int] = 100,
                 temperature: Optional[float] = 0.75,
                 top_p: Optional[float] = 1.0,
-                stream: Optional[bool] = False
-                ) -> Dict[str, Any]:
+                stream: Optional[bool] = False,
+            ) -> Dict[str, Any]:
                 """
                 Creates a chat request for the Prediction Guard /chat API.
 
@@ -224,24 +228,43 @@ class PredictionGuard:
                 :param max_tokens: The maximum amount of tokens the model should return.
                 :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
                 :param top_p: The sampling for the model to use.
-                :param stream: Option to stream the API response 
+                :param stream: Option to stream the API response
                 :return: A dictionary containing the chat response.
                 """
 
-                # Create a list of tuples, each containing all the parameters for 
+                # Create a list of tuples, each containing all the parameters for
                 # a call to _generate_chat
-                args = (model, messages, input, output, max_tokens, temperature, top_p, stream)
+                args = (
+                    model,
+                    messages,
+                    input,
+                    output,
+                    max_tokens,
+                    temperature,
+                    top_p,
+                    stream,
+                )
 
                 # Run _generate_chat
                 choices = self._generate_chat(*args)
 
                 return choices
 
-            def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p, stream):
+            def _generate_chat(
+                self,
+                model,
+                messages,
+                input,
+                output,
+                max_tokens,
+                temperature,
+                top_p,
+                stream,
+            ):
                 """
                 Function to generate a single chat response.
                 """
-                
+
                 def return_dict(url, headers, payload):
                     response = requests.request(
                         "POST", url + "/chat/completions", headers=headers, data=payload
@@ -262,21 +285,30 @@ class PredictionGuard:
 
                 def stream_generator(url, headers, payload, stream):
                     with requests.post(
-                        url + "/chat/completions", headers=headers, data=payload, stream=stream
+                        url + "/chat/completions",
+                        headers=headers,
+                        data=payload,
+                        stream=stream,
                     ) as response:
                         response.raise_for_status()
 
                         for line in response.iter_lines():
                             if line:
                                 decoded_line = line.decode("utf-8")
-                                formatted_return = "{" + (decoded_line.replace('data', '"data"', 1)) + "}"
+                                formatted_return = (
+                                    "{"
+                                    + (decoded_line.replace("data", '"data"', 1))
+                                    + "}"
+                                )
                                 try:
                                     dict_return = json.loads(formatted_return)
                                 except json.decoder.JSONDecodeError:
                                     pass
                                 else:
                                     try:
-                                        dict_return["data"]["choices"][0]["delta"]["content"]
+                                        dict_return["data"]["choices"][0]["delta"][
+                                            "content"
+                                        ]
                                     except KeyError:
                                         pass
                                     else:
@@ -285,8 +317,8 @@ class PredictionGuard:
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + self.api_key,
-                    "User-Agent": "Prediction Guard Python Client: " + __version__
-                    }
+                    "User-Agent": "Prediction Guard Python Client: " + __version__,
+                }
 
                 for message in messages:
                     if type(message["content"]) == list:
@@ -294,30 +326,53 @@ class PredictionGuard:
                             if entry["type"] == "image_url":
                                 image_data = entry["image_url"]["url"]
                                 if stream == True:
-                                    raise ValueError("Streaming is not currently supported when using vision.")
+                                    raise ValueError(
+                                        "Streaming is not currently supported when using vision."
+                                    )
                                 else:
                                     image_url_check = urllib.parse.urlparse(image_data)
                                     if os.path.exists(image_data):
                                         with open(image_data, "rb") as image_file:
-                                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                                            image_input = base64.b64encode(
+                                                image_file.read()
+                                            ).decode("utf-8")
 
-                                    elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", image_data):
-                                        if base64.b64encode(base64.b64decode(image_data)).decode('utf-8') == image_data:
+                                    elif re.fullmatch(
+                                        r"[A-Za-z0-9+/]*={0,2}", image_data
+                                    ):
+                                        if (
+                                            base64.b64encode(
+                                                base64.b64decode(image_data)
+                                            ).decode("utf-8")
+                                            == image_data
+                                        ):
                                             image_input = image_data
 
-                                    elif image_url_check.scheme in ("http", "https", "ftp"):
-                                        urllib.request.urlretrieve(image_data, "temp.jpg")
+                                    elif image_url_check.scheme in (
+                                        "http",
+                                        "https",
+                                        "ftp",
+                                    ):
+                                        urllib.request.urlretrieve(
+                                            image_data, "temp.jpg"
+                                        )
                                         temp_image = "temp.jpg"
                                         with open(temp_image, "rb") as image_file:
-                                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                                            image_input = base64.b64encode(
+                                                image_file.read()
+                                            ).decode("utf-8")
                                         os.remove(temp_image)
                                     else:
-                                        raise ValueError("Please enter a valid base64 encoded image, image file, or image url.")
-                                    
-                                    image_data_uri = "data:image/jpeg;base64," + image_input
+                                        raise ValueError(
+                                            "Please enter a valid base64 encoded image, image file, or image url."
+                                        )
+
+                                    image_data_uri = (
+                                        "data:image/jpeg;base64," + image_input
+                                    )
                                     entry["image_url"]["url"] = image_data_uri
                             elif entry["type"] == "text":
-                                continue   
+                                continue
 
                 payload_dict = {
                     "model": model,
@@ -325,14 +380,16 @@ class PredictionGuard:
                     "max_tokens": max_tokens,
                     "temperature": temperature,
                     "top_p": top_p,
-                    "stream": stream
+                    "stream": stream,
                 }
-                
+
                 if input:
                     payload_dict["input"] = input
                 if output:
                     if stream == True:
-                        raise ValueError("Factuality and toxicity checks are not supported when streaming is enabled.")
+                        raise ValueError(
+                            "Factuality and toxicity checks are not supported when streaming is enabled."
+                        )
                     else:
                         payload_dict["output"] = output
 
@@ -349,15 +406,13 @@ class PredictionGuard:
                 # functionality for this call on chat endpoint added
                 model_list = {
                     "Chat Models": [
-                        "deepseek-coder-6.7b-instruct", 
+                        "deepseek-coder-6.7b-instruct",
                         "Hermes-2-Pro-Mistral-7B",
                         "Hermes-2-Pro-Llama-3-8B",
                         "llama-3-sqlcoder-8b",
                         "Neural-Chat-7B",
                     ],
-                    "Vision Models": [
-                        "llava-1.5-7b-hf"
-                    ]
+                    "Vision Models": ["llava-1.5-7b-hf"],
                 }
 
                 # Get the list of current models.
@@ -366,12 +421,11 @@ class PredictionGuard:
                 #         "Authorization": "Bearer " + self.api_key,
                 #         "User-Agent": "Prediction Guard Python Client: " + __version__
                 #         }
-        
+
                 # response = requests.request("GET", self.url + "/chat/completions", headers=headers)
 
                 # return list(response.json())
                 return model_list
-        
 
     class Embeddings:
         def __init__(self, api_key, url):
@@ -379,20 +433,19 @@ class PredictionGuard:
             self.url = url
 
         def create(
-                self,
-                model: str,
-                input: List[Dict[str, str]],
+            self,
+            model: str,
+            input: List[Dict[str, str]],
         ) -> Dict[str, Any]:
-            
             """
             Creates an embeddings request to the Prediction Guard /embeddings API
-            
+
             :param model: Model to use for embeddings
             :param input: List of dictionaries containing input data with text and image keys.
-            :result: 
+            :result:
             """
 
-            # Create a list of tuples, each containing all the parameters for 
+            # Create a list of tuples, each containing all the parameters for
             # a call to _generate_translation
             args = (model, input)
 
@@ -401,7 +454,6 @@ class PredictionGuard:
             return choices
 
         def _generate_embeddings(self, model, input):
-
             """
             Function to generate an embeddings response.
             """
@@ -409,8 +461,8 @@ class PredictionGuard:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
 
             inputs = []
             for item in input:
@@ -422,30 +474,38 @@ class PredictionGuard:
 
                     if os.path.exists(item["image"]):
                         with open(item["image"], "rb") as image_file:
-                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                            image_input = base64.b64encode(image_file.read()).decode(
+                                "utf-8"
+                            )
 
                     elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", item["image"]):
-                        if base64.b64encode(base64.b64decode(item["image"])).decode('utf-8') == item["image"]:
+                        if (
+                            base64.b64encode(base64.b64decode(item["image"])).decode(
+                                "utf-8"
+                            )
+                            == item["image"]
+                        ):
                             image_input = item["image"]
 
                     elif image_url_check.scheme in ("http", "https", "ftp"):
                         urllib.request.urlretrieve(item["image"], "temp.jpg")
                         temp_image = "temp.jpg"
                         with open(temp_image, "rb") as image_file:
-                            image_input = base64.b64encode(image_file.read()).decode("utf-8")
+                            image_input = base64.b64encode(image_file.read()).decode(
+                                "utf-8"
+                            )
                         os.remove(temp_image)
 
                     else:
-                        raise ValueError("Please enter a valid base64 encoded image, image file, or image url.")
+                        raise ValueError(
+                            "Please enter a valid base64 encoded image, image file, or image url."
+                        )
 
                     item_dict["image"] = image_input
-                
+
                 inputs.append(item_dict)
 
-            payload_dict = {
-                "model": model,
-                "input": inputs
-            }
+            payload_dict = {"model": model, "input": inputs}
 
             payload = json.dumps(payload_dict)
             response = requests.request(
@@ -465,15 +525,12 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not generate embeddings. " + err)
-            
+
         def list_models(self) -> Dict[str, List[str]]:
 
-            model_list = [
-                "bridgetower-large-itm-mlm-itc"
-            ]
+            model_list = ["bridgetower-large-itm-mlm-itc"]
 
             return model_list
-
 
     class Translate:
         def __init__(self, api_key, url):
@@ -481,12 +538,8 @@ class PredictionGuard:
             self.url = url
 
         def create(
-                self,
-                text: str,
-                source_lang: str,
-                target_lang: str
+            self, text: str, source_lang: str, target_lang: str
         ) -> Dict[str, Any]:
-
             """
             Creates a translate request to the Prediction Guard /translate API.
 
@@ -496,7 +549,7 @@ class PredictionGuard:
             :result: A dictionary containing the translate response.
             """
 
-            # Create a list of tuples, each containing all the parameters for 
+            # Create a list of tuples, each containing all the parameters for
             # a call to _generate_translation
             args = (text, source_lang, target_lang)
 
@@ -512,13 +565,13 @@ class PredictionGuard:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
 
             payload_dict = {
                 "text": text,
                 "source_lang": source_lang,
-                "target_lang": target_lang
+                "target_lang": target_lang,
             }
             payload = json.dumps(payload_dict)
             response = requests.request(
@@ -538,15 +591,13 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not make translation. " + err)
-            
 
     class Factuality:
         def __init__(self, api_key, url):
             self.api_key = api_key
             self.url = url
 
-        def check(self, reference: str,
-                        text: str) -> Dict[str, Any]:
+        def check(self, reference: str, text: str) -> Dict[str, Any]:
             """
             Creates a factuality checking request for the Prediction Guard /factuality API.
 
@@ -557,23 +608,20 @@ class PredictionGuard:
             # Run _generate_score
             choices = self._generate_score(reference, text)
             return choices
-        
+
         def _generate_score(self, reference, text):
             """
-            Function to generate a single factuality score. 
+            Function to generate a single factuality score.
             """
 
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
-
-            payload_dict = {
-                "reference": reference,
-                "text": text
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
             }
+
+            payload_dict = {"reference": reference, "text": text}
             payload = json.dumps(payload_dict)
             response = requests.request(
                 "POST", self.url + "/factuality", headers=headers, data=payload
@@ -592,7 +640,6 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not check factuality. " + err)
-            
 
     class Toxicity:
         def __init__(self, api_key, url):
@@ -609,18 +656,18 @@ class PredictionGuard:
             # Run _generate_score
             choices = self._generate_score(text)
             return choices
-        
+
         def _generate_score(self, text):
             """
-            Function to generate a single toxicity score. 
+            Function to generate a single toxicity score.
             """
 
             # Make a prediction using the proxy.
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
 
             payload_dict = {"text": text}
             payload = json.dumps(payload_dict)
@@ -641,14 +688,15 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not check toxicity. " + err)
-                
 
     class Pii:
         def __init__(self, api_key, url):
             self.api_key = api_key
             self.url = url
 
-        def check(self, prompt: str, replace: bool, replace_method: Optional[str] = "random") -> Dict[str, Any]:
+        def check(
+            self, prompt: str, replace: bool, replace_method: Optional[str] = "random"
+        ) -> Dict[str, Any]:
             """
             Creates a PII checking request for the Prediction Guard /PII API.
 
@@ -669,14 +717,14 @@ class PredictionGuard:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
+            }
 
             payload_dict = {
                 "prompt": prompt,
                 "replace": replace,
-                "replace_method": replace_method
-                }
+                "replace_method": replace_method,
+            }
 
             payload = json.dumps(payload_dict)
             response = requests.request(
@@ -695,7 +743,6 @@ class PredictionGuard:
                 except:
                     pass
                 raise ValueError("Could not check PII. " + err)
-            
 
     class Injection:
         def __init__(self, api_key, url):
@@ -713,7 +760,7 @@ class PredictionGuard:
             # Run _check_injection
             choices = self._check_injection(prompt, detect)
             return choices
-        
+
         def _check_injection(self, prompt, detect):
             """
             Function to check if prompt is a prompt injection.
@@ -722,13 +769,10 @@ class PredictionGuard:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + self.api_key,
-                "User-Agent": "Prediction Guard Python Client: " + __version__
-                }
-
-            payload = {
-                "prompt": prompt,
-                "detect": detect
+                "User-Agent": "Prediction Guard Python Client: " + __version__,
             }
+
+            payload = {"prompt": prompt, "detect": detect}
 
             payload = json.dumps(payload)
 
