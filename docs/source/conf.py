@@ -22,11 +22,13 @@ author = 'Prediction Guard'
 
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx_autodoc_typehints",
+    "sphinx.ext.autodoc.typehints",
     "sphinx.ext.githubpages",
 ]
-autosummary_generate = True
-autosummary_imported_members = True
+
+autoclass_content = 'both'
+
+autodoc_typehints = 'description'
 
 templates_path = ['_templates']
 exclude_patterns = []

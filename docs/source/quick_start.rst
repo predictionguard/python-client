@@ -9,6 +9,7 @@ To use this library, you must have an api key. You can set it two ways: as an en
 4. Formats the API response in a clean, readable way.
 
 .. code-block:: python
+
    import json
    import os
 

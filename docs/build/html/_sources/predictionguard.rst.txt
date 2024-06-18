@@ -12,14 +12,6 @@ predictionguard.client module
    :undoc-members:
    :show-inheritance:
 
-predictionguard.version module
-------------------------------
-
-.. automodule:: predictionguard.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 
