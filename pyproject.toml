@@ -11,8 +11,8 @@ classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 description-file = "README.md"
 dependencies = [
-    "tabulate >=0.8.10",
-    "requests >=2.27.1",
+    "tabulate>=0.8.10",
+    "requests>=2.27.1",
 ]
 
 [project.optional-dependencies]
