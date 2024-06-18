@@ -1,6 +1,9 @@
 name: Deploy docs
 
 on:
+  # TODO: change to only on release
+  push:
+    branches: [ michal/gen-docs ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
