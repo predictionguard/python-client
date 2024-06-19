@@ -29,6 +29,7 @@ extensions = [
 autoclass_content = 'both'
 
 autodoc_typehints = 'description'
+add_module_names = False
 
 templates_path = ['_templates']
 exclude_patterns = []
