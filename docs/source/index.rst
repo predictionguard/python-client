@@ -8,6 +8,7 @@ This package provides functionality developed to simplify interfacing with Predi
    :hidden:
 
    install
+   requirements
    quick_start
 
 .. toctree::
