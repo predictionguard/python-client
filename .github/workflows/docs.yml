@@ -1,10 +1,9 @@
-name: Deploy docs
+name: Publish docs to Github Pages
 
 on:
-  # TODO: change to only on release
-  push:
-    branches: [ michal/gen-docs ]
-  # Allows you to run this workflow manually from the Actions tab
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -12,6 +11,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -22,9 +26,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
 
       - name: Install Python
         uses: actions/setup-python@v5
@@ -38,6 +39,9 @@ jobs:
         run: |
           cd docs
           make html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
