@@ -1,4 +1,4 @@
-name: create-release
+name: PyPI Release
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: To PyPI using Flit
+      - name: Publish to PyPI using Flit
         uses: AsifArmanRahman/to-pypi-using-flit@v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
