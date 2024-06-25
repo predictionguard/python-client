@@ -108,8 +108,9 @@ class PredictionGuard:
                                     input: Optional[Dict[str, Any]] = None,
                                     output: Optional[Dict[str, Any]] = None,
                                     max_tokens: Optional[int] = 100,
-                                    temperature: Optional[float] = 0.75,
-                                    top_p: Optional[float] = 1.0
+                                    temperature: Optional[float] = 1.0,
+                                    top_p: Optional[float] = 0.99,
+                                    top_k: Optional[int] = 50
                                     ) -> Dict[str, Any]:
             """
             Creates a completion request for the Prediction Guard /completions API.
@@ -121,19 +122,20 @@ class PredictionGuard:
             :param max_tokens: The maximum number of tokens to generate in the completion(s).
             :param temperature: The sampling temperature to use.
             :param top_p: The nucleus sampling probability to use.
+            :param top_k: The Top-K sampling for the model to use.
             :return: A dictionary containing the completion response.
             """
 
             # Create a list of tuples, each containing all the parameters for 
             # a call to _generate_completion
-            args = (model, prompt, input, output, max_tokens, temperature, top_p)
+            args = (model, prompt, input, output, max_tokens, temperature, top_p, top_k)
 
             # Run _generate_completion
             choices = self._generate_completion(*args)
 
             return choices
         
-        def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p):
+        def _generate_completion(self, model, prompt, input, output, max_tokens, temperature, top_p, top_k):
             """
             Function to generate a single completion. 
             """
@@ -150,7 +152,8 @@ class PredictionGuard:
                 "prompt": prompt,
                 "max_tokens": max_tokens,
                 "temperature": temperature,
-                "top_p": top_p
+                "top_p": top_p,
+                "top_k": top_k
             }
             if input:
                 payload_dict["input"] = input
@@ -210,8 +213,9 @@ class PredictionGuard:
                 input: Optional[Dict[str, Any]] = None,
                 output: Optional[Dict[str, Any]] = None,
                 max_tokens: Optional[int] = 100,
-                temperature: Optional[float] = 0.75,
-                top_p: Optional[float] = 1.0,
+                temperature: Optional[float] = 1.0,
+                top_p: Optional[float] = 0.99,
+                top_k: Optional[int] = 50,
                 stream: Optional[bool] = False
                 ) -> Dict[str, Any]:
                 """
@@ -223,21 +227,26 @@ class PredictionGuard:
                 :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
                 :param max_tokens: The maximum amount of tokens the model should return.
                 :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
-                :param top_p: The sampling for the model to use.
+                :param top_p: The nucleus sampling for the model to use.
+                :param top_k: The Top-K sampling for the model to use.
                 :param stream: Option to stream the API response 
                 :return: A dictionary containing the chat response.
                 """
 
                 # Create a list of tuples, each containing all the parameters for 
                 # a call to _generate_chat
-                args = (model, messages, input, output, max_tokens, temperature, top_p, stream)
+                args = (model, messages, input, output, max_tokens, temperature, top_p, top_k, stream)
 
                 # Run _generate_chat
                 choices = self._generate_chat(*args)
 
                 return choices
 
-            def _generate_chat(self, model, messages, input, output, max_tokens, temperature, top_p, stream):
+            def _generate_chat(
+                    self, model, messages, 
+                    input, output, max_tokens, 
+                    temperature, top_p, top_k, 
+                    stream):
                 """
                 Function to generate a single chat response.
                 """
@@ -325,6 +334,7 @@ class PredictionGuard:
                     "max_tokens": max_tokens,
                     "temperature": temperature,
                     "top_p": top_p,
+                    "top_k": top_k,
                     "stream": stream
                 }
                 
@@ -345,32 +355,16 @@ class PredictionGuard:
                     return return_dict(self.url, headers, payload)
 
             def list_models(self) -> Dict[str, List[str]]:
-                # Commented out parts are there for easier fix when
-                # functionality for this call on chat endpoint added
-                model_list = {
-                    "Chat Models": [
-                        "deepseek-coder-6.7b-instruct", 
-                        "Hermes-2-Pro-Mistral-7B",
-                        "Hermes-2-Pro-Llama-3-8B",
-                        "llama-3-sqlcoder-8b",
-                        "Neural-Chat-7B",
-                    ],
-                    "Vision Models": [
-                        "llava-1.5-7b-hf"
-                    ]
-                }
-
                 # Get the list of current models.
-                # headers = {
-                #         "Content-Type": "application/json",
-                #         "Authorization": "Bearer " + self.api_key,
-                #         "User-Agent": "Prediction Guard Python Client: " + __version__
-                #         }
+                headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + self.api_key,
+                        "User-Agent": "Prediction Guard Python Client: " + __version__
+                        }
         
-                # response = requests.request("GET", self.url + "/chat/completions", headers=headers)
+                response = requests.request("GET", self.url + "/chat/completions", headers=headers)
 
-                # return list(response.json())
-                return model_list
+                return list(response.json())
         
 
     class Embeddings:
@@ -473,6 +467,18 @@ class PredictionGuard:
             ]
 
             return model_list
+        
+        def list_models(self) -> Dict[str, List[str]]:
+            # Get the list of current models.
+            headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + self.api_key,
+                    "User-Agent": "Prediction Guard Python Client: " + __version__
+                    }
+    
+            response = requests.request("GET", self.url + "/embeddings", headers=headers)
+
+            return list(response.json())
 
 
     class Translate:
