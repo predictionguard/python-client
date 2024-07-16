@@ -580,14 +580,11 @@ class Translate:
 
         client = PredictionGuard()
 
-        response = client.embeddings.create(
-            model="bridgetower-large-itm-mlm-itc",
-            input=[
-                {
-                    "text": "Tell me a joke.",
-                    "image": "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg",
-                }
-            ],
+        response = client.translate.create(
+            text="The sky is blue.",
+            source_lang="eng",
+            target_lang="fra",
+            use_third_party_engine=True
         )
 
         print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
@@ -597,25 +594,32 @@ class Translate:
         self.api_key = api_key
         self.url = url
 
-    def create(self, text: str, source_lang: str, target_lang: str) -> Dict[str, Any]:
+    def create(
+            self, 
+            text: str, 
+            source_lang: str, 
+            target_lang: str, 
+            use_third_party_engine: Optional[bool] = False
+        ) -> Dict[str, Any]:
         """
         Creates a translate request to the Prediction Guard /translate API.
 
         :param text: The text to be translated.
         :param source_lang: The language the text is currently in.
         :param target_lang: The language the text will be translated to.
+        :param use_third_party_engine: A boolean for enabling translations with third party APIs.
         :result: A dictionary containing the translate response.
         """
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_translation
-        args = (text, source_lang, target_lang)
+        args = (text, source_lang, target_lang, use_third_party_engine)
 
         # Run _generate_translation
         choices = self._generate_translation(*args)
         return choices
 
-    def _generate_translation(self, text, source_lang, target_lang):
+    def _generate_translation(self, text, source_lang, target_lang, use_third_party_engine):
         """
         Function to generate a translation response.
         """
@@ -630,6 +634,7 @@ class Translate:
             "text": text,
             "source_lang": source_lang,
             "target_lang": target_lang,
+            "use_third_party_engine": use_third_party_engine
         }
         payload = json.dumps(payload_dict)
         response = requests.request(
