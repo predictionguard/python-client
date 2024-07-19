@@ -897,7 +897,7 @@ class Injection:
         self.api_key = api_key
         self.url = url
 
-    def check(self, prompt: str, detect: bool) -> Dict[str, Any]:
+    def check(self, prompt: str, detect: Optional[bool] = False) -> Dict[str, Any]:
         """
         Creates a prompt injection check request in the Prediction Guard /injection API.
 
