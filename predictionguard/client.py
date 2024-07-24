@@ -314,7 +314,7 @@ class ChatCompletions:
                                 
                             else:
                                 raise ValueError(
-                                    "Please enter a valid base64 encoded image, image file, image url, or data uri."
+                                    "Please enter a valid base64 encoded image, image file, image URL, or data URI."
                                 )
 
                             entry["image_url"]["url"] = image_data_uri
@@ -443,7 +443,7 @@ class Completions:
             ret = response.json()
             return ret
         else:
-            # Check if there is a json body in the response. Read thhether the API response should be streamedat in,
+            # Check if there is a json body in the response. Read whether the API response should be streamed in,
             # print out the error field in the json body, and raise an exception.
             err = ""
             try:
@@ -546,7 +546,7 @@ class Embeddings:
 
                 else:
                     raise ValueError(
-                        "Please enter a valid base64 encoded image, image file, or image url."
+                        "Please enter a valid base64 encoded image, image file, image URL, or data URI."
                     )
 
                 item_dict["image"] = image_input
