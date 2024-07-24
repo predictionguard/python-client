@@ -539,7 +539,7 @@ class Embeddings:
                         )
                     os.remove(temp_image)
 
-                elif bool(data_uri_pattern.match(item["image"])):
+                elif data_uri_pattern.match(item["image"]):
                     #process data_uri
                     comma_find = item["image"].rfind(',')
                     image_input = item["image"][comma_find + 1:]
