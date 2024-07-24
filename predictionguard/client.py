@@ -273,11 +273,17 @@ class ChatCompletions:
                             )
                         else:
                             image_url_check = urllib.parse.urlparse(image_data)
+                            data_uri_pattern = re.compile(
+                                r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
+                            )
+
                             if os.path.exists(image_data):
                                 with open(image_data, "rb") as image_file:
                                     image_input = base64.b64encode(
                                         image_file.read()
                                     ).decode("utf-8")
+
+                                image_data_uri = "data:image/jpeg;base64," + image_input
 
                             elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", image_data):
                                 if (
@@ -287,6 +293,7 @@ class ChatCompletions:
                                     == image_data
                                 ):
                                     image_input = image_data
+                                    image_data_uri = "data:image/jpeg;base64," + image_input
 
                             elif image_url_check.scheme in (
                                 "http",
@@ -300,12 +307,16 @@ class ChatCompletions:
                                         image_file.read()
                                     ).decode("utf-8")
                                 os.remove(temp_image)
+                                image_data_uri = "data:image/jpeg;base64," + image_input
+
+                            elif data_uri_pattern.match(image_data):
+                                image_data_uri = image_data
+                                
                             else:
                                 raise ValueError(
-                                    "Please enter a valid base64 encoded image, image file, or image url."
+                                    "Please enter a valid base64 encoded image, image file, image URL, or data URI."
                                 )
 
-                            image_data_uri = "data:image/jpeg;base64," + image_input
                             entry["image_url"]["url"] = image_data_uri
                     elif entry["type"] == "text":
                         continue
@@ -432,7 +443,7 @@ class Completions:
             ret = response.json()
             return ret
         else:
-            # Check if there is a json body in the response. Read thhether the API response should be streamedat in,
+            # Check if there is a json body in the response. Read whether the API response should be streamed in,
             # print out the error field in the json body, and raise an exception.
             err = ""
             try:
@@ -500,6 +511,9 @@ class Embeddings:
                 item_dict["text"] = item["text"]
             if "image" in item.keys():
                 image_url_check = urllib.parse.urlparse(item["image"])
+                data_uri_pattern = re.compile(
+                    r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
+                )
 
                 if os.path.exists(item["image"]):
                     with open(item["image"], "rb") as image_file:
@@ -525,9 +539,14 @@ class Embeddings:
                         )
                     os.remove(temp_image)
 
+                elif data_uri_pattern.match(item["image"]):
+                    #process data_uri
+                    comma_find = item["image"].rfind(',')
+                    image_input = item["image"][comma_find + 1:]
+
                 else:
                     raise ValueError(
-                        "Please enter a valid base64 encoded image, image file, or image url."
+                        "Please enter a valid base64 encoded image, image file, image URL, or data URI."
                     )
 
                 item_dict["image"] = image_input
