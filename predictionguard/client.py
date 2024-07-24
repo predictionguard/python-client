@@ -309,7 +309,7 @@ class ChatCompletions:
                                 os.remove(temp_image)
                                 image_data_uri = "data:image/jpeg;base64," + image_input
 
-                            elif bool(data_uri_pattern.match(image_data)):
+                            elif data_uri_pattern.match(image_data):
                                 image_data_uri = image_data
                                 
                             else:
