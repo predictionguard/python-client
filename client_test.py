@@ -225,6 +225,31 @@ def test_chat_completions_create_vision_image_b64():
     assert len(response["choices"][0]["message"]["content"]) > 0
 
 
+def test_chat_completions_create_vision_data_uri():
+    test_client = PredictionGuard()
+
+    with open("fixtures/test_image.jpeg", "rb") as image_file:
+        b64_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+    data_uri = "data:image/jpeg;base64," + b64_image
+
+    response = test_client.chat.completions.create(
+        model=os.environ["TEST_VISION_MODEL"],
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What is in this image?"},
+                    {"type": "image_url", "image_url": {"url": data_uri}},
+                ],
+            }
+        ],
+    )
+
+    assert response["choices"][0]["status"] == "success"
+    assert len(response["choices"][0]["message"]["content"]) > 0
+
+
 def test_chat_completions_create_vision_stream_fail():
     test_client = PredictionGuard()
 
@@ -315,6 +340,25 @@ def test_embeddings_create_image_b64():
         b64_image = base64.b64encode(image_file.read()).decode("utf-8")
 
     inputs = [{"image": b64_image}]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_EMBEDDINGS_MODEL"], input=inputs
+    )
+
+    assert response["data"][0]["status"] == "success"
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) == float
+
+
+def test_embeddings_create_data_uri():
+    test_client = PredictionGuard()
+
+    with open("fixtures/test_image.jpeg", "rb") as image_file:
+        b64_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+    data_uri = "data:image/jpeg;base64," + b64_image
+
+    inputs = [{"image": data_uri}]
 
     response = test_client.embeddings.create(
         model=os.environ["TEST_EMBEDDINGS_MODEL"], input=inputs
