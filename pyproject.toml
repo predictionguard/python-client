@@ -18,9 +18,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "sphinx",
-	"black",
+    "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme",
+    "black",
 ]
 
 [project.urls]
 Home = "https://predictionguard.com"
-
