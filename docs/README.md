@@ -30,7 +30,7 @@ cd build/html
 python3 -m http.server
 ```
 
-Open your browser to localhost:8080.
+Open your browser to localhost:8000.
 
 ## Publish to Github Pages
 
