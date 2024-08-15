@@ -14,8 +14,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Install Pytest
-      run: pip install pytest
+    - name: Install Dependencies
+      run: pip install pytest ruff
+
+    - name: Run Ruff
+      run: ruff check --output-format=github .
 
     - name: Run Tests
       run: pytest client_test.py
