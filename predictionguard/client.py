@@ -83,7 +83,7 @@ class PredictionGuard:
         # If the connection was unsuccessful, raise an exception.
         if response.status_code == 200:
             pass
-        elif response.status_code == 403:
+        elif response.status_code == 401:
             raise ValueError(
                 "Could not connect to Prediction Guard API with the given api_key. "
                 "Please check your access api_key and try again."
