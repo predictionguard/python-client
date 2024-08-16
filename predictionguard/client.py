@@ -83,7 +83,7 @@ class PredictionGuard:
         # If the connection was unsuccessful, raise an exception.
         if response.status_code == 200:
             pass
-        elif response.status_code == 403:
+        elif response.status_code == 401:
             raise ValueError(
                 "Could not connect to Prediction Guard API with the given api_key. "
                 "Please check your access api_key and try again."
@@ -225,7 +225,7 @@ class ChatCompletions:
                 err = ""
                 try:
                     err = response.json()["error"]
-                except:
+                except Exception:
                     pass
                 raise ValueError("Could not make prediction. " + err)
 
@@ -263,11 +263,11 @@ class ChatCompletions:
         }
 
         for message in messages:
-            if type(message["content"]) == list:
+            if type(message["content"]) is list:
                 for entry in message["content"]:
                     if entry["type"] == "image_url":
                         image_data = entry["image_url"]["url"]
-                        if stream == True:
+                        if stream:
                             raise ValueError(
                                 "Streaming is not currently supported when using vision."
                             )
@@ -334,7 +334,7 @@ class ChatCompletions:
         if input:
             payload_dict["input"] = input
         if output:
-            if stream == True:
+            if stream:
                 raise ValueError(
                     "Factuality and toxicity checks are not supported when streaming is enabled."
                 )
@@ -343,13 +343,13 @@ class ChatCompletions:
 
         payload = json.dumps(payload_dict)
 
-        if stream == True:
+        if stream:
             return stream_generator(self.url, headers, payload, stream)
 
         else:
             return return_dict(self.url, headers, payload)
 
-    def list_models(self) -> Dict[str, List[str]]:
+    def list_models(self) -> List[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",
@@ -448,7 +448,7 @@ class Completions:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not make prediction. " + err)
 
@@ -570,11 +570,11 @@ class Embeddings:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not generate embeddings. " + err)
 
-    def list_models(self) -> Dict[str, List[str]]:
+    def list_models(self) -> List[str]:
         # Get the list of current models.
         headers = {
             "Content-Type": "application/json",
@@ -670,7 +670,7 @@ class Translate:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not make translation. " + err)
 
@@ -740,7 +740,7 @@ class Factuality:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not check factuality. " + err)
 
@@ -808,7 +808,7 @@ class Toxicity:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not check toxicity. " + err)
 
@@ -884,7 +884,7 @@ class Pii:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not check PII. " + err)
 
@@ -956,6 +956,6 @@ class Injection:
             err = ""
             try:
                 err = response.json()["error"]
-            except:
+            except Exception:
                 pass
             raise ValueError("Could not check for injection. " + err)
