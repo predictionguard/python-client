@@ -300,7 +300,7 @@ def test_embeddings_create_text():
 
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
 
 
 def test_embeddings_create_image_file():
@@ -314,7 +314,7 @@ def test_embeddings_create_image_file():
 
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
 
 
 def test_embeddings_create_image_url():
@@ -330,7 +330,7 @@ def test_embeddings_create_image_url():
 
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
 
 
 def test_embeddings_create_image_b64():
@@ -347,7 +347,7 @@ def test_embeddings_create_image_b64():
 
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
 
 
 def test_embeddings_create_data_uri():
@@ -366,7 +366,7 @@ def test_embeddings_create_data_uri():
 
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
 
 
 def test_embeddings_create_both():
@@ -394,10 +394,10 @@ def test_embeddings_create_text_batch():
     assert len(response["data"]) > 1
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
     assert response["data"][1]["status"] == "success"
     assert len(response["data"][1]["embedding"]) > 0
-    assert type(response["data"][1]["embedding"][0]) == float
+    assert type(response["data"][1]["embedding"][0]) is float
 
 
 def test_embeddings_create_image_batch():
@@ -415,10 +415,10 @@ def test_embeddings_create_image_batch():
     assert len(response["data"]) > 1
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
     assert response["data"][1]["status"] == "success"
     assert len(response["data"][1]["embedding"]) > 0
-    assert type(response["data"][1]["embedding"][0]) == float
+    assert type(response["data"][1]["embedding"][0]) is float
 
 
 def test_embeddings_create_both_batch():
@@ -436,10 +436,10 @@ def test_embeddings_create_both_batch():
     assert len(response["data"]) > 1
     assert response["data"][0]["status"] == "success"
     assert len(response["data"][0]["embedding"]) > 0
-    assert type(response["data"][0]["embedding"][0]) == float
+    assert type(response["data"][0]["embedding"][0]) is float
     assert response["data"][1]["status"] == "success"
     assert len(response["data"][1]["embedding"]) > 0
-    assert type(response["data"][1]["embedding"][0]) == float
+    assert type(response["data"][1]["embedding"][0]) is float
 
 
 def test_embeddings_list_models():
@@ -462,7 +462,7 @@ def test_translate_create():
         text="The sky is blue", source_lang="eng", target_lang="fra"
     )
 
-    assert type(response["best_score"]) == float
+    assert type(response["best_score"]) is float
     assert len(response["best_translation"])
 
 
@@ -479,7 +479,7 @@ def test_factuality_check():
     )
 
     assert response["checks"][0]["status"] == "success"
-    assert type(response["checks"][0]["score"]) == float
+    assert type(response["checks"][0]["score"]) is float
 
 
 # ----------------------#
@@ -493,7 +493,7 @@ def test_toxicity_check():
     response = test_client.toxicity.check(text="This is a perfectly fine statement.")
 
     assert response["checks"][0]["status"] == "success"
-    assert type(response["checks"][0]["score"]) == float
+    assert type(response["checks"][0]["score"]) is float
 
 
 # -----------------#
@@ -527,7 +527,7 @@ def test_injection_check():
     )
 
     assert response["checks"][0]["status"] == "success"
-    assert type(response["checks"][0]["probability"]) == float
+    assert type(response["checks"][0]["probability"]) is float
 
 
 # -----------------------#
