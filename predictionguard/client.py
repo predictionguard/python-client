@@ -6,6 +6,8 @@ import requests
 from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
+from warnings import warn
+import uuid
 
 from .version import __version__
 
@@ -131,7 +133,7 @@ class Chat:
         ]
 
         result = client.chat.completions.create(
-            model="Neural-Chat-7B", messages=messages, max_tokens=500
+            model="Hermes-2-Pro-Llama-3-8B", messages=messages, max_tokens=500
         )
 
         print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
@@ -175,6 +177,16 @@ class ChatCompletions:
         :param stream: Option to stream the API response
         :return: A dictionary containing the chat response.
         """
+
+        # Handle model aliasing
+        # REMOVE IN v2.4.0
+        if model == "Neural-Chat-7B":
+            model = "neural-chat-7b-v3-3"
+            warn("""
+        This model alias is deprecated and will be removed in v2.4.0.
+        Please use 'neural-chat-7b-v3-3' when calling this model.
+        """, DeprecationWarning, stacklevel=2
+            )
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_chat
@@ -300,8 +312,8 @@ class ChatCompletions:
                                 "https",
                                 "ftp",
                             ):
-                                urllib.request.urlretrieve(image_data, "temp.jpg")
-                                temp_image = "temp.jpg"
+                                temp_image = uuid.uuid4().hex + ".jpg"
+                                urllib.request.urlretrieve(image_data, temp_image)
                                 with open(temp_image, "rb") as image_file:
                                     image_input = base64.b64encode(
                                         image_file.read()
@@ -311,7 +323,7 @@ class ChatCompletions:
 
                             elif data_uri_pattern.match(image_data):
                                 image_data_uri = image_data
-                                
+
                             else:
                                 raise ValueError(
                                     "Please enter a valid base64 encoded image, image file, image URL, or data URI."
@@ -395,6 +407,23 @@ class Completions:
         :param top_k: The Top-K sampling for the model to use.
         :return: A dictionary containing the completion response.
         """
+
+        # Handle model aliasing
+        # REMOVE IN v2.4.0
+        if model == "Neural-Chat-7B":
+            model = "neural-chat-7b-v3-3"
+            warn("""
+        This model alias is deprecated and will be removed in v2.4.0.
+        Please use 'neural-chat-7b-v3-3' when calling this model.
+        """, DeprecationWarning, stacklevel=2
+            )
+        elif model == "Nous-Hermes-Llama2-13B":
+            model = "Nous-Hermes-Llama2-13b"
+            warn("""
+        This model alias is deprecated and will be removed in v2.4.0.
+        Please use 'Nous-Hermes-Llama2-13b' when calling this model.
+        """, DeprecationWarning, stacklevel=2
+        )
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_completion
@@ -531,8 +560,8 @@ class Embeddings:
                         image_input = item["image"]
 
                 elif image_url_check.scheme in ("http", "https", "ftp"):
-                    urllib.request.urlretrieve(item["image"], "temp.jpg")
-                    temp_image = "temp.jpg"
+                    temp_image = uuid.uuid4().hex + ".jpg"
+                    urllib.request.urlretrieve(item["image"], temp_image)
                     with open(temp_image, "rb") as image_file:
                         image_input = base64.b64encode(image_file.read()).decode(
                             "utf-8"
