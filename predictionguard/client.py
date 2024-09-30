@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
 from warnings import warn
+import uuid
 
 from .version import __version__
 
@@ -311,8 +312,8 @@ class ChatCompletions:
                                 "https",
                                 "ftp",
                             ):
-                                urllib.request.urlretrieve(image_data, "temp.jpg")
-                                temp_image = "temp.jpg"
+                                temp_image = uuid.uuid4().hex + ".jpg"
+                                urllib.request.urlretrieve(image_data, temp_image)
                                 with open(temp_image, "rb") as image_file:
                                     image_input = base64.b64encode(
                                         image_file.read()
@@ -559,8 +560,8 @@ class Embeddings:
                         image_input = item["image"]
 
                 elif image_url_check.scheme in ("http", "https", "ftp"):
-                    urllib.request.urlretrieve(item["image"], "temp.jpg")
-                    temp_image = "temp.jpg"
+                    temp_image = uuid.uuid4().hex + ".jpg"
+                    urllib.request.urlretrieve(item["image"], temp_image)
                     with open(temp_image, "rb") as image_file:
                         image_input = base64.b64encode(image_file.read()).decode(
                             "utf-8"
