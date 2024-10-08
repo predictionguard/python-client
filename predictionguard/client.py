@@ -96,11 +96,6 @@ class PredictionGuard:
                 "Please check url specified, if no url specified, "
                 "Please contact support."
             )
-        elif response.status_code == 429:
-            raise ValueError(
-                "Could not connect to Prediction Guard API. "
-                "Too many requests, rate limit or quota exceeded."
-            )
 
 
 class Chat:
@@ -236,6 +231,11 @@ class ChatCompletions:
             if response.status_code == 200:
                 ret = response.json()
                 return ret
+            elif response.status_code == 429:
+                raise ValueError(
+                    "Could not connect to Prediction Guard API. "
+                    "Too many requests, rate limit or quota exceeded."
+            )
             else:
                 # Check if there is a json body in the response. Read that in,
                 # print out the error field in the json body, and raise an exception.
@@ -476,6 +476,11 @@ class Completions:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read whether the API response should be streamed in,
             # print out the error field in the json body, and raise an exception.
@@ -598,6 +603,11 @@ class Embeddings:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
@@ -698,6 +708,11 @@ class Translate:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
@@ -768,6 +783,11 @@ class Factuality:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
@@ -836,6 +856,11 @@ class Toxicity:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
@@ -912,6 +937,11 @@ class Pii:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
@@ -984,6 +1014,11 @@ class Injection:
         if response.status_code == 200:
             ret = response.json()
             return ret
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
         else:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
