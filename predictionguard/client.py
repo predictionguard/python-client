@@ -96,6 +96,11 @@ class PredictionGuard:
                 "Please check url specified, if no url specified, "
                 "Please contact support."
             )
+        elif response.status_code == 429:
+            raise ValueError(
+                "Could not connect to Prediction Guard API. "
+                "Too many requests, rate limit or quota exceeded."
+            )
 
 
 class Chat:
