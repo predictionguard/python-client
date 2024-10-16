@@ -154,7 +154,7 @@ class ChatCompletions:
     def create(
         self,
         model: str,
-        messages: List[Dict[str, Any]],
+        messages: Union[str, List[Dict[str, Any]]],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
         max_tokens: Optional[int] = 100,
@@ -183,10 +183,18 @@ class ChatCompletions:
         if model == "Neural-Chat-7B":
             model = "neural-chat-7b-v3-3"
             warn("""
-        This model alias is deprecated and will be removed in v2.4.0.
+        This model alias is deprecated and will be removed in v2.5.0.
         Please use 'neural-chat-7b-v3-3' when calling this model.
         """, DeprecationWarning, stacklevel=2
             )
+
+        if model == "Nous-Hermes-Llama2-13B":
+            model = "Nous-Hermes-Llama2-13b"
+            warn("""
+        This model alias is deprecated and will be removed in v2.5.0.
+        Please use 'Nous-Hermes-Llama2-13b' when calling this model.
+        """, DeprecationWarning, stacklevel=2
+             )
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_chat
@@ -279,64 +287,65 @@ class ChatCompletions:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        for message in messages:
-            if type(message["content"]) is list:
-                for entry in message["content"]:
-                    if entry["type"] == "image_url":
-                        image_data = entry["image_url"]["url"]
-                        if stream:
-                            raise ValueError(
-                                "Streaming is not currently supported when using vision."
-                            )
-                        else:
-                            image_url_check = urllib.parse.urlparse(image_data)
-                            data_uri_pattern = re.compile(
-                                r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
-                            )
-
-                            if os.path.exists(image_data):
-                                with open(image_data, "rb") as image_file:
-                                    image_input = base64.b64encode(
-                                        image_file.read()
-                                    ).decode("utf-8")
-
-                                image_data_uri = "data:image/jpeg;base64," + image_input
-
-                            elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", image_data):
-                                if (
-                                    base64.b64encode(
-                                        base64.b64decode(image_data)
-                                    ).decode("utf-8")
-                                    == image_data
-                                ):
-                                    image_input = image_data
-                                    image_data_uri = "data:image/jpeg;base64," + image_input
-
-                            elif image_url_check.scheme in (
-                                "http",
-                                "https",
-                                "ftp",
-                            ):
-                                temp_image = uuid.uuid4().hex + ".jpg"
-                                urllib.request.urlretrieve(image_data, temp_image)
-                                with open(temp_image, "rb") as image_file:
-                                    image_input = base64.b64encode(
-                                        image_file.read()
-                                    ).decode("utf-8")
-                                os.remove(temp_image)
-                                image_data_uri = "data:image/jpeg;base64," + image_input
-
-                            elif data_uri_pattern.match(image_data):
-                                image_data_uri = image_data
-
-                            else:
+        if type(messages) is list:
+            for message in messages:
+                if type(message["content"]) is list:
+                    for entry in message["content"]:
+                        if entry["type"] == "image_url":
+                            image_data = entry["image_url"]["url"]
+                            if stream:
                                 raise ValueError(
-                                    "Please enter a valid base64 encoded image, image file, image URL, or data URI."
+                                    "Streaming is not currently supported when using vision."
+                                )
+                            else:
+                                image_url_check = urllib.parse.urlparse(image_data)
+                                data_uri_pattern = re.compile(
+                                    r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
                                 )
 
-                            entry["image_url"]["url"] = image_data_uri
-                    elif entry["type"] == "text":
-                        continue
+                                if os.path.exists(image_data):
+                                    with open(image_data, "rb") as image_file:
+                                        image_input = base64.b64encode(
+                                            image_file.read()
+                                        ).decode("utf-8")
+
+                                    image_data_uri = "data:image/jpeg;base64," + image_input
+
+                                elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", image_data):
+                                    if (
+                                        base64.b64encode(
+                                            base64.b64decode(image_data)
+                                        ).decode("utf-8")
+                                        == image_data
+                                    ):
+                                        image_input = image_data
+                                        image_data_uri = "data:image/jpeg;base64," + image_input
+
+                                elif image_url_check.scheme in (
+                                    "http",
+                                    "https",
+                                    "ftp",
+                                ):
+                                    temp_image = uuid.uuid4().hex + ".jpg"
+                                    urllib.request.urlretrieve(image_data, temp_image)
+                                    with open(temp_image, "rb") as image_file:
+                                        image_input = base64.b64encode(
+                                            image_file.read()
+                                        ).decode("utf-8")
+                                    os.remove(temp_image)
+                                    image_data_uri = "data:image/jpeg;base64," + image_input
+
+                                elif data_uri_pattern.match(image_data):
+                                    image_data_uri = image_data
+
+                                else:
+                                    raise ValueError(
+                                        "Please enter a valid base64 encoded image, image file, image URL, or data URI."
+                                    )
+
+                                entry["image_url"]["url"] = image_data_uri
+                        elif entry["type"] == "text":
+                            continue
 
         payload_dict = {
             "model": model,
@@ -514,13 +523,13 @@ class Embeddings:
     def create(
         self,
         model: str,
-        input: List[Dict[str, str]],
+        input: Union[str, List[Union[str, Dict[str, str]]]],
     ) -> Dict[str, Any]:
         """
         Creates an embeddings request to the Prediction Guard /embeddings API
 
         :param model: Model to use for embeddings
-        :param input: List of dictionaries containing input data with text and image keys.
+        :param input: String, list of strings, or list of dictionaries containing input data with text and image keys.
         :result:
         """
 
@@ -543,54 +552,58 @@ class Embeddings:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        inputs = []
-        for item in input:
-            item_dict = {}
-            if "text" in item.keys():
-                item_dict["text"] = item["text"]
-            if "image" in item.keys():
-                image_url_check = urllib.parse.urlparse(item["image"])
-                data_uri_pattern = re.compile(
-                    r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
-                )
-
-                if os.path.exists(item["image"]):
-                    with open(item["image"], "rb") as image_file:
-                        image_input = base64.b64encode(image_file.read()).decode(
-                            "utf-8"
-                        )
-
-                elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", item["image"]):
-                    if (
-                        base64.b64encode(base64.b64decode(item["image"])).decode(
-                            "utf-8"
-                        )
-                        == item["image"]
-                    ):
-                        image_input = item["image"]
-
-                elif image_url_check.scheme in ("http", "https", "ftp"):
-                    temp_image = uuid.uuid4().hex + ".jpg"
-                    urllib.request.urlretrieve(item["image"], temp_image)
-                    with open(temp_image, "rb") as image_file:
-                        image_input = base64.b64encode(image_file.read()).decode(
-                            "utf-8"
-                        )
-                    os.remove(temp_image)
-
-                elif data_uri_pattern.match(item["image"]):
-                    #process data_uri
-                    comma_find = item["image"].rfind(',')
-                    image_input = item["image"][comma_find + 1:]
-
-                else:
-                    raise ValueError(
-                        "Please enter a valid base64 encoded image, image file, image URL, or data URI."
+        if type(input) is list and type(input[0]) is not str:
+            inputs = []
+            for item in input:
+                item_dict = {}
+                if "text" in item.keys():
+                    item_dict["text"] = item["text"]
+                if "image" in item.keys():
+                    image_url_check = urllib.parse.urlparse(item["image"])
+                    data_uri_pattern = re.compile(
+                        r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
                     )
 
-                item_dict["image"] = image_input
+                    if os.path.exists(item["image"]):
+                        with open(item["image"], "rb") as image_file:
+                            image_input = base64.b64encode(image_file.read()).decode(
+                                "utf-8"
+                            )
 
-            inputs.append(item_dict)
+                    elif re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", item["image"]):
+                        if (
+                            base64.b64encode(base64.b64decode(item["image"])).decode(
+                                "utf-8"
+                            )
+                            == item["image"]
+                        ):
+                            image_input = item["image"]
+
+                    elif image_url_check.scheme in ("http", "https", "ftp"):
+                        temp_image = uuid.uuid4().hex + ".jpg"
+                        urllib.request.urlretrieve(item["image"], temp_image)
+                        with open(temp_image, "rb") as image_file:
+                            image_input = base64.b64encode(image_file.read()).decode(
+                                "utf-8"
+                            )
+                        os.remove(temp_image)
+
+                    elif data_uri_pattern.match(item["image"]):
+                        #process data_uri
+                        comma_find = item["image"].rfind(',')
+                        image_input = item["image"][comma_find + 1:]
+
+                    else:
+                        raise ValueError(
+                            "Please enter a valid base64 encoded image, image file, image URL, or data URI."
+                        )
+
+                    item_dict["image"] = image_input
+
+                inputs.append(item_dict)
+
+        else:
+            inputs = input
 
         payload_dict = {"model": model, "input": inputs}
 
