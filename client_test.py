@@ -7,9 +7,9 @@ import pytest
 from predictionguard import PredictionGuard
 
 
-# ----------------------#
-#    Auth/URL Tests     #
-# ----------------------#
+#----------------------#
+#    Auth/URL Tests    #
+#----------------------#
 
 
 def test_specified_var():
@@ -57,9 +57,9 @@ Please contact support.
         )
 
 
-# -------------------------#
-#    Completions Tests     #
-# -------------------------#
+#-------------------------#
+#    Completions Tests    #
+#-------------------------#
 
 
 def test_completions_create():
@@ -93,9 +93,9 @@ def test_completions_list_models():
     assert len(response) > 0
 
 
-# ------------------#
-#    Chat Tests     #
-# ------------------#
+#------------------#
+#    Chat Tests    #
+#------------------#
 
 
 def test_chat_completions_create():
@@ -287,9 +287,9 @@ def test_chat_completions_list_models():
     assert len(response) > 0
 
 
-# ------------------------#
-#    Embeddings Tests     #
-# ------------------------#
+#------------------------#
+#   Embeddings Tests     #
+#------------------------#
 
 
 def test_embeddings_create_text():
@@ -332,6 +332,38 @@ def test_embeddings_create_text_object():
 
     assert len(response["data"][0]["embedding"]) > 0
     assert type(response["data"][0]["embedding"][0]) is float
+
+
+def test_embeddings_create_tokens():
+    test_client = PredictionGuard()
+
+    inputs = [0, 8647, 6, 55720, 59725, 7, 5, 2]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_TEXT_EMBEDDINGS_MODEL"], input=inputs
+    )
+
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) is float
+
+
+def test_embeddings_create_tokens_batch():
+    test_client = PredictionGuard()
+
+    inputs = [
+        [0, 8647, 6, 55720, 59725, 7, 5, 2],
+        [0, 5455, 3034, 6, 55720, 59725, 7, 5, 2]
+    ]
+
+    response = test_client.embeddings.create(
+        model=os.environ["TEST_TEXT_EMBEDDINGS_MODEL"], input=inputs
+    )
+
+    assert len(response["data"]) > 1
+    assert len(response["data"][0]["embedding"]) > 0
+    assert type(response["data"][0]["embedding"][0]) is float
+    assert len(response["data"][1]["embedding"]) > 0
+    assert type(response["data"][1]["embedding"][0]) is float
 
 
 def test_embeddings_create_image_file():
@@ -470,9 +502,9 @@ def test_embeddings_list_models():
     assert len(response) > 0
 
 
-# -----------------------#
-#    Translate Tests     #
-# -----------------------#
+#-----------------------#
+#    Translate Tests    #
+#-----------------------#
 
 
 def test_translate_create():
@@ -486,9 +518,9 @@ def test_translate_create():
     assert len(response["best_translation"])
 
 
-# ------------------------#
-#    Factuality Tests     #
-# ------------------------#
+#------------------------#
+#   Factuality Tests     #
+#------------------------#
 
 
 def test_factuality_check():
@@ -501,9 +533,9 @@ def test_factuality_check():
     assert type(response["checks"][0]["score"]) is float
 
 
-# ----------------------#
+#----------------------#
 #    Toxicity Tests    #
-# ----------------------#
+#----------------------#
 
 
 def test_toxicity_check():
@@ -514,9 +546,9 @@ def test_toxicity_check():
     assert type(response["checks"][0]["score"]) is float
 
 
-# -----------------#
+#-----------------#
 #    PII Tests    #
-# -----------------#
+#-----------------#
 
 
 def test_pii_check():
@@ -531,9 +563,9 @@ def test_pii_check():
     assert len(response["checks"][0]["new_prompt"]) > 0
 
 
-# -----------------------#
-#    Injection Tests     #
-# -----------------------#
+#-----------------------#
+#    Injection Tests    #
+#-----------------------#
 
 
 def test_injection_check():
@@ -546,9 +578,26 @@ def test_injection_check():
     assert type(response["checks"][0]["probability"]) is float
 
 
-# -----------------------#
-#    No API Key Test     #
-# -----------------------#
+#-----------------------#
+#    Tokenize Tests     #
+#-----------------------#
+
+
+def test_tokenize_create():
+    test_client = PredictionGuard()
+
+    response = test_client.tokenize.create(
+        model=os.environ["TEST_MODEL_NAME"],
+        input="Tokenize this please."
+    )
+
+    assert len(response) > 0
+    assert type(response[0]["id"]) is int
+
+
+#-----------------------#
+#    No API Key Test    #
+#-----------------------#
 
 
 def test_no_key():
