@@ -1,18 +1,19 @@
 import json
 
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from ...version import __version__
+from ..version import __version__
 
 
-class Toxicity:
-    """Toxicity checks the toxicity of a given text.
+class Pii:
+    """Pii replaces personal information such as names, SSNs, and emails in a given text.
 
     Usage::
 
         import os
         import json
+
         from predictionguard import PredictionGuard
 
         # Set your Prediction Guard token as an environmental variable.
@@ -20,46 +21,53 @@ class Toxicity:
 
         client = PredictionGuard()
 
-        # Perform the toxicity check.
-        result = client.toxicity.check(text="This is a perfectly fine statement.")
+        response = client.pii.check(
+            prompt="Hello, my name is John Doe and my SSN is 111-22-3333.",
+            replace=True,
+            replace_method="mask",
+        )
 
-        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
     """
 
     def __init__(self, api_key, url):
         self.api_key = api_key
         self.url = url
 
-    def check(self, text: str) -> Dict[str, Any]:
-        """
-        Creates a toxicity checking request for the Prediction Guard /toxicity API.
+    def check(
+        self, prompt: str, replace: bool, replace_method: Optional[str] = "random"
+    ) -> Dict[str, Any]:
+        """Creates a PII checking request for the Prediction Guard /PII API.
 
-        :param text: The text to check for toxicity.
+        :param text: The text to check for PII.
+        :param replace: Whether to replace PII if it is present.
+        :param replace_method: Method to replace PII if it is present.
         """
 
-        # Run _generate_score
-        choices = self._generate_score(text)
+        # Run _check_pii
+        choices = self._check_pii(prompt, replace, replace_method)
         return choices
 
-    def _generate_score(self, text):
-        """
-        Function to generate a single toxicity score.
-        """
+    def _check_pii(self, prompt, replace, replace_method):
+        """Function to check for PII."""
 
-        # Make a prediction using the proxy.
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        payload_dict = {"text": text}
+        payload_dict = {
+            "prompt": prompt,
+            "replace": replace,
+            "replace_method": replace_method,
+        }
+
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/toxicity", headers=headers, data=payload
+            "POST", self.url + "/PII", headers=headers, data=payload
         )
 
-        # If the request was successful, print the proxies.
         if response.status_code == 200:
             ret = response.json()
             return ret
@@ -76,4 +84,4 @@ class Toxicity:
                 err = response.json()["error"]
             except Exception:
                 pass
-            raise ValueError("Could not check toxicity. " + err)
+            raise ValueError("Could not check PII. " + err)

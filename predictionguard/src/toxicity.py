@@ -3,17 +3,16 @@ import json
 import requests
 from typing import Any, Dict
 
-from ...version import __version__
+from ..version import __version__
 
 
-class Factuality:
-    """Factuality checks the factuality of a given text compared to a reference.
+class Toxicity:
+    """Toxicity checks the toxicity of a given text.
 
     Usage::
 
         import os
         import json
-
         from predictionguard import PredictionGuard
 
         # Set your Prediction Guard token as an environmental variable.
@@ -21,8 +20,8 @@ class Factuality:
 
         client = PredictionGuard()
 
-        # Perform the factual consistency check.
-        result = client.factuality.check(reference="The sky is blue.", text="The sky is green.")
+        # Perform the toxicity check.
+        result = client.toxicity.check(text="This is a perfectly fine statement.")
 
         print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
     """
@@ -31,21 +30,20 @@ class Factuality:
         self.api_key = api_key
         self.url = url
 
-    def check(self, reference: str, text: str) -> Dict[str, Any]:
+    def check(self, text: str) -> Dict[str, Any]:
         """
-        Creates a factuality checking request for the Prediction Guard /factuality API.
+        Creates a toxicity checking request for the Prediction Guard /toxicity API.
 
-        :param reference: The reference text used to check for factual consistency.
-        :param text: The text to check for factual consistency.
+        :param text: The text to check for toxicity.
         """
 
         # Run _generate_score
-        choices = self._generate_score(reference, text)
+        choices = self._generate_score(text)
         return choices
 
-    def _generate_score(self, reference, text):
+    def _generate_score(self, text):
         """
-        Function to generate a single factuality score.
+        Function to generate a single toxicity score.
         """
 
         # Make a prediction using the proxy.
@@ -55,10 +53,10 @@ class Factuality:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        payload_dict = {"reference": reference, "text": text}
+        payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/factuality", headers=headers, data=payload
+            "POST", self.url + "/toxicity", headers=headers, data=payload
         )
 
         # If the request was successful, print the proxies.
@@ -78,4 +76,4 @@ class Factuality:
                 err = response.json()["error"]
             except Exception:
                 pass
-            raise ValueError("Could not check factuality. " + err)
+            raise ValueError("Could not check toxicity. " + err)

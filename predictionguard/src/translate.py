@@ -3,7 +3,7 @@ import json
 import requests
 from typing import Any, Dict, Optional
 
-from ...version import __version__
+from ..version import __version__
 
 
 class Translate:

@@ -9,7 +9,7 @@ import urllib.request
 import urllib.parse
 import uuid
 
-from ...version import __version__
+from ..version import __version__
 
 
 class Embeddings:

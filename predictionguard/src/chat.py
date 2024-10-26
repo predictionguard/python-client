@@ -10,7 +10,7 @@ import urllib.parse
 from warnings import warn
 import uuid
 
-from ...version import __version__
+from ..version import __version__
 
 
 class Chat:

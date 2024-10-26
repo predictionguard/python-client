@@ -3,15 +3,15 @@ import os
 import requests
 from typing import Optional
 
-from .source.predictionguard.chat import Chat
-from .source.predictionguard.completions import Completions
-from .source.predictionguard.embeddings import Embeddings
-from .source.predictionguard.tokenize import Tokenize
-from .source.predictionguard.translate import Translate
-from .source.predictionguard.factuality import Factuality
-from .source.predictionguard.toxicity import Toxicity
-from .source.predictionguard.pii import Pii
-from .source.predictionguard.injection import Injection
+from .src.chat import Chat
+from .src.completions import Completions
+from .src.embeddings import Embeddings
+from .src.tokenize import Tokenize
+from .src.translate import Translate
+from .src.factuality import Factuality
+from .src.toxicity import Toxicity
+from .src.pii import Pii
+from .src.injection import Injection
 from .version import __version__
 
 __all__ = [
