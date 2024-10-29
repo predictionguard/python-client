@@ -21,7 +21,7 @@ jobs:
       run: ruff check --ignore F401 --output-format=github .
 
     - name: Run Tests
-      run: pytest client_test.py
+      run: pytest tests
       env:
         PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY}}
         PREDICTIONGUARD_URL: ${{ secrets.PREDICTIONGUARD_URL}}
