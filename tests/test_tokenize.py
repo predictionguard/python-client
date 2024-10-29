@@ -12,5 +12,5 @@ def test_tokenize_create():
     )
 
     assert len(response) > 0
-    assert type(response[0]["id"]) is int
+    assert type(response["tokens"][0]["id"]) is int
 
