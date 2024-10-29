@@ -93,24 +93,6 @@ class ChatCompletions:
         :return: A dictionary containing the chat response.
         """
 
-        # Handle model aliasing
-        # REMOVE IN v2.4.0
-        if model == "Neural-Chat-7B":
-            model = "neural-chat-7b-v3-3"
-            warn("""
-        This model alias is deprecated and will be removed in v2.5.0.
-        Please use 'neural-chat-7b-v3-3' when calling this model.
-        """, DeprecationWarning, stacklevel=2
-            )
-
-        if model == "Nous-Hermes-Llama2-13B":
-            model = "Nous-Hermes-Llama2-13b"
-            warn("""
-        This model alias is deprecated and will be removed in v2.5.0.
-        Please use 'Nous-Hermes-Llama2-13b' when calling this model.
-        """, DeprecationWarning, stacklevel=2
-             )
-
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_chat
         args = (
