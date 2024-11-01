@@ -89,3 +89,19 @@ class Tokenize:
             except Exception:
                 pass
             raise ValueError("Could not generate tokens. " + err)
+
+    def list_models(self):
+        # Get the list of current models.
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.api_key,
+                "User-Agent": "Prediction Guard Python Client: " + __version__
+                }
+
+        response = requests.request("GET", self.url + "/models/tokenize", headers=headers)
+
+        response_list = []
+        for model in response.json()["data"]:
+            response_list.append(model)
+
+        return response_list

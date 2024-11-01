@@ -272,7 +272,7 @@ class ChatCompletions:
         else:
             return return_dict(self.url, headers, payload)
 
-    def list_models(self) -> List[str]:
+    def list_models(self, type: Optional[str, None]) -> List[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",
@@ -280,6 +280,16 @@ class ChatCompletions:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        response = requests.request("GET", self.url + "/chat/completions", headers=headers)
+        if type is None:
+            models_path = "/models/completion-chat"
+        else:
+            if type != "completion-chat" and type != "vision":
+                raise ValueError(
+                    "Please enter a valid models type (completion-chat or vision)."
+                )
+            else:
+                model_path = "/models/" + type
+
+        response = requests.request("GET", self.url + "/models/completion-chat", headers=headers)
 
         return list(response.json())

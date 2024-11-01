@@ -1,5 +1,4 @@
 import os
-import re
 import base64
 
 import pytest
@@ -215,3 +214,15 @@ def test_embeddings_list_models():
     response = test_client.embeddings.list_models()
 
     assert len(response) > 0
+    assert type(response[0]) is str
+
+
+def test_embeddings_list_models_fail():
+    test_client = PredictionGuard()
+
+    models_error = ""
+
+    with pytest.raises(ValueError, match=models_error):
+        test_client.embeddings.list_models(
+            type="fail"
+        )
