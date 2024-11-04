@@ -174,7 +174,7 @@ class Embeddings:
                 pass
             raise ValueError("Could not generate embeddings. " + err)
 
-    def list_models(self, type: Optional[str, None] = None) -> List[str]:
+    def list_models(self, capability: Optional[str] = "embedding") -> List[str]:
         # Get the list of current models.
         headers = {
             "Content-Type": "application/json",
@@ -182,21 +182,18 @@ class Embeddings:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        if type is None:
-            models_path = "/models/text-embeddings"
+        if capability != "embedding" and capability != "embedding-with-image":
+            raise ValueError(
+                "Please enter a valid models type "
+                "(embedding or embedding-with-image)."
+            )
         else:
-            if type != "text-embeddings" and type != "image-embeddings":
-                raise ValueError(
-                    "Please enter a valid models type "
-                    "(text-embeddings or image-embeddings)."
-                )
-            else:
-                models_path = "/models/" + type
+            model_path = "/models/" + capability
 
-        response = requests.request("GET", self.url + models_path, headers=headers)
+        response = requests.request("GET", self.url + model_path, headers=headers)
 
         response_list = []
         for model in response.json()["data"]:
-            response_list.append(model)
+            response_list.append(model["id"])
 
         return response_list

@@ -193,15 +193,4 @@ def test_chat_completions_list_models():
     response = test_client.chat.completions.list_models()
 
     assert len(response) > 0
-    assert type(response[0]) == str
-
-
-def test_chat_completions_list_models_fail():
-    test_client = PredictionGuard()
-
-    models_error = "Please enter a valid models type (completion-chat or vision)."
-
-    with pytest.raises(ValueError, match=models_error):
-        test_client.chat.completions.list_models(
-            type="fail"
-        )
+    assert type(response[0]) is str

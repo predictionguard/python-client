@@ -102,6 +102,6 @@ class Tokenize:
 
         response_list = []
         for model in response.json()["data"]:
-            response_list.append(model)
+            response_list.append(model["id"])
 
         return response_list

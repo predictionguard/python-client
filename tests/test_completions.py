@@ -32,4 +32,4 @@ def test_completions_list_models():
     response = test_client.completions.list_models()
 
     assert len(response) > 0
-    assert type(response[0]) == str
+    assert type(response[0]) is str

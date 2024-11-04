@@ -12,11 +12,12 @@ from .src.factuality import Factuality
 from .src.toxicity import Toxicity
 from .src.pii import Pii
 from .src.injection import Injection
+from .src.models import Models
 from .version import __version__
 
 __all__ = [
     "PredictionGuard", "Chat", "Completions", "Embeddings", "Tokenize",
-    "Translate", "Factuality", "Toxicity", "Pii", "Injection"
+    "Translate", "Factuality", "Toxicity", "Pii", "Injection", "Models"
 ]
 
 class PredictionGuard:
@@ -79,6 +80,9 @@ class PredictionGuard:
 
         self.tokenize: Tokenize = Tokenize(self.api_key, self.url)
         """Tokenize generates tokens for input text."""
+
+        self.models: Models = Models(self.api_key, self.url)
+        """Models lists all of the models available in the Prediction Guard API."""
 
     def _connect_client(self) -> None:
 

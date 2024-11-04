@@ -28,26 +28,26 @@ class Models:
         self.api_key = api_key
         self.url = url
 
-    def list(self, endpoint: Optional[str, None] = None) -> Dict[str, Any]:
+    def list(self, capability: Optional[str] = "") -> Dict[str, Any]:
         """
         Creates a models list request in the Prediction Guard REST API.
 
-        :param endpoint: The endpoint of models to list.
+        :param capability: The capability of models to list.
         :return: A dictionary containing the metadata of all the models.
         """
 
         # Run _check_injection
-        choices = self._list_models(endpoint)
+        choices = self._list_models(capability)
         return choices
 
-    def _list_models(self, endpoint):
+    def _list_models(self, capability):
         """
         Function to list available models.
         """
 
-        endpoints = [
-            "completion-chat", "completion", "vision",
-            "text-embeddings", "image-embeddings", "tokenize"
+        capabilities = [
+            "chat-completion", "chat-with-image", "completion",
+            "embedding", "embedding-with-image", "tokenize"
         ]
 
         headers = {
@@ -57,14 +57,14 @@ class Models:
         }
 
         models_path = "/models"
-        if endpoint is not None:
-            if endpoint not in endpoints:
+        if capability != "":
+            if capability not in capabilities:
                 raise ValueError(
-                    "If specifying an endpoint, please use on of the following: "
-                    + ", ".join(endpoints)
+                    "If specifying a capability, please use one of the following: "
+                    + ", ".join(capabilities)
                 )
             else:
-                models_path += "/" + endpoint
+                models_path += "/" + capability
 
         response = requests.request(
             "GET", self.url + models_path, headers=headers

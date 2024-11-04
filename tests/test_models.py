@@ -1,6 +1,3 @@
-from jedi.plugins import pytest
-from uaclient.api.u.pro.security.fix.cve.plan.v1 import endpoint
-
 from predictionguard import PredictionGuard
 
 
@@ -13,11 +10,22 @@ def test_models_list():
     assert type(response["data"][0]["id"]) is str
 
 
-def test_models_list_completion_chat():
+def test_models_list_chat_completion():
     test_client = PredictionGuard()
 
     response = test_client.models.list(
-        endpoint="completion-chat"
+        capability="chat-completion"
+    )
+
+    assert len(response["data"]) > 0
+    assert type(response["data"][0]["id"]) is str
+
+
+def test_models_list_chat_with_image():
+    test_client = PredictionGuard()
+
+    response = test_client.models.list(
+        capability="chat-with-image"
     )
 
     assert len(response["data"]) > 0
@@ -28,40 +36,29 @@ def test_models_list_completion():
     test_client = PredictionGuard()
 
     response = test_client.models.list(
-        endpoint="completion"
+        capability="completion"
     )
 
     assert len(response["data"]) > 0
     assert type(response["data"][0]["id"]) is str
 
 
-def test_models_list_vision():
+def test_models_list_embedding():
     test_client = PredictionGuard()
 
     response = test_client.models.list(
-        endpoint="vision"
+        capability="embedding"
     )
 
     assert len(response["data"]) > 0
     assert type(response["data"][0]["id"]) is str
 
 
-def test_models_list_text_embeddings():
+def test_models_list_embedding_with_image():
     test_client = PredictionGuard()
 
     response = test_client.models.list(
-        endpoint="text-embeddings"
-    )
-
-    assert len(response["data"]) > 0
-    assert type(response["data"][0]["id"]) is str
-
-
-def test_models_list_image_embeddings():
-    test_client = PredictionGuard()
-
-    response = test_client.models.list(
-        endpoint="image-embeddings"
+        capability="embedding-with-image"
     )
 
     assert len(response["data"]) > 0
@@ -72,19 +69,8 @@ def test_models_list_tokenize():
     test_client = PredictionGuard()
 
     response = test_client.models.list(
-        endpoint="tokenize"
+        capability="tokenize"
     )
 
     assert len(response["data"]) > 0
     assert type(response["data"][0]["id"]) is str
-
-
-def test_models_list_fail():
-    test_client = PredictionGuard()
-
-    models_error = ""
-
-    with pytest.raises(ValueError, match=models_error):
-        test_client.models.list(
-            endpoint="fail"
-        )

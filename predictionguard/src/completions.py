@@ -2,7 +2,6 @@ import json
 
 import requests
 from typing import Any, Dict, List, Optional, Union
-from warnings import warn
 
 from ..version import __version__
 
@@ -114,6 +113,6 @@ class Completions:
 
         response_list = []
         for model in response.json()["data"]:
-            response_list.append(model)
+            response_list.append(model["id"])
 
         return response_list

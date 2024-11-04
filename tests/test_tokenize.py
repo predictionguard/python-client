@@ -21,4 +21,4 @@ def test_tokenize_list():
     response = test_client.tokenize.list_models()
 
     assert len(response) > 0
-    assert type(response[0]) == str
+    assert type(response[0]) is str
