@@ -4,7 +4,7 @@ import os
 import base64
 
 import requests
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 import urllib.request
 import urllib.parse
 import uuid
@@ -174,7 +174,7 @@ class Embeddings:
                 pass
             raise ValueError("Could not generate embeddings. " + err)
 
-    def list_models(self) -> List[str]:
+    def list_models(self, capability: Optional[str] = "embedding") -> List[str]:
         # Get the list of current models.
         headers = {
             "Content-Type": "application/json",
@@ -182,6 +182,18 @@ class Embeddings:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        response = requests.request("GET", self.url + "/embeddings", headers=headers)
+        if capability != "embedding" and capability != "embedding-with-image":
+            raise ValueError(
+                "Please enter a valid models type "
+                "(embedding or embedding-with-image)."
+            )
+        else:
+            model_path = "/models/" + capability
 
-        return list(response.json())
+        response = requests.request("GET", self.url + model_path, headers=headers)
+
+        response_list = []
+        for model in response.json()["data"]:
+            response_list.append(model["id"])
+
+        return response_list

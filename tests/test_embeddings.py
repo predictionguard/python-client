@@ -1,8 +1,5 @@
 import os
-import re
 import base64
-
-import pytest
 
 from predictionguard import PredictionGuard
 
@@ -215,3 +212,4 @@ def test_embeddings_list_models():
     response = test_client.embeddings.list_models()
 
     assert len(response) > 0
+    assert type(response[0]) is str

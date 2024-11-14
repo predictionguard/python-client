@@ -14,3 +14,11 @@ def test_tokenize_create():
     assert len(response) > 0
     assert type(response["tokens"][0]["id"]) is int
 
+
+def test_tokenize_list():
+    test_client = PredictionGuard()
+
+    response = test_client.tokenize.list_models()
+
+    assert len(response) > 0
+    assert type(response[0]) is str

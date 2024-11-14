@@ -2,7 +2,6 @@ import json
 
 import requests
 from typing import Any, Dict, List, Optional, Union
-from warnings import warn
 
 from ..version import __version__
 
@@ -110,6 +109,10 @@ class Completions:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        response = requests.request("GET", self.url + "/completions", headers=headers)
+        response = requests.request("GET", self.url + "/models/completion", headers=headers)
 
-        return list(response.json())
+        response_list = []
+        for model in response.json()["data"]:
+            response_list.append(model["id"])
+
+        return response_list

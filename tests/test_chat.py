@@ -193,3 +193,4 @@ def test_chat_completions_list_models():
     response = test_client.chat.completions.list_models()
 
     assert len(response) > 0
+    assert type(response[0]) is str

@@ -7,7 +7,6 @@ import requests
 from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
-from warnings import warn
 import uuid
 
 from ..version import __version__
@@ -272,7 +271,7 @@ class ChatCompletions:
         else:
             return return_dict(self.url, headers, payload)
 
-    def list_models(self) -> List[str]:
+    def list_models(self, capability: Optional[str] = "chat-completion") -> List[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",
@@ -280,6 +279,17 @@ class ChatCompletions:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        response = requests.request("GET", self.url + "/chat/completions", headers=headers)
+        if capability != "chat-completion" and capability != "chat-with-image":
+            raise ValueError(
+                "Please enter a valid model type (chat-completion or chat-with-image)."
+            )
+        else:
+            model_path = "/models/" + capability
 
-        return list(response.json())
+        response = requests.request("GET", self.url + model_path, headers=headers)
+
+        response_list = []
+        for model in response.json()["data"]:
+            response_list.append(model["id"])
+
+        return response_list
