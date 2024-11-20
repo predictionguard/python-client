@@ -7,7 +7,7 @@ from ..version import __version__
 
 
 class Rerank:
-    """Rerank sorts text inputs by semantic relevance to a specified query..
+    """Rerank sorts text inputs by semantic relevance to a specified query.
 
         Usage::
 
