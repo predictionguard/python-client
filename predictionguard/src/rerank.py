@@ -1,13 +1,13 @@
 import json
 
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from ..version import __version__
 
 
-class Tokenize:
-    """Tokenize allows you to generate tokens with a models internal tokenizer.
+class Rerank:
+    """Rerank sorts text inputs by semantic relevance to a specified query.
 
         Usage::
 
@@ -21,9 +21,14 @@ class Tokenize:
 
             client = PredictionGuard()
 
-            response = client.tokenize.create(
-                model="Hermes-3-Llama-3.1-8B",
-                input="Tokenize this example."
+            response = client.rerank.create(
+                model="bge-reranker-v2-m3",
+                query="What is Deep Learning?",
+                documents=[
+                    "Deep Learning is pizza.",
+                    "Deep Learning is not pizza."
+                ],
+                return_documents=True
             )
 
             print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
@@ -34,28 +39,30 @@ class Tokenize:
         self.api_key = api_key
         self.url = url
 
-    def create(self, model: str, input: str) -> Dict[str, Any]:
+    def create(
+            self,
+            model: str,
+            query: str,
+            documents: List[str],
+            return_documents: Optional[bool] = True
+    ) -> Dict[str, Any]:
         """
-        Creates a tokenization request in the Prediction Guard /tokenize API.
+        Creates a rerank request in the Prediction Guard /rerank API.
 
-        :param model: The model to use for generating tokens.
-        :param input: The text to convert into tokens.
+        :param model: The model to use for reranking.
+        :param query: The query to rank against.
+        :param documents: The documents to rank.
+        :param return_documents: Whether to return documents with score.
         :return: A dictionary containing the tokens and token metadata.
         """
 
-        # Validate models
-        if model == "llava-1.5-7b-hf" or model == "bridgetower-large-itm-mlm-itc":
-            raise ValueError(
-                "Model %s is not supported by this endpoint." % model
-            )
-
-        # Run _create_tokens
-        choices = self._create_tokens(model, input)
+        # Run _create_rerank
+        choices = self._create_rerank(model, query, documents, return_documents)
         return choices
 
-    def _create_tokens(self, model, input):
+    def _create_rerank(self, model, query, documents, return_documents):
         """
-        Function to generate tokens.
+        Function to rank text.
         """
 
         headers = {
@@ -64,12 +71,17 @@ class Tokenize:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        payload = {"model": model, "input": input}
+        payload = {
+            "model": model,
+            "query": query,
+            "documents": documents,
+            "return_documents": return_documents
+        }
 
         payload = json.dumps(payload)
 
         response = requests.request(
-            "POST", self.url + "/tokenize", headers=headers, data=payload
+            "POST", self.url + "/rerank", headers=headers, data=payload
         )
 
         if response.status_code == 200:
@@ -88,7 +100,7 @@ class Tokenize:
                 err = response.json()["error"]
             except Exception:
                 pass
-            raise ValueError("Could not generate tokens. " + err)
+            raise ValueError("Could not rank documents. " + err)
 
     def list_models(self):
         # Get the list of current models.
@@ -98,7 +110,7 @@ class Tokenize:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        response = requests.request("GET", self.url + "/models/tokenize", headers=headers)
+        response = requests.request("GET", self.url + "/models/rerank", headers=headers)
 
         response_list = []
         for model in response.json()["data"]:
