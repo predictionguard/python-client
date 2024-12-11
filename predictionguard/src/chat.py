@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
 import uuid
+from warnings import warn
 
 from ..version import __version__
 
@@ -47,7 +48,7 @@ class Chat:
         ]
 
         result = client.chat.completions.create(
-            model="Hermes-2-Pro-Llama-3-8B", messages=messages, max_tokens=500
+            model="Hermes-2-Pro-Llama-3-8B", messages=messages, max_completion_tokens=500
         )
 
         print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
@@ -71,7 +72,8 @@ class ChatCompletions:
         messages: Union[str, List[Dict[str, Any]]],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
-        max_tokens: Optional[int] = 100,
+        max_completion_tokens: Optional[int] = 100,
+        max_tokens: Optional[int] = None,
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.99,
         top_k: Optional[float] = 50,
@@ -84,13 +86,22 @@ class ChatCompletions:
         :param messages: The content of the call, an array of dictionaries containing a role and content.
         :param input: A dictionary containing the PII and injection arguments.
         :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
-        :param max_tokens: The maximum amount of tokens the model should return.
+        :param max_completion_tokens: The maximum amount of tokens the model should return.
         :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
         :param top_p: The sampling for the model to use.
         :param top_k: The Top-K sampling for the model to use.
         :param stream: Option to stream the API response
         :return: A dictionary containing the chat response.
         """
+
+        # Handling max_tokens and returning deprecation message
+        if max_tokens is not None:
+            max_completion_tokens = max_tokens
+            warn("""
+            The max_tokens argument is deprecated. 
+            Please use max_completion_tokens instead.
+            """, DeprecationWarning, stacklevel=2
+            )
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_chat
@@ -99,7 +110,7 @@ class ChatCompletions:
             messages,
             input,
             output,
-            max_tokens,
+            max_completion_tokens,
             temperature,
             top_p,
             top_k,
@@ -117,7 +128,7 @@ class ChatCompletions:
         messages,
         input,
         output,
-        max_tokens,
+        max_completion_tokens,
         temperature,
         top_p,
         top_k,
@@ -246,7 +257,7 @@ class ChatCompletions:
         payload_dict = {
             "model": model,
             "messages": messages,
-            "max_tokens": max_tokens,
+            "max_completion_tokens": max_completion_tokens,
             "temperature": temperature,
             "top_p": top_p,
             "top_k": top_k,
