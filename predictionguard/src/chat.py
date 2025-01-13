@@ -153,7 +153,7 @@ class ChatCompletions:
             )
             else:
                 # Check if there is a json body in the response. Read that in,
-                # print out the error field in the json body, and raise an exception.
+                # then print out the error field in the json body, and raise an exception.
                 err = ""
                 try:
                     err = response.json()["error"]
