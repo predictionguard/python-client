@@ -2,6 +2,7 @@ import json
 
 import requests
 from typing import Any, Dict, List, Optional, Union
+from warnings import warn
 
 from ..version import __version__
 
@@ -21,7 +22,8 @@ class Completions:
         prompt: Union[str, List[str]],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
-        max_tokens: Optional[int] = 100,
+        max_completion_tokens: Optional[int] = 100,
+        max_tokens: Optional[int] = None,
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.99,
         top_k: Optional[int] = 50
@@ -33,16 +35,25 @@ class Completions:
         :param prompt: The prompt(s) to generate completions for.
         :param input: A dictionary containing the PII and injection arguments.
         :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
-        :param max_tokens: The maximum number of tokens to generate in the completion(s).
+        :param max_completion_tokens: The maximum number of tokens to generate in the completion(s).
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
         :param top_k: The Top-K sampling for the model to use.
         :return: A dictionary containing the completion response.
         """
 
+        # Handling max_tokens and returning deprecation message
+        if max_tokens is not None:
+            max_completion_tokens = max_tokens
+            warn("""
+            The max_tokens argument is deprecated. 
+            Please use max_completion_tokens instead.
+            """, DeprecationWarning, stacklevel=2
+            )
+
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_completion
-        args = (model, prompt, input, output, max_tokens, temperature, top_p, top_k)
+        args = (model, prompt, input, output, max_completion_tokens, temperature, top_p, top_k)
 
         # Run _generate_completion
         choices = self._generate_completion(*args)
@@ -51,7 +62,7 @@ class Completions:
 
     def _generate_completion(
         self, model, prompt,
-        input, output, max_tokens,
+        input, output, max_completion_tokens,
         temperature, top_p, top_k
     ):
         """
@@ -68,7 +79,7 @@ class Completions:
         payload_dict = {
             "model": model,
             "prompt": prompt,
-            "max_tokens": max_tokens,
+            "max_completion_tokens": max_completion_tokens,
             "temperature": temperature,
             "top_p": top_p,
             "top_k": top_k
