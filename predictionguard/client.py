@@ -5,6 +5,7 @@ from typing import Optional
 
 from .src.chat import Chat
 from .src.completions import Completions
+from .src.documents import Documents
 from .src.embeddings import Embeddings
 from .src.rerank import Rerank
 from .src.tokenize import Tokenize
@@ -17,9 +18,9 @@ from .src.models import Models
 from .version import __version__
 
 __all__ = [
-    "PredictionGuard", "Chat", "Completions", "Embeddings", "Rerank",
-    "Tokenize", "Translate", "Factuality", "Toxicity", "Pii", "Injection",
-    "Models"
+    "PredictionGuard", "Chat", "Completions", "Embeddings",
+    "Documents", "Rerank", "Tokenize", "Translate",
+    "Factuality", "Toxicity", "Pii", "Injection", "Models"
 ]
 
 class PredictionGuard:
@@ -64,6 +65,9 @@ class PredictionGuard:
 
         self.embeddings: Embeddings = Embeddings(self.api_key, self.url)
         """Embedding generates chat completions based on a conversation history."""
+
+        self.documents: Documents = Documents(self.api_key, self.url)
+        """Documents allows you to extract text from various document file types."""
 
         self.rerank: Rerank = Rerank(self.api_key, self.url)
         """Rerank sorts text inputs by semantic relevance to a specified query."""

@@ -22,6 +22,7 @@ class Completions:
         prompt: Union[str, List[str]],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
+        echo: Optional[bool] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[str, int]] = None,
         max_completion_tokens: Optional[int] = 100,
@@ -40,6 +41,7 @@ class Completions:
         :param prompt: The prompt(s) to generate completions for.
         :param input: A dictionary containing the PII and injection arguments.
         :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
+        :param echo: A boolean indicating whether to echo the prompt(s) to the output.
         :param frequency_penalty: The frequency penalty to use.
         :param logit_bias: The logit bias to use.
         :param max_completion_tokens: The maximum number of tokens to generate in the completion(s).
@@ -68,6 +70,7 @@ class Completions:
             prompt,
             input,
             output,
+            echo,
             frequency_penalty,
             logit_bias,
             max_completion_tokens,
@@ -91,6 +94,7 @@ class Completions:
         prompt,
         input,
         output,
+        echo,
         frequency_penalty,
         logit_bias,
         max_completion_tokens,
@@ -165,6 +169,7 @@ class Completions:
         payload_dict = {
             "model": model,
             "prompt": prompt,
+            "echo": echo,
             "frequency_penalty": frequency_penalty,
             "logit_bias": logit_bias,
             "max_completion_tokens": max_completion_tokens,

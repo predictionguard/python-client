@@ -4,7 +4,10 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "predictionguard"
-authors = [{name = "Daniel Whitenack", email = "dan@predictionguard.com"}]
+authors = [
+    {name = "Daniel Whitenack", email = "dan@predictionguard.com"},
+    {name = "Jacob Mansdorfer", email = "jacob@predictionguard.com"}
+    ]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
