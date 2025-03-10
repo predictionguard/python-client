@@ -1,5 +1,4 @@
 import json
-from pyexpat import model
 
 import requests
 from typing import Any, Dict, Optional
@@ -7,10 +6,13 @@ from typing import Any, Dict, Optional
 from ..version import __version__
 
 
-class Documents:
-    """Documents allows you to extract text from various document file types.
+class Audio:
+    """Audio generates a response based on audio data.
 
     Usage::
+
+        import os
+        import json
 
         from predictionguard import PredictionGuard
 
@@ -19,42 +21,48 @@ class Documents:
 
         client = PredictionGuard()
 
-        response = client.documents.extract.create(
-            file="sample.pdf"
+        result = client.audio.transcriptions.create(
+            model="whisper-3-large-instruct", file=sample_audio.wav
         )
 
-        print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
     """
 
     def __init__(self, api_key, url):
         self.api_key = api_key
         self.url = url
 
-        self.extract: DocumentsExtract = DocumentsExtract(self.api_key, self.url)
+        self.transcriptions: AudioTranscriptions = AudioTranscriptions(self.api_key, self.url)
 
-class DocumentsExtract:
+class AudioTranscriptions:
     def __init__(self, api_key, url):
         self.api_key = api_key
         self.url = url
 
     def create(
         self,
+        model: str,
         file: str
     ) -> Dict[str, Any]:
         """
-        Creates a documents request to the Prediction Guard /documents/extract API
+        Creates a audio transcription request to the Prediction Guard /audio/transcriptions API
 
-        :param file: Document to be parsed
-        :result: A dictionary containing the title, content, and length of the document.
+        :param model: The model to use
+        :param file: Audio file to be transcribed
+        :result: A dictionary containing the transcribed text.
         """
 
-        # Run _extract_documents
-        choices = self._extract_documents(file)
+        # Create a list of tuples, each containing all the parameters for
+        # a call to _transcribe_audio
+        args = (model, file)
+
+        # Run _transcribe_audio
+        choices = self._transcribe_audio(*args)
         return choices
 
-    def _extract_documents(self, file):
+    def _transcribe_audio(self, model, file):
         """
-        Function to extract a document.
+        Function to transcribe an audio file.
         """
 
         headers = {
@@ -62,11 +70,12 @@ class DocumentsExtract:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        with open(file, "rb") as doc_file:
-            files = {"file": (file, doc_file)}
+        with open(file, "rb") as audio_file:
+            files = {"file": (file, audio_file, "audio/wav")}
+            data = {"model": model}
 
             response = requests.request(
-                "POST", self.url + "/documents/extract", headers=headers, files=files
+                "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data
             )
 
         # If the request was successful, print the proxies.
@@ -86,4 +95,4 @@ class DocumentsExtract:
                 err = response.json()["error"]
             except Exception:
                 pass
-            raise ValueError("Could not extract document. " + err)
+            raise ValueError("Could not transcribe the audio file. " + err)
