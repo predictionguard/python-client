@@ -69,17 +69,34 @@ class ChatCompletions:
     def create(
         self,
         model: str,
-        messages: Union[str, List[Dict[str, Any]]],
+        messages: Union[
+            str, List[
+                Dict[str, Any]
+            ]
+        ],
         input: Optional[Dict[str, Any]] = None,
         output: Optional[Dict[str, Any]] = None,
         frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[str, int]] = None,
+        logit_bias: Optional[
+            Dict[str, int]
+        ] = None,
         max_completion_tokens: Optional[int] = 100,
         max_tokens: Optional[int] = None,
+        parallel_tool_calls: Optional[bool] = None,
         presence_penalty: Optional[float] = None,
-        stop: Optional[Union[str, List[str]]] = None,
+        stop: Optional[
+            Union[
+                str, List[str]
+            ]
+        ] = None,
         stream: Optional[bool] = False,
         temperature: Optional[float] = 1.0,
+        tool_choice: Optional[Union[
+            str, Dict[
+                str, Dict[str, str]
+            ]
+        ]] = None,
+        tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
         top_p: Optional[float] = 0.99,
         top_k: Optional[float] = 50,
     ) -> Dict[str, Any]:
@@ -93,10 +110,13 @@ class ChatCompletions:
         :param frequency_penalty: The frequency penalty to use.
         :param logit_bias: The logit bias to use.
         :param max_completion_tokens: The maximum amount of tokens the model should return.
+        :param parallel_tool_calls: The parallel tool calls to use.
         :param presence_penalty: The presence penalty to use.
         :param stop: The completion stopping criteria.
         :param stream: Option to stream the API response
         :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
+        :param tool_choice: The tool choice to use.
+        :param tools: Options to pass to the tool choice.
         :param top_p: The sampling for the model to use.
         :param top_k: The Top-K sampling for the model to use.
         :return: A dictionary containing the chat response.
@@ -121,10 +141,13 @@ class ChatCompletions:
             frequency_penalty,
             logit_bias,
             max_completion_tokens,
-            temperature,
+            parallel_tool_calls,
             presence_penalty,
             stop,
             stream,
+            temperature,
+            tool_choice,
+            tools,
             top_p,
             top_k
         )
@@ -143,10 +166,13 @@ class ChatCompletions:
         frequency_penalty,
         logit_bias,
         max_completion_tokens,
+        parallel_tool_calls,
         presence_penalty,
         stop,
         stream,
         temperature,
+        tool_choice,
+        tools,
         top_p,
         top_k,
     ):
@@ -276,10 +302,13 @@ class ChatCompletions:
             "frequency_penalty": frequency_penalty,
             "logit_bias": logit_bias,
             "max_completion_tokens": max_completion_tokens,
+            "parallel_tool_calls": parallel_tool_calls,
             "presence_penalty": presence_penalty,
             "stop": stop,
             "stream": stream,
             "temperature": temperature,
+            "tool_choice": tool_choice,
+            "tools": tools,
             "top_p": top_p,
             "top_k": top_k,
         }

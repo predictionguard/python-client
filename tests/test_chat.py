@@ -187,6 +187,21 @@ def test_chat_completions_create_vision_stream_fail():
             response_list.append(res)
 
 
+def test_chat_completions_create_tool_call():
+    test_client = PredictionGuard()
+
+    response = test_client.chat.completions.create(
+        model=os.environ["TEST_MODEL_NAME"],
+        messages=[
+            {"role": "system", "content": "You are a helpful chatbot."},
+            {"role": "user", "content": "Tell me a joke."},
+        ],
+
+    )
+
+    assert len(response["choices"][0]["message"]["content"]) > 0
+
+
 def test_chat_completions_list_models():
     test_client = PredictionGuard()
 
