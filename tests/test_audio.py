@@ -7,7 +7,7 @@ def test_audio_transcribe_success():
     test_client = PredictionGuard()
 
     response = test_client.audio.transcriptions.create(
-        model="whisper-3-base",
+        model="base",
         file="fixtures/test_audio.wav"
     )
 
