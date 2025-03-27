@@ -87,7 +87,6 @@ class Completions:
 
         return choices
 
-    # TODO: Fix stream response engine
     def _generate_completion(
         self,
         model,
@@ -153,7 +152,7 @@ class Completions:
                             pass
                         else:
                             try:
-                                dict_return["data"]["choices"][0]["delta"]["content"]
+                                dict_return["data"]["choices"][0]["text"]
                             except KeyError:
                                 pass
                             else:

@@ -95,7 +95,7 @@ class ChatCompletions:
             str, Dict[
                 str, Dict[str, str]
             ]
-        ]] = None,
+        ]] = "none",
         tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
         top_p: Optional[float] = 0.99,
         top_k: Optional[float] = 50,
