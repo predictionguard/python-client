@@ -7,6 +7,28 @@ from ..version import __version__
 
 
 class Translate:
+    # UNCOMMENT WHEN DEPRECATED
+    # """No longer supported.
+    # """
+    #
+    # def __init__(self, api_key, url):
+    #     self.api_key = api_key
+    #     self.url = url
+    #
+    # def create(
+    #         self,
+    #         text: Optional[str],
+    #         source_lang: Optional[str],
+    #         target_lang: Optional[str],
+    #         use_third_party_engine: Optional[bool] = False
+    #     ) -> Dict[str, Any]:
+    #     """
+    #     No longer supported
+    #     """
+    #
+    #     raise ValueError(
+    #         "The translate functionality is no longer supported."
+    #     )
     """Translate converts text from one language to another.
 
     Usage::
@@ -28,6 +50,7 @@ class Translate:
         print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
     """
 
+    # REMOVE BELOW HERE FOR DEPRECATION
     def __init__(self, api_key, url):
         self.api_key = api_key
         self.url = url
