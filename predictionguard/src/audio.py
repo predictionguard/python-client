@@ -3,6 +3,8 @@ import json
 import requests
 from typing import Any, Dict, Optional
 
+from click import prompt
+
 from ..version import __version__
 
 
@@ -42,25 +44,31 @@ class AudioTranscriptions:
     def create(
         self,
         model: str,
-        file: str
+        file: str,
+        language: Optional[str] = "auto",
+        temperature: Optional[float] = 0.0,
+        prompt: Optional[str] = "",
     ) -> Dict[str, Any]:
         """
         Creates a audio transcription request to the Prediction Guard /audio/transcriptions API
 
         :param model: The model to use
         :param file: Audio file to be transcribed
+        :param language: The language of the audio file
+        :param temperature: The temperature parameter for model transcription
+        :param prompt: A prompt to assist in transcription styling
         :result: A dictionary containing the transcribed text.
         """
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _transcribe_audio
-        args = (model, file)
+        args = (model, file, language, temperature, prompt)
 
         # Run _transcribe_audio
         choices = self._transcribe_audio(*args)
         return choices
 
-    def _transcribe_audio(self, model, file):
+    def _transcribe_audio(self, model, file, language, temperature, prompt):
         """
         Function to transcribe an audio file.
         """
@@ -72,7 +80,12 @@ class AudioTranscriptions:
 
         with open(file, "rb") as audio_file:
             files = {"file": (file, audio_file, "audio/wav")}
-            data = {"model": model}
+            data = {
+                "model": model,
+                "language": language,
+                "temperature": temperature,
+                "prompt": prompt,
+                }
 
             response = requests.request(
                 "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data
