@@ -3,8 +3,6 @@ import json
 import requests
 from typing import Any, Dict, Optional
 
-from click import prompt
-
 from ..version import __version__
 
 
