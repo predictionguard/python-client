@@ -95,7 +95,7 @@ class ChatCompletions:
             str, Dict[
                 str, Dict[str, str]
             ]
-        ]] = "none",
+        ]] = None,
         tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
         top_p: Optional[float] = 0.99,
         top_k: Optional[float] = 50,
@@ -296,22 +296,40 @@ class ChatCompletions:
                         elif entry["type"] == "text":
                             continue
 
-        payload_dict = {
-            "model": model,
-            "messages": messages,
-            "frequency_penalty": frequency_penalty,
-            "logit_bias": logit_bias,
-            "max_completion_tokens": max_completion_tokens,
-            "parallel_tool_calls": parallel_tool_calls,
-            "presence_penalty": presence_penalty,
-            "stop": stop,
-            "stream": stream,
-            "temperature": temperature,
-            "tool_choice": tool_choice,
-            "tools": tools,
-            "top_p": top_p,
-            "top_k": top_k,
-        }
+        # TODO: Remove `tool_choice` check when null value available in API
+        if tool_choice is None:
+            payload_dict = {
+                "model": model,
+                "messages": messages,
+                "frequency_penalty": frequency_penalty,
+                "logit_bias": logit_bias,
+                "max_completion_tokens": max_completion_tokens,
+                "parallel_tool_calls": parallel_tool_calls,
+                "presence_penalty": presence_penalty,
+                "stop": stop,
+                "stream": stream,
+                "temperature": temperature,
+                "tools": tools,
+                "top_p": top_p,
+                "top_k": top_k,
+            }
+        else:
+            payload_dict = {
+                "model": model,
+                "messages": messages,
+                "frequency_penalty": frequency_penalty,
+                "logit_bias": logit_bias,
+                "max_completion_tokens": max_completion_tokens,
+                "parallel_tool_calls": parallel_tool_calls,
+                "presence_penalty": presence_penalty,
+                "stop": stop,
+                "stream": stream,
+                "temperature": temperature,
+                "tool_choice": tool_choice,
+                "tools": tools,
+                "top_p": top_p,
+                "top_k": top_k,
+            }
 
         if input:
             payload_dict["input"] = input
