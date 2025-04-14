@@ -82,10 +82,10 @@ class DocumentsExtract:
         headers = {
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
-            "Toxicity": toxicity,
+            "Toxicity": str(toxicity),
             "Pii": pii,
             "Replace-Method": replace_method,
-            "Injection": injection
+            "Injection": str(injection)
         }
 
         data = {
