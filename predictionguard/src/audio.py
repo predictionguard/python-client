@@ -1,5 +1,3 @@
-import json
-
 import requests
 from typing import Any, Dict, Optional
 
@@ -46,6 +44,10 @@ class AudioTranscriptions:
         language: Optional[str] = "auto",
         temperature: Optional[float] = 0.0,
         prompt: Optional[str] = "",
+        toxicity: Optional[bool] = False,
+        pii: Optional[str] = "",
+        replace_method: Optional[str] = "",
+        injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
         Creates a audio transcription request to the Prediction Guard /audio/transcriptions API
@@ -55,18 +57,30 @@ class AudioTranscriptions:
         :param language: The language of the audio file
         :param temperature: The temperature parameter for model transcription
         :param prompt: A prompt to assist in transcription styling
+        :param toxicity: Whether to check for output toxicity
+        :param pii: Whether to check for or replace pii
+        :param replace_method: Replace method for any PII that is present.
+        :param injection: Whether to check for prompt injection
         :result: A dictionary containing the transcribed text.
         """
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _transcribe_audio
-        args = (model, file, language, temperature, prompt)
+        args = (
+            model, file, language, temperature,
+            prompt, toxicity, pii, replace_method,
+            injection
+        )
 
         # Run _transcribe_audio
         choices = self._transcribe_audio(*args)
         return choices
 
-    def _transcribe_audio(self, model, file, language, temperature, prompt):
+    def _transcribe_audio(
+            self, model, file,
+            language, temperature, prompt,
+            toxicity, pii, replace_method, injection
+    ):
         """
         Function to transcribe an audio file.
         """
@@ -74,6 +88,10 @@ class AudioTranscriptions:
         headers = {
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
+            "Toxicity": toxicity,
+            "Pii": pii,
+            "Replace-Method": replace_method,
+            "Injection": injection
         }
 
         with open(file, "rb") as audio_file:
