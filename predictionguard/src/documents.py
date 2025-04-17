@@ -1,6 +1,3 @@
-import json
-from pyexpat import model
-
 import requests
 from typing import Any, Dict, Optional
 
@@ -10,7 +7,7 @@ from ..version import __version__
 class Documents:
     """Documents allows you to extract text from various document file types.
 
-    Usage::
+    Usage:
 
         from predictionguard import PredictionGuard
 
@@ -39,20 +36,45 @@ class DocumentsExtract:
 
     def create(
         self,
-        file: str
+        file: str,
+        embed_images: Optional[bool] = False,
+        output_format: Optional[str] = None,
+        chunk_document: Optional[bool] = False,
+        chunk_size: Optional[int] = None,
+        toxicity: Optional[bool] = False,
+        pii: Optional[str] = "",
+        replace_method: Optional[str] = "",
+        injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
         Creates a documents request to the Prediction Guard /documents/extract API
 
         :param file: Document to be parsed
+        :param embed_images: Whether to embed images into documents
+        :param output_format: Output format
+        :param chunk_document: Whether to chunk documents into chunks
+        :param chunk_size: Chunk size
+        :param toxicity: Whether to check for output toxicity
+        :param pii: Whether to check for or replace pii
+        :param replace_method: Replace method for any PII that is present.
+        :param injection: Whether to check for prompt injection
         :result: A dictionary containing the title, content, and length of the document.
         """
 
         # Run _extract_documents
-        choices = self._extract_documents(file)
+        choices = self._extract_documents(
+            file, embed_images, output_format,
+            chunk_document, chunk_size, toxicity,
+            pii, replace_method, injection
+        )
         return choices
 
-    def _extract_documents(self, file):
+    def _extract_documents(
+            self, file, embed_images,
+            output_format, chunk_document,
+            chunk_size, toxicity, pii,
+            replace_method, injection
+    ):
         """
         Function to extract a document.
         """
@@ -60,13 +82,25 @@ class DocumentsExtract:
         headers = {
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
+            "Toxicity": str(toxicity),
+            "Pii": pii,
+            "Replace-Method": replace_method,
+            "Injection": str(injection)
+        }
+
+        data = {
+            "embedImages": embed_images,
+            "outputFormat": output_format,
+            "chunkDocument": chunk_document,
+            "chunkSize": chunk_size,
         }
 
         with open(file, "rb") as doc_file:
             files = {"file": (file, doc_file)}
 
             response = requests.request(
-                "POST", self.url + "/documents/extract", headers=headers, files=files
+                "POST", self.url + "/documents/extract",
+                headers=headers, files=files, data=data
             )
 
         # If the request was successful, print the proxies.
