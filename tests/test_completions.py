@@ -9,7 +9,7 @@ def test_completions_create():
     test_client = PredictionGuard()
 
     response = test_client.completions.create(
-        model=os.environ["TEST_MODEL_NAME"], prompt="Tell me a joke"
+        model=os.environ["TEST_CHAT_MODEL"], prompt="Tell me a joke"
     )
 
     assert len(response["choices"][0]["text"]) > 0
@@ -19,7 +19,7 @@ def test_completions_create_batch():
     test_client = PredictionGuard()
 
     response = test_client.completions.create(
-        model=os.environ["TEST_MODEL_NAME"],
+        model=os.environ["TEST_CHAT_MODEL"],
         prompt=["Tell me a joke.", "Tell me a cool fact."],
     )
 
@@ -42,7 +42,7 @@ def test_completions_create_stream():
 
     response_list = []
     for res in test_client.completions.create(
-        model=os.environ["TEST_MODEL_NAME"],
+        model=os.environ["TEST_CHAT_MODEL"],
         prompt="Tell me a joke.",
         stream=True,
     ):
@@ -61,7 +61,7 @@ def test_completions_create_stream_output_fail():
     response_list = []
     with pytest.raises(ValueError, match=streaming_error):
         for res in test_client.completions.create(
-            model=os.environ["TEST_MODEL_NAME"],
+            model=os.environ["TEST_CHAT_MODEL"],
             prompt="Tell me a joke.",
             stream=True,
             output={"toxicity": True},

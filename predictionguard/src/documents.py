@@ -41,6 +41,7 @@ class DocumentsExtract:
         output_format: Optional[str] = None,
         chunk_document: Optional[bool] = False,
         chunk_size: Optional[int] = None,
+        enable_ocr: Optional[bool] = True,
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
@@ -54,6 +55,7 @@ class DocumentsExtract:
         :param output_format: Output format
         :param chunk_document: Whether to chunk documents into chunks
         :param chunk_size: Chunk size
+        :param enable_ocr: Whether to enable OCR
         :param toxicity: Whether to check for output toxicity
         :param pii: Whether to check for or replace pii
         :param replace_method: Replace method for any PII that is present.
@@ -64,16 +66,16 @@ class DocumentsExtract:
         # Run _extract_documents
         choices = self._extract_documents(
             file, embed_images, output_format,
-            chunk_document, chunk_size, toxicity,
-            pii, replace_method, injection
+            chunk_document, chunk_size, enable_ocr,
+            toxicity, pii, replace_method, injection
         )
         return choices
 
     def _extract_documents(
             self, file, embed_images,
             output_format, chunk_document,
-            chunk_size, toxicity, pii,
-            replace_method, injection
+            chunk_size, enable_ocr, toxicity,
+            pii, replace_method, injection
     ):
         """
         Function to extract a document.
@@ -93,6 +95,7 @@ class DocumentsExtract:
             "outputFormat": output_format,
             "chunkDocument": chunk_document,
             "chunkSize": chunk_size,
+            "enableOCR": enable_ocr,
         }
 
         with open(file, "rb") as doc_file:

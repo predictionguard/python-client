@@ -7,7 +7,7 @@ def test_tokenize_create():
     test_client = PredictionGuard()
 
     response = test_client.tokenize.create(
-        model=os.environ["TEST_MODEL_NAME"],
+        model=os.environ["TEST_CHAT_MODEL"],
         input="Tokenize this please."
     )
 
