@@ -6,6 +6,7 @@ from typing import Optional
 from .src.audio import Audio
 from .src.chat import Chat
 from .src.completions import Completions
+from .src.detokenize import Detokenize
 from .src.documents import Documents
 from .src.embeddings import Embeddings
 from .src.rerank import Rerank
@@ -21,7 +22,8 @@ from .version import __version__
 __all__ = [
     "PredictionGuard", "Chat", "Completions", "Embeddings",
     "Audio", "Documents", "Rerank", "Tokenize", "Translate",
-    "Factuality", "Toxicity", "Pii", "Injection", "Models"
+    "Detokenize", "Factuality", "Toxicity", "Pii", "Injection",
+    "Models"
 ]
 
 class PredictionGuard:
@@ -93,6 +95,9 @@ class PredictionGuard:
 
         self.tokenize: Tokenize = Tokenize(self.api_key, self.url)
         """Tokenize generates tokens for input text."""
+
+        self.detokenize: Detokenize = Detokenize(self.api_key, self.url)
+        """Detokenizes generates text for input tokens."""
 
         self.models: Models = Models(self.api_key, self.url)
         """Models lists all of the models available in the Prediction Guard API."""
