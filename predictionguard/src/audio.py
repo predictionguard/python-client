@@ -1,5 +1,5 @@
 import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from ..version import __version__
 
@@ -20,7 +20,7 @@ class Audio:
         client = PredictionGuard()
 
         result = client.audio.transcriptions.create(
-            model="whisper-3-large-instruct", file=sample_audio.wav
+            model="base", file=sample_audio.wav
         )
 
         print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
@@ -44,6 +44,9 @@ class AudioTranscriptions:
         language: Optional[str] = "auto",
         temperature: Optional[float] = 0.0,
         prompt: Optional[str] = "",
+        timestamp_granularities: Optional[List[str]] = [],
+        diarization: Optional[bool] = False,
+        response_format: Optional[str] = "json",
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
@@ -57,6 +60,9 @@ class AudioTranscriptions:
         :param language: The language of the audio file
         :param temperature: The temperature parameter for model transcription
         :param prompt: A prompt to assist in transcription styling
+        :param timestamp_granularities: The timestamp granularities to populate for this transcription
+        :param diarization: Whether to diarize the audio
+        :param response_format: The response format to use
         :param toxicity: Whether to check for output toxicity
         :param pii: Whether to check for or replace pii
         :param replace_method: Replace method for any PII that is present.
@@ -68,8 +74,10 @@ class AudioTranscriptions:
         # a call to _transcribe_audio
         args = (
             model, file, language, temperature,
-            prompt, toxicity, pii, replace_method,
-            injection
+            prompt, timestamp_granularities,
+            diarization, response_format,
+            pii, replace_method, injection,
+            toxicity,
         )
 
         # Run _transcribe_audio
@@ -79,7 +87,9 @@ class AudioTranscriptions:
     def _transcribe_audio(
             self, model, file,
             language, temperature, prompt,
-            toxicity, pii, replace_method, injection
+            timestamp_granularities, diarization,
+            response_format, toxicity, pii,
+            replace_method, injection
     ):
         """
         Function to transcribe an audio file.
@@ -94,6 +104,24 @@ class AudioTranscriptions:
             "Injection": str(injection)
         }
 
+        if diarization and "segment" in timestamp_granularities:
+            raise ValueError(
+                "Timestamp granularities cannot be set to "
+                "`segments` when using diarization."
+            )
+
+        if diarization and response_format != "verbose_json":
+            raise ValueError(
+                "Response format must be set to `verbose_json` "
+                "when using diarization."
+            )
+
+        if len(timestamp_granularities) > 0 and response_format != "verbose_json":
+            raise ValueError(
+                "Response format must be set to `verbose_json` "
+                "when using timestamp granularities."
+            )
+
         with open(file, "rb") as audio_file:
             files = {"file": (file, audio_file, "audio/wav")}
             data = {
@@ -101,6 +129,9 @@ class AudioTranscriptions:
                 "language": language,
                 "temperature": temperature,
                 "prompt": prompt,
+                "timestamp_granularities[]": timestamp_granularities,
+                "diarization": diarization,
+                "response_format": response_format,
                 }
 
             response = requests.request(
