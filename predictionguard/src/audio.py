@@ -1,5 +1,6 @@
-import requests
 from typing import Any, Dict, List, Optional
+
+import requests
 
 from ..version import __version__
 
@@ -44,7 +45,7 @@ class AudioTranscriptions:
         language: Optional[str] = "auto",
         temperature: Optional[float] = 0.0,
         prompt: Optional[str] = "",
-        timestamp_granularities: Optional[List[str]] = [],
+        timestamp_granularities: Optional[List[str]] = None,
         diarization: Optional[bool] = False,
         response_format: Optional[str] = "json",
         toxicity: Optional[bool] = False,
@@ -53,7 +54,7 @@ class AudioTranscriptions:
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
-        Creates a audio transcription request to the Prediction Guard /audio/transcriptions API
+        Creates an audio transcription request to the Prediction Guard /audio/transcriptions API
 
         :param model: The model to use
         :param file: Audio file to be transcribed
@@ -73,10 +74,17 @@ class AudioTranscriptions:
         # Create a list of tuples, each containing all the parameters for
         # a call to _transcribe_audio
         args = (
-            model, file, language, temperature,
-            prompt, timestamp_granularities,
-            diarization, response_format,
-            pii, replace_method, injection,
+            model,
+            file,
+            language,
+            temperature,
+            prompt,
+            timestamp_granularities,
+            diarization,
+            response_format,
+            pii,
+            replace_method,
+            injection,
             toxicity,
         )
 
@@ -85,11 +93,19 @@ class AudioTranscriptions:
         return choices
 
     def _transcribe_audio(
-            self, model, file,
-            language, temperature, prompt,
-            timestamp_granularities, diarization,
-            response_format, toxicity, pii,
-            replace_method, injection
+            self,
+            model,
+            file,
+            language,
+            temperature,
+            prompt,
+            timestamp_granularities,
+            diarization,
+            response_format,
+            pii,
+            replace_method,
+            injection,
+            toxicity,
     ):
         """
         Function to transcribe an audio file.
@@ -104,22 +120,23 @@ class AudioTranscriptions:
             "Injection": str(injection)
         }
 
-        if diarization and "segment" in timestamp_granularities:
-            raise ValueError(
-                "Timestamp granularities cannot be set to "
-                "`segments` when using diarization."
-            )
+        if timestamp_granularities:
+            if diarization and "segment" in timestamp_granularities:
+                raise ValueError(
+                    "Timestamp granularities cannot be set to "
+                    "`segments` when using diarization."
+                )
+
+            if response_format != "verbose_json":
+                raise ValueError(
+                    "Response format must be set to `verbose_json` "
+                    "when using timestamp granularities."
+                )
 
         if diarization and response_format != "verbose_json":
             raise ValueError(
                 "Response format must be set to `verbose_json` "
                 "when using diarization."
-            )
-
-        if len(timestamp_granularities) > 0 and response_format != "verbose_json":
-            raise ValueError(
-                "Response format must be set to `verbose_json` "
-                "when using timestamp granularities."
             )
 
         with open(file, "rb") as audio_file:
@@ -130,9 +147,9 @@ class AudioTranscriptions:
                 "temperature": temperature,
                 "prompt": prompt,
                 "timestamp_granularities[]": timestamp_granularities,
-                "diarization": diarization,
+                "diarization": diar,
                 "response_format": response_format,
-                }
+            }
 
             response = requests.request(
                 "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data
