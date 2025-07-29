@@ -99,8 +99,8 @@ class AudioTranscriptions:
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
             "Toxicity": str(toxicity),
-            "Pii": pii,
-            "Replace-Method": replace_method,
+            "Pii": str(pii),
+            "Replace-Method": str(replace_method),
             "Injection": str(injection)
         }
 
