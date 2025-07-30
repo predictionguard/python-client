@@ -147,7 +147,7 @@ class AudioTranscriptions:
                 "temperature": temperature,
                 "prompt": prompt,
                 "timestamp_granularities[]": timestamp_granularities,
-                "diarization": diar,
+                "diarization": str(diarization).lower(),
                 "response_format": response_format,
             }
 
