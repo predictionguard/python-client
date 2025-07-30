@@ -1,4 +1,4 @@
 Requirements
 =================
 
-To access the API, contact us `here <https://mailchi.mp/predictionguard/getting-started>`_ to get an enterprise access token. You will need this access token to continue.
+To access the API, you will need an API Key. Contact us `here <https://predictionguard.com/get-started>`_ to get started.

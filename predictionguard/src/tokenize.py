@@ -7,26 +7,37 @@ from ..version import __version__
 
 
 class Tokenize:
-    """Tokenize allows you to generate tokens with a models internal tokenizer.
+    """
+    Tokenize allows you to generate tokens with a models internal tokenizer.
 
-        Usage::
+    Usage::
 
-            import os
-            import json
+        import os
+        import json
 
-            from predictionguard import PredictionGuard
+        from predictionguard import PredictionGuard
 
-            # Set your Prediction Guard token as an environmental variable.
-            os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        # Set your Prediction Guard token and url as an environmental variable.
+        os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-            client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
-            response = client.tokenize.create(
-                model="Hermes-3-Llama-3.1-8B",
-                input="Tokenize this example."
-            )
+        response = client.tokenize.create(
+            model="Qwen2.5-Coder-14B-Instruct",
+            input="Tokenize this example."
+        )
 
-            print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
         """
 
 

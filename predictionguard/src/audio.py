@@ -6,7 +6,8 @@ from ..version import __version__
 
 
 class Audio:
-    """Audio generates a response based on audio data.
+    """
+    Audio generates a response based on audio data.
 
     Usage::
 
@@ -15,16 +16,27 @@ class Audio:
 
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
-
-        result = client.audio.transcriptions.create(
-            model="base", file=sample_audio.wav
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
         )
 
-        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
+        result = client.audio.transcriptions.create(
+            model="base",
+            file="sample_audio.wav"
+        )
+
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):

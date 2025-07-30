@@ -1,14 +1,8 @@
-import json
-
-import requests
 from typing import Any, Dict, Optional
-
-from ..version import __version__
 
 
 class Translate:
-    """No longer supported.
-    """
+    """No longer supported."""
 
     def __init__(self, api_key, url):
         self.api_key = api_key
