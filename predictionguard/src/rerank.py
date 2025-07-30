@@ -7,31 +7,42 @@ from ..version import __version__
 
 
 class Rerank:
-    """Rerank sorts text inputs by semantic relevance to a specified query.
+    """
+    Rerank sorts text inputs by semantic relevance to a specified query.
 
-        Usage::
+    Usage::
 
-            import os
-            import json
+        import os
+        import json
 
-            from predictionguard import PredictionGuard
+        from predictionguard import PredictionGuard
 
-            # Set your Prediction Guard token as an environmental variable.
-            os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        # Set your Prediction Guard token and url as an environmental variable.
+        os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-            client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
-            response = client.rerank.create(
-                model="bge-reranker-v2-m3",
-                query="What is Deep Learning?",
-                documents=[
-                    "Deep Learning is pizza.",
-                    "Deep Learning is not pizza."
-                ],
-                return_documents=True
-            )
+        response = client.rerank.create(
+            model="bge-reranker-v2-m3",
+            query="What is Deep Learning?",
+            documents=[
+                "Deep Learning is pizza.",
+                "Deep Learning is not pizza."
+            ],
+            return_documents=True
+        )
 
-            print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
         """
 
 

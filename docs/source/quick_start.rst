@@ -16,13 +16,15 @@ To use this library, you must have an api key. You can set it two ways: as an en
    from predictionguard import PredictionGuard
 
 
-   # You can set you Prediction Guard API Key as an env variable,
-   # or when creating the client object
-   os.environ["PREDICTIONGUARD_API_KEY"]
+    # Set your Prediction Guard token and url as an environmental variable.
+    os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+    os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-   client = PredictionGuard(
-       api_key="<your Prediction Guard API Key>"
-   )
+    # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+    client = PredictionGuard(
+        api_key=<api_key>,
+        url=<url>
+    )
 
    messages = [
        {
@@ -36,9 +38,8 @@ To use this library, you must have an api key. You can set it two ways: as an en
    ]
 
    result = client.chat.completions.create(
-       model="Hermes-2-Pro-Llama-3-8B",
-       messages=messages,
-       max_tokens=100
+       model="Hermes-3-Llama-3.1-8B",
+       messages=messages
    )
 
    print(json.dumps(

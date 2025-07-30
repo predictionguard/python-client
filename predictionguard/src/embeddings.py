@@ -13,23 +13,37 @@ from ..version import __version__
 
 
 class Embeddings:
-    """Embedding generates chat completions based on a conversation history.
+    """
+    Embedding generates chat completions based on a conversation history.
 
     Usage::
 
+        import os
+        import json
+
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
         response = client.embeddings.create(
-            model="multilingual-e5-large-instruct",
+            model="bge-m3",
             input="This is how you generate embeddings with Prediction Guard"
         )
 
-        print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):
