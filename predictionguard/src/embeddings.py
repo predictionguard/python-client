@@ -46,9 +46,10 @@ class Embeddings:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
         self,
@@ -166,7 +167,7 @@ class Embeddings:
 
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/embeddings", headers=headers, data=payload
+            "POST", self.url + "/embeddings", headers=headers, data=payload, timeout=self.timeout
         )
 
         # If the request was successful, print the proxies.
@@ -204,7 +205,7 @@ class Embeddings:
         else:
             model_path = "/models/" + capability
 
-        response = requests.request("GET", self.url + model_path, headers=headers)
+        response = requests.request("GET", self.url + model_path, headers=headers, timeout=self.timeout)
 
         response_list = []
         for model in response.json()["data"]:

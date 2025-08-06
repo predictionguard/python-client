@@ -41,9 +41,10 @@ class Pii:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def check(
         self, prompt: str, replace: bool, replace_method: Optional[str] = "random"
@@ -76,7 +77,7 @@ class Pii:
 
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/PII", headers=headers, data=payload
+            "POST", self.url + "/PII", headers=headers, data=payload, timeout=self.timeout
         )
 
         if response.status_code == 200:

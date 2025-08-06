@@ -41,9 +41,10 @@ class Completions:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
         self,
@@ -132,9 +133,9 @@ class Completions:
         Function to generate a single completion.
         """
 
-        def return_dict(url, headers, payload):
+        def return_dict(url, headers, payload, timeout):
             response = requests.request(
-                "POST", url + "/completions", headers=headers, data=payload
+                "POST", url + "/completions", headers=headers, data=payload, timeout=timeout
             )
             # If the request was successful, print the proxies.
             if response.status_code == 200:
@@ -155,12 +156,13 @@ class Completions:
                     pass
                 raise ValueError("Could not make prediction. " + err)
 
-        def stream_generator(url, headers, payload, stream):
+        def stream_generator(url, headers, payload, stream, timeout):
             with requests.post(
                 url + "/completions",
                 headers=headers,
                 data=payload,
                 stream=stream,
+                timeout=timeout
             ) as response:
                 response.raise_for_status()
 
@@ -215,10 +217,10 @@ class Completions:
         payload = json.dumps(payload_dict)
 
         if stream:
-            return stream_generator(self.url, headers, payload, stream)
+            return stream_generator(self.url, headers, payload, stream, self.timeout)
 
         else:
-            return return_dict(self.url, headers, payload)
+            return return_dict(self.url, headers, payload, self.timeout)
 
     def list_models(self) -> List[str]:
         # Get the list of current models.
@@ -228,7 +230,7 @@ class Completions:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        response = requests.request("GET", self.url + "/models/completion", headers=headers)
+        response = requests.request("GET", self.url + "/models/completion", headers=headers, timeout=self.timeout)
 
         response_list = []
         for model in response.json()["data"]:

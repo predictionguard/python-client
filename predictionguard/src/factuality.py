@@ -41,9 +41,10 @@ class Factuality:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def check(self, reference: str, text: str) -> Dict[str, Any]:
         """
@@ -72,7 +73,7 @@ class Factuality:
         payload_dict = {"reference": reference, "text": text}
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/factuality", headers=headers, data=payload
+            "POST", self.url + "/factuality", headers=headers, data=payload, timeout=self.timeout
         )
 
         # If the request was successful, print the proxies.
