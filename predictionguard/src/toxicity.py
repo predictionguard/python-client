@@ -38,9 +38,10 @@ class Toxicity:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def check(self, text: str) -> Dict[str, Any]:
         """
@@ -68,7 +69,7 @@ class Toxicity:
         payload_dict = {"text": text}
         payload = json.dumps(payload_dict)
         response = requests.request(
-            "POST", self.url + "/toxicity", headers=headers, data=payload
+            "POST", self.url + "/toxicity", headers=headers, data=payload, timeout=self.timeout
         )
 
         # If the request was successful, print the proxies.

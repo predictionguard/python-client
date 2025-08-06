@@ -39,16 +39,18 @@ class Audio:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
-        self.transcriptions: AudioTranscriptions = AudioTranscriptions(self.api_key, self.url)
+        self.transcriptions: AudioTranscriptions = AudioTranscriptions(self.api_key, self.url, self.timeout)
 
 class AudioTranscriptions:
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
         self,
@@ -164,7 +166,7 @@ class AudioTranscriptions:
             }
 
             response = requests.request(
-                "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data
+                "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data, timeout=self.timeout
             )
 
         # If the request was successful, print the proxies.

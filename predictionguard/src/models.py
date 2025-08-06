@@ -35,9 +35,10 @@ class Models:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def list(self, capability: Optional[str] = "") -> Dict[str, Any]:
         """
@@ -78,7 +79,7 @@ class Models:
                 models_path += "/" + capability
 
         response = requests.request(
-            "GET", self.url + models_path, headers=headers
+            "GET", self.url + models_path, headers=headers, timeout=self.timeout
         )
 
         if response.status_code == 200:

@@ -37,16 +37,18 @@ class Documents:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
-        self.extract: DocumentsExtract = DocumentsExtract(self.api_key, self.url)
+        self.extract: DocumentsExtract = DocumentsExtract(self.api_key, self.url, self.timeout)
 
 class DocumentsExtract:
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
         self,
@@ -117,7 +119,7 @@ class DocumentsExtract:
 
             response = requests.request(
                 "POST", self.url + "/documents/extract",
-                headers=headers, files=files, data=data
+                headers=headers, files=files, data=data, timeout=self.timeout
             )
 
         # If the request was successful, print the proxies.

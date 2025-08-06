@@ -41,9 +41,10 @@ class Tokenize:
         """
 
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(self, model: str, input: str) -> Dict[str, Any]:
         """
@@ -80,7 +81,7 @@ class Tokenize:
         payload = json.dumps(payload)
 
         response = requests.request(
-            "POST", self.url + "/tokenize", headers=headers, data=payload
+            "POST", self.url + "/tokenize", headers=headers, data=payload, timeout=self.timeout
         )
 
         if response.status_code == 200:
@@ -109,7 +110,7 @@ class Tokenize:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        response = requests.request("GET", self.url + "/models/tokenize", headers=headers)
+        response = requests.request("GET", self.url + "/models/tokenize", headers=headers, timeout=self.timeout)
 
         response_list = []
         for model in response.json()["data"]:

@@ -66,17 +66,19 @@ class Chat:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
-        self.completions: ChatCompletions = ChatCompletions(self.api_key, self.url)
+        self.completions: ChatCompletions = ChatCompletions(self.api_key, self.url, self.timeout)
 
 
 class ChatCompletions:
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
         self,
@@ -192,9 +194,9 @@ class ChatCompletions:
         Function to generate a single chat response.
         """
 
-        def return_dict(url, headers, payload):
+        def return_dict(url, headers, payload, timeout):
             response = requests.request(
-                "POST", url + "/chat/completions", headers=headers, data=payload
+                "POST", url + "/chat/completions", headers=headers, data=payload, timeout=timeout
             )
             # If the request was successful, print the proxies.
             if response.status_code == 200:
@@ -215,12 +217,13 @@ class ChatCompletions:
                     pass
                 raise ValueError("Could not make prediction. " + err)
 
-        def stream_generator(url, headers, payload, stream):
+        def stream_generator(url, headers, payload, stream, timeout):
             with requests.post(
                 url + "/chat/completions",
                 headers=headers,
                 data=payload,
                 stream=stream,
+                timeout=timeout,
             ) as response:
                 response.raise_for_status()
 
@@ -356,10 +359,10 @@ class ChatCompletions:
         payload = json.dumps(payload_dict)
 
         if stream:
-            return stream_generator(self.url, headers, payload, stream)
+            return stream_generator(self.url, headers, payload, stream, self.timeout)
 
         else:
-            return return_dict(self.url, headers, payload)
+            return return_dict(self.url, headers, payload, self.timeout)
 
     def list_models(self, capability: Optional[str] = "chat-completion") -> List[str]:
         # Get the list of current models.
@@ -376,7 +379,7 @@ class ChatCompletions:
         else:
             model_path = "/models/" + capability
 
-        response = requests.request("GET", self.url + model_path, headers=headers)
+        response = requests.request("GET", self.url + model_path, headers=headers, timeout=self.timeout)
 
         response_list = []
         for model in response.json()["data"]:

@@ -4,9 +4,10 @@ from typing import Any, Dict, Optional
 class Translate:
     """No longer supported."""
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def create(
             self,

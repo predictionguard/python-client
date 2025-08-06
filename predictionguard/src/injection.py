@@ -40,9 +40,10 @@ class Injection:
         ))
     """
 
-    def __init__(self, api_key, url):
+    def __init__(self, api_key, url, timeout):
         self.api_key = api_key
         self.url = url
+        self.timeout = timeout
 
     def check(self, prompt: str, detect: Optional[bool] = False) -> Dict[str, Any]:
         """
@@ -73,7 +74,7 @@ class Injection:
         payload = json.dumps(payload)
 
         response = requests.request(
-            "POST", self.url + "/injection", headers=headers, data=payload
+            "POST", self.url + "/injection", headers=headers, data=payload, timeout=self.timeout
         )
 
         if response.status_code == 200:
