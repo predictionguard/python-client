@@ -10,6 +10,35 @@ from ..version import __version__
 class Completions:
     """
     OpenAI-compatible completion API
+
+    Usage::
+
+        import os
+        import json
+
+        from predictionguard import PredictionGuard
+
+        # Set your Prediction Guard token and url as an environmental variable.
+        os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
+
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
+
+        result = client.completions.create(
+            model="Hermes-3-Llama-3.1-8B",
+            prompt="Tell me a joke"
+        )
+
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):
@@ -25,14 +54,14 @@ class Completions:
         echo: Optional[bool] = None,
         frequency_penalty: Optional[float] = None,
         logit_bias: Optional[Dict[str, int]] = None,
-        max_completion_tokens: Optional[int] = 100,
         max_tokens: Optional[int] = None,
         presence_penalty: Optional[float] = None,
         stop: Optional[Union[str, List[str]]] = None,
         stream: Optional[bool] = False,
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.99,
-        top_k: Optional[int] = 50
+        top_k: Optional[int] = 50,
+        max_completion_tokens: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Creates a completion request for the Prediction Guard /completions API.
@@ -44,7 +73,7 @@ class Completions:
         :param echo: A boolean indicating whether to echo the prompt(s) to the output.
         :param frequency_penalty: The frequency penalty to use.
         :param logit_bias: The logit bias to use.
-        :param max_completion_tokens: The maximum number of tokens to generate in the completion(s).
+        :param max_tokens: The maximum number of tokens to generate in the completion(s).
         :param presence_penalty: The presence penalty to use.
         :param stop: The completion stopping criteria.
         :param stream: The stream to use for HTTP requests.
@@ -54,14 +83,9 @@ class Completions:
         :return: A dictionary containing the completion response.
         """
 
-        # Handling max_tokens and returning deprecation message
-        if max_tokens is not None:
-            max_completion_tokens = max_tokens
-            warn("""
-            The max_tokens argument is deprecated. 
-            Please use max_completion_tokens instead.
-            """, DeprecationWarning, stacklevel=2
-            )
+        if max_completion_tokens is not None and max_tokens is None:
+            max_tokens = max_completion_tokens
+
 
         # Create a list of tuples, each containing all the parameters for
         # a call to _generate_completion
@@ -73,7 +97,7 @@ class Completions:
             echo,
             frequency_penalty,
             logit_bias,
-            max_completion_tokens,
+            max_tokens,
             presence_penalty,
             stop,
             stream,
@@ -96,7 +120,7 @@ class Completions:
         echo,
         frequency_penalty,
         logit_bias,
-        max_completion_tokens,
+        max_tokens,
         presence_penalty,
         stop,
         stream,
@@ -171,7 +195,7 @@ class Completions:
             "echo": echo,
             "frequency_penalty": frequency_penalty,
             "logit_bias": logit_bias,
-            "max_completion_tokens": max_completion_tokens,
+            "max_tokens": max_tokens,
             "presence_penalty": presence_penalty,
             "stop": stop,
             "stream": stream,

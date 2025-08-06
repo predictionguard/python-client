@@ -5,22 +5,36 @@ from ..version import __version__
 
 
 class Documents:
-    """Documents allows you to extract text from various document file types.
+    """
+    Documents allows you to extract text from various document file types.
 
-    Usage:
+    Usage::
+
+        import os
+        import json
 
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
         response = client.documents.extract.create(
             file="sample.pdf"
         )
 
-        print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):
@@ -85,8 +99,8 @@ class DocumentsExtract:
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
             "Toxicity": str(toxicity),
-            "Pii": pii,
-            "Replace-Method": replace_method,
+            "Pii": str(pii),
+            "Replace-Method": str(replace_method),
             "Injection": str(injection)
         }
 

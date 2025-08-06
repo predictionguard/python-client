@@ -1,14 +1,14 @@
 import json
 
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from ..version import __version__
 
 
-class Tokenize:
+class Detokenize:
     """
-    Tokenize allows you to generate tokens with a models internal tokenizer.
+    Detokenize allows you to generate text with a models internal tokenizer.
 
     Usage::
 
@@ -27,9 +27,9 @@ class Tokenize:
             url="<url>"
         )
 
-        response = client.tokenize.create(
+        response = client.detokenize.create(
             model="Qwen2.5-Coder-14B-Instruct",
-            input="Tokenize this example."
+            tokens=[896, 686, 77651, 419, 914, 13]
         )
 
         print(json.dumps(
@@ -45,28 +45,33 @@ class Tokenize:
         self.api_key = api_key
         self.url = url
 
-    def create(self, model: str, input: str) -> Dict[str, Any]:
+    def create(self, model: str, tokens: List[int]) -> Dict[str, Any]:
         """
         Creates a tokenization request in the Prediction Guard /tokenize API.
 
         :param model: The model to use for generating tokens.
-        :param input: The text to convert into tokens.
-        :return: A dictionary containing the tokens and token metadata.
+        :param tokens: The tokens to convert into text.
+        :return: A dictionary containing the text.
         """
 
         # Validate models
-        if model == "llava-1.5-7b-hf" or model == "bridgetower-large-itm-mlm-itc":
+        if (
+                model == "bridgetower-large-itm-mlm-itc" or
+                model == "bge-m3" or
+                model == "bge-reranker-v2-m3" or
+                model == "multilingual-e5-large-instruct"
+        ):
             raise ValueError(
                 "Model %s is not supported by this endpoint." % model
             )
 
         # Run _create_tokens
-        choices = self._create_tokens(model, input)
+        choices = self._create_tokens(model, tokens)
         return choices
 
-    def _create_tokens(self, model, input):
+    def _create_tokens(self, model, tokens):
         """
-        Function to generate tokens.
+        Function to generate text.
         """
 
         headers = {
@@ -75,12 +80,12 @@ class Tokenize:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        payload = {"model": model, "input": input}
+        payload = {"model": model, "tokens": tokens}
 
         payload = json.dumps(payload)
 
         response = requests.request(
-            "POST", self.url + "/tokenize", headers=headers, data=payload
+            "POST", self.url + "/detokenize", headers=headers, data=payload
         )
 
         if response.status_code == 200:
@@ -99,7 +104,7 @@ class Tokenize:
                 err = response.json()["error"]
             except Exception:
                 pass
-            raise ValueError("Could not generate tokens. " + err)
+            raise ValueError("Could not generate text. " + err)
 
     def list_models(self):
         # Get the list of current models.
@@ -109,7 +114,7 @@ class Tokenize:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        response = requests.request("GET", self.url + "/models/tokenize", headers=headers)
+        response = requests.request("GET", self.url + "/models/detokenize", headers=headers)
 
         response_list = []
         for model in response.json()["data"]:

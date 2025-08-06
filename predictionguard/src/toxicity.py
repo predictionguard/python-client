@@ -7,23 +7,35 @@ from ..version import __version__
 
 
 class Toxicity:
-    """Toxicity checks the toxicity of a given text.
+    """
+    Toxicity checks the toxicity of a given text.
 
     Usage::
 
         import os
         import json
+
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
         # Perform the toxicity check.
         result = client.toxicity.check(text="This is a perfectly fine statement.")
 
-        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):

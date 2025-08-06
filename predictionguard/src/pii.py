@@ -7,7 +7,8 @@ from ..version import __version__
 
 
 class Pii:
-    """Pii replaces personal information such as names, SSNs, and emails in a given text.
+    """
+    Pii replaces personal information such as names, SSNs, and emails in a given text.
 
     Usage::
 
@@ -16,18 +17,28 @@ class Pii:
 
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
         response = client.pii.check(
             prompt="Hello, my name is John Doe and my SSN is 111-22-3333.",
             replace=True,
-            replace_method="mask",
+            replace_method="mask"
         )
 
-        print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):

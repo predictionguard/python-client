@@ -1,11 +1,13 @@
+from typing import Any, Dict, List, Optional
+
 import requests
-from typing import Any, Dict, Optional
 
 from ..version import __version__
 
 
 class Audio:
-    """Audio generates a response based on audio data.
+    """
+    Audio generates a response based on audio data.
 
     Usage::
 
@@ -14,16 +16,27 @@ class Audio:
 
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
-
-        result = client.audio.transcriptions.create(
-            model="whisper-3-large-instruct", file=sample_audio.wav
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
         )
 
-        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
+        result = client.audio.transcriptions.create(
+            model="base",
+            file="sample_audio.wav"
+        )
+
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):
@@ -44,19 +57,25 @@ class AudioTranscriptions:
         language: Optional[str] = "auto",
         temperature: Optional[float] = 0.0,
         prompt: Optional[str] = "",
+        timestamp_granularities: Optional[List[str]] = None,
+        diarization: Optional[bool] = False,
+        response_format: Optional[str] = "json",
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
-        Creates a audio transcription request to the Prediction Guard /audio/transcriptions API
+        Creates an audio transcription request to the Prediction Guard /audio/transcriptions API
 
         :param model: The model to use
         :param file: Audio file to be transcribed
         :param language: The language of the audio file
         :param temperature: The temperature parameter for model transcription
         :param prompt: A prompt to assist in transcription styling
+        :param timestamp_granularities: The timestamp granularities to populate for this transcription
+        :param diarization: Whether to diarize the audio
+        :param response_format: The response format to use
         :param toxicity: Whether to check for output toxicity
         :param pii: Whether to check for or replace pii
         :param replace_method: Replace method for any PII that is present.
@@ -67,9 +86,18 @@ class AudioTranscriptions:
         # Create a list of tuples, each containing all the parameters for
         # a call to _transcribe_audio
         args = (
-            model, file, language, temperature,
-            prompt, toxicity, pii, replace_method,
-            injection
+            model,
+            file,
+            language,
+            temperature,
+            prompt,
+            timestamp_granularities,
+            diarization,
+            response_format,
+            pii,
+            replace_method,
+            injection,
+            toxicity,
         )
 
         # Run _transcribe_audio
@@ -77,9 +105,19 @@ class AudioTranscriptions:
         return choices
 
     def _transcribe_audio(
-            self, model, file,
-            language, temperature, prompt,
-            toxicity, pii, replace_method, injection
+            self,
+            model,
+            file,
+            language,
+            temperature,
+            prompt,
+            timestamp_granularities,
+            diarization,
+            response_format,
+            pii,
+            replace_method,
+            injection,
+            toxicity,
     ):
         """
         Function to transcribe an audio file.
@@ -89,10 +127,29 @@ class AudioTranscriptions:
             "Authorization": "Bearer " + self.api_key,
             "User-Agent": "Prediction Guard Python Client: " + __version__,
             "Toxicity": str(toxicity),
-            "Pii": pii,
-            "Replace-Method": replace_method,
+            "Pii": str(pii),
+            "Replace-Method": str(replace_method),
             "Injection": str(injection)
         }
+
+        if timestamp_granularities:
+            if diarization and "segment" in timestamp_granularities:
+                raise ValueError(
+                    "Timestamp granularities cannot be set to "
+                    "`segments` when using diarization."
+                )
+
+            if response_format != "verbose_json":
+                raise ValueError(
+                    "Response format must be set to `verbose_json` "
+                    "when using timestamp granularities."
+                )
+
+        if diarization and response_format != "verbose_json":
+            raise ValueError(
+                "Response format must be set to `verbose_json` "
+                "when using diarization."
+            )
 
         with open(file, "rb") as audio_file:
             files = {"file": (file, audio_file, "audio/wav")}
@@ -101,7 +158,10 @@ class AudioTranscriptions:
                 "language": language,
                 "temperature": temperature,
                 "prompt": prompt,
-                }
+                "timestamp_granularities[]": timestamp_granularities,
+                "diarization": str(diarization).lower(),
+                "response_format": response_format,
+            }
 
             response = requests.request(
                 "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data

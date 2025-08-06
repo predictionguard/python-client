@@ -7,7 +7,8 @@ from ..version import __version__
 
 
 class Factuality:
-    """Factuality checks the factuality of a given text compared to a reference.
+    """
+    Factuality checks the factuality of a given text compared to a reference.
 
     Usage::
 
@@ -16,15 +17,28 @@ class Factuality:
 
         from predictionguard import PredictionGuard
 
-        # Set your Prediction Guard token as an environmental variable.
+        # Set your Prediction Guard token and url as an environmental variable.
         os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+        os.environ["PREDICTIONGUARD_URL"] = "<url>"
 
-        client = PredictionGuard()
+        # Or set your Prediction Guard token and url when initializing the PredictionGuard class.
+        client = PredictionGuard(
+            api_key="<api_key>",
+            url="<url>"
+        )
 
         # Perform the factual consistency check.
-        result = client.factuality.check(reference="The sky is blue.", text="The sky is green.")
+        result = client.factuality.check(
+            reference="The sky is blue.",
+            text="The sky is green."
+        )
 
-        print(json.dumps(result, sort_keys=True, indent=4, separators=(",", ": ")))
+        print(json.dumps(
+            response,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": ")
+        ))
     """
 
     def __init__(self, api_key, url):
