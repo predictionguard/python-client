@@ -98,6 +98,7 @@ class ChatCompletions:
         max_tokens: Optional[int] = None,
         parallel_tool_calls: Optional[bool] = None,
         presence_penalty: Optional[float] = None,
+        reasoning_effort: Optional[str] = None,
         stop: Optional[
             Union[
                 str, List[str]
@@ -126,9 +127,10 @@ class ChatCompletions:
         :param max_completion_tokens: The maximum amount of tokens the model should return.
         :param parallel_tool_calls: The parallel tool calls to use.
         :param presence_penalty: The presence penalty to use.
+        :param reasoning_effort: The reasoning effort to use.
         :param stop: The completion stopping criteria.
         :param stream: Option to stream the API response
-        :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
+        :param temperature: The consistency of the model responses to the same prompt. The higher, the more consistent.
         :param tool_choice: The tool choice to use.
         :param tools: Options to pass to the tool choice.
         :param top_p: The sampling for the model to use.
@@ -157,6 +159,7 @@ class ChatCompletions:
             max_completion_tokens,
             parallel_tool_calls,
             presence_penalty,
+            reasoning_effort,
             stop,
             stream,
             temperature,
@@ -182,6 +185,7 @@ class ChatCompletions:
         max_completion_tokens,
         parallel_tool_calls,
         presence_penalty,
+        reasoning_effort,
         stop,
         stream,
         temperature,
@@ -321,6 +325,7 @@ class ChatCompletions:
                 "max_completion_tokens": max_completion_tokens,
                 "parallel_tool_calls": parallel_tool_calls,
                 "presence_penalty": presence_penalty,
+                "reasoning_effort": reasoning_effort,
                 "stop": stop,
                 "stream": stream,
                 "temperature": temperature,
@@ -337,6 +342,7 @@ class ChatCompletions:
                 "max_completion_tokens": max_completion_tokens,
                 "parallel_tool_calls": parallel_tool_calls,
                 "presence_penalty": presence_penalty,
+                "reasoning_effort": reasoning_effort,
                 "stop": stop,
                 "stream": stream,
                 "temperature": temperature,
