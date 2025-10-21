@@ -98,6 +98,7 @@ class ChatCompletions:
         max_tokens: Optional[int] = None,
         parallel_tool_calls: Optional[bool] = None,
         presence_penalty: Optional[float] = None,
+        reasoning_effort: Optional[str] = None,
         stop: Optional[
             Union[
                 str, List[str]
@@ -124,11 +125,13 @@ class ChatCompletions:
         :param frequency_penalty: The frequency penalty to use.
         :param logit_bias: The logit bias to use.
         :param max_completion_tokens: The maximum amount of tokens the model should return.
+        :param max_tokens: Deprecated, please use max_completion_tokens instead.
         :param parallel_tool_calls: The parallel tool calls to use.
         :param presence_penalty: The presence penalty to use.
+        :param reasoning_effort: How much effort for model to use for reasoning. Only supported by reasoning models.
         :param stop: The completion stopping criteria.
         :param stream: Option to stream the API response
-        :param temperature: The consistency of the model responses to the same prompt. The higher the more consistent.
+        :param temperature: The consistency of the model responses to the same prompt. The higher it is set, the more consistent.
         :param tool_choice: The tool choice to use.
         :param tools: Options to pass to the tool choice.
         :param top_p: The sampling for the model to use.
@@ -157,6 +160,7 @@ class ChatCompletions:
             max_completion_tokens,
             parallel_tool_calls,
             presence_penalty,
+            reasoning_effort,
             stop,
             stream,
             temperature,
@@ -182,6 +186,7 @@ class ChatCompletions:
         max_completion_tokens,
         parallel_tool_calls,
         presence_penalty,
+        reasoning_effort,
         stop,
         stream,
         temperature,
@@ -311,40 +316,23 @@ class ChatCompletions:
                         elif entry["type"] == "text":
                             continue
 
-        # TODO: Remove `tool_choice` check when null value available in API
-        if tool_choice is None:
-            payload_dict = {
-                "model": model,
-                "messages": messages,
-                "frequency_penalty": frequency_penalty,
-                "logit_bias": logit_bias,
-                "max_completion_tokens": max_completion_tokens,
-                "parallel_tool_calls": parallel_tool_calls,
-                "presence_penalty": presence_penalty,
-                "stop": stop,
-                "stream": stream,
-                "temperature": temperature,
-                "tools": tools,
-                "top_p": top_p,
-                "top_k": top_k,
-            }
-        else:
-            payload_dict = {
-                "model": model,
-                "messages": messages,
-                "frequency_penalty": frequency_penalty,
-                "logit_bias": logit_bias,
-                "max_completion_tokens": max_completion_tokens,
-                "parallel_tool_calls": parallel_tool_calls,
-                "presence_penalty": presence_penalty,
-                "stop": stop,
-                "stream": stream,
-                "temperature": temperature,
-                "tool_choice": tool_choice,
-                "tools": tools,
-                "top_p": top_p,
-                "top_k": top_k,
-            }
+        payload_dict = {
+            "model": model,
+            "messages": messages,
+            "frequency_penalty": frequency_penalty,
+            "logit_bias": logit_bias,
+            "max_completion_tokens": max_completion_tokens,
+            "parallel_tool_calls": parallel_tool_calls,
+            "presence_penalty": presence_penalty,
+            "reasoning_effort": reasoning_effort,
+            "stop": stop,
+            "stream": stream,
+            "temperature": temperature,
+            "tool_choice": tool_choice,
+            "tools": tools,
+            "top_p": top_p,
+            "top_k": top_k,
+        }
 
         if input:
             payload_dict["input"] = input
