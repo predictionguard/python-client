@@ -1,7 +1,7 @@
 import json
 
 import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from ..version import __version__
 
@@ -48,7 +48,7 @@ class Pii:
 
     def check(
         self,
-        prompt: str,
+        prompt: Union[str, List[str]],
         replace: bool,
         replace_method: str = "random",
         entity_list: Optional[list] = None
