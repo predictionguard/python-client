@@ -65,6 +65,7 @@ class AudioTranscriptions:
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
+        entity_list: Optional[List[str]] = None,
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
@@ -81,6 +82,7 @@ class AudioTranscriptions:
         :param toxicity: Whether to check for output toxicity
         :param pii: Whether to check for or replace pii
         :param replace_method: Replace method for any PII that is present.
+        :param entity_list: List of entities to ignore in the PII check.
         :param injection: Whether to check for prompt injection
         :result: A dictionary containing the transcribed text.
         """
@@ -98,6 +100,7 @@ class AudioTranscriptions:
             response_format,
             pii,
             replace_method,
+            entity_list,
             injection,
             toxicity,
         )
@@ -118,6 +121,7 @@ class AudioTranscriptions:
             response_format,
             pii,
             replace_method,
+            entity_list,
             injection,
             toxicity,
     ):
@@ -131,6 +135,7 @@ class AudioTranscriptions:
             "Toxicity": str(toxicity),
             "Pii": str(pii),
             "Replace-Method": str(replace_method),
+            "Entity-List": str(entity_list),
             "Injection": str(injection)
         }
 

@@ -1,7 +1,7 @@
 import json
 
 import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from ..version import __version__
 
@@ -45,7 +45,11 @@ class Injection:
         self.url = url
         self.timeout = timeout
 
-    def check(self, prompt: str, detect: Optional[bool] = False) -> Dict[str, Any]:
+    def check(
+            self,
+            prompt: Union[str, List[str]],
+            detect: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """
         Creates a prompt injection check request in the Prediction Guard /injection API.
 

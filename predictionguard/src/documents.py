@@ -1,5 +1,5 @@
 import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from ..version import __version__
 
@@ -61,6 +61,7 @@ class DocumentsExtract:
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
+        entity_list: Optional[List[str]] = None,
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
@@ -75,6 +76,7 @@ class DocumentsExtract:
         :param toxicity: Whether to check for output toxicity
         :param pii: Whether to check for or replace pii
         :param replace_method: Replace method for any PII that is present.
+        :param entity_list: List of entities to ignore in the PII check.
         :param injection: Whether to check for prompt injection
         :result: A dictionary containing the title, content, and length of the document.
         """
@@ -83,7 +85,7 @@ class DocumentsExtract:
         choices = self._extract_documents(
             file, embed_images, output_format,
             chunk_document, chunk_size, enable_ocr,
-            toxicity, pii, replace_method, injection
+            toxicity, pii, replace_method, entity_list, injection
         )
         return choices
 
@@ -91,7 +93,7 @@ class DocumentsExtract:
             self, file, embed_images,
             output_format, chunk_document,
             chunk_size, enable_ocr, toxicity,
-            pii, replace_method, injection
+            pii, replace_method, entity_list, injection
     ):
         """
         Function to extract a document.
@@ -103,6 +105,7 @@ class DocumentsExtract:
             "Toxicity": str(toxicity),
             "Pii": str(pii),
             "Replace-Method": str(replace_method),
+            "Entity-List": str(entity_list),
             "Injection": str(injection)
         }
 
