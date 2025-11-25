@@ -1,7 +1,7 @@
 import json
 
 import requests
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from ..version import __version__
 
@@ -47,20 +47,26 @@ class Pii:
         self.timeout = timeout
 
     def check(
-        self, prompt: str, replace: bool, replace_method: Optional[str] = "random"
+        self,
+        prompt: Union[str, List[str]],
+        replace: bool,
+        replace_method: str = "random",
+        entity_list: Optional[list] = None
     ) -> Dict[str, Any]:
         """Creates a PII checking request for the Prediction Guard /PII API.
 
-        :param text: The text to check for PII.
+        :param prompt: The prompt to check for PII.
         :param replace: Whether to replace PII if it is present.
         :param replace_method: Method to replace PII if it is present.
+        :param entity_list: List of entities for the PII check to ignore.
+        :return: The PII checking response.
         """
 
         # Run _check_pii
-        choices = self._check_pii(prompt, replace, replace_method)
+        choices = self._check_pii(prompt, replace, replace_method, entity_list)
         return choices
 
-    def _check_pii(self, prompt, replace, replace_method):
+    def _check_pii(self, prompt, replace, replace_method, entity_list):
         """Function to check for PII."""
 
         headers = {
@@ -73,6 +79,7 @@ class Pii:
             "prompt": prompt,
             "replace": replace,
             "replace_method": replace_method,
+            "entity_list": entity_list
         }
 
         payload = json.dumps(payload_dict)

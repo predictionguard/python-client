@@ -107,6 +107,3 @@ venv.bak/
 
 # JetBrains Folder
 .idea
-
-# uv package management
-uv.lock
