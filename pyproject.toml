@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [project]
@@ -8,16 +8,23 @@ authors = [
     {name = "Jacob Mansdorfer", email = "jacob@predictionguard.com"},
     {name = "Daniel Whitenack", email = "dan@predictionguard.com"}
     ]
+description = "The official Prediction Guard Python SDK"
+description-file = "README.md"
 readme = "README.md"
-requires-python = ">=3.12.8"
+requires-python = ">=3.12"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
-dynamic = ["version", "description"]
-description-file = "README.md"
+dynamic = ["version"]
 dependencies = [
     "tabulate>=0.9.0",
     "requests>=2.32.5",
 ]
+
+[project.urls]
+Homepage = "https://predictionguard.com"
+Documentation = "https://predictionguard.github.io/python-client/"
+Repository = "https://github.com/predictionguard/python-client.git"
+Issues = "https://github.com/predictionguard/python-client/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -28,9 +35,6 @@ dev = [
     "sphinx_rtd_theme",
     "black",
 ]
-
-[project.urls]
-Home = "https://predictionguard.com"
 
 [tool.hatch.version]
 path = "predictionguard/version.py"
