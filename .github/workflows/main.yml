@@ -11,13 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
-      - name: Install Pytest
-        run: pip install pytest
+      - name: Install uv
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --extra dev
 
       - name: Run Tests
-        run: pytest tests
+        run: uv run pytest tests
         env:
           PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY }}
           PREDICTIONGUARD_URL: ${{ vars.PREDICTIONGUARD_URL }}
@@ -27,8 +33,11 @@ jobs:
           TEST_VISION_MODEL: ${{ vars.TEST_VISION_MODEL }}
           TEST_RERANK_MODEL: ${{ vars.TEST_RERANK_MODEL }}
 
-      - name: To PyPI using Flit
-        uses: AsifArmanRahman/to-pypi-using-flit@v1
-        with:
-          password: ${{ secrets.TESTPYPI_API_TOKEN }}
-          repository-url: https://test.pypi.org/legacy/
+      - name: Build package
+        run: uv build
+
+      - name: Publish to TestPyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
+          UV_PUBLISH_URL: https://test.pypi.org/legacy/
+        run: uv publish

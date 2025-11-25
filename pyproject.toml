@@ -1,25 +1,27 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "predictionguard"
 authors = [
-    {name = "Daniel Whitenack", email = "dan@predictionguard.com"},
-    {name = "Jacob Mansdorfer", email = "jacob@predictionguard.com"}
+    {name = "Jacob Mansdorfer", email = "jacob@predictionguard.com"},
+    {name = "Daniel Whitenack", email = "dan@predictionguard.com"}
     ]
 readme = "README.md"
+requires-python = ">=3.12.8"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 description-file = "README.md"
 dependencies = [
-    "tabulate>=0.8.10",
-    "requests>=2.27.1",
+    "tabulate>=0.9.0",
+    "requests>=2.32.5",
 ]
 
 [project.optional-dependencies]
 dev = [
+    "pytest",
     "sphinx",
     "sphinx-autodoc-typehints",
     "sphinx_rtd_theme",
@@ -28,3 +30,6 @@ dev = [
 
 [project.urls]
 Home = "https://predictionguard.com"
+
+[tool.hatch.version]
+path = "predictionguard/version.py"
