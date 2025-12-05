@@ -105,6 +105,7 @@ class ChatCompletions:
             ]
         ] = None,
         stream: Optional[bool] = False,
+        stream_options: Optional[Dict[str, bool]] = None,
         temperature: Optional[float] = 1.0,
         tool_choice: Optional[Union[
             str, Dict[
@@ -131,6 +132,7 @@ class ChatCompletions:
         :param reasoning_effort: How much effort for model to use for reasoning. Only supported by reasoning models.
         :param stop: The completion stopping criteria.
         :param stream: Option to stream the API response
+        :param stream_options: Options to when streaming the API response.
         :param temperature: The consistency of the model responses to the same prompt. The higher it is set, the more consistent.
         :param tool_choice: The tool choice to use.
         :param tools: Options to pass to the tool choice.
@@ -163,6 +165,7 @@ class ChatCompletions:
             reasoning_effort,
             stop,
             stream,
+            stream_options,
             temperature,
             tool_choice,
             tools,
@@ -189,6 +192,7 @@ class ChatCompletions:
         reasoning_effort,
         stop,
         stream,
+        stream_options,
         temperature,
         tool_choice,
         tools,
@@ -327,6 +331,7 @@ class ChatCompletions:
             "reasoning_effort": reasoning_effort,
             "stop": stop,
             "stream": stream,
+            "stream_options": stream_options,
             "temperature": temperature,
             "tool_choice": tool_choice,
             "tools": tools,
