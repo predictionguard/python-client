@@ -59,6 +59,7 @@ class Completions:
         presence_penalty: Optional[float] = None,
         stop: Optional[Union[str, List[str]]] = None,
         stream: Optional[bool] = False,
+        stream_options: Optional[Dict[str, bool]] = None,
         temperature: Optional[float] = 1.0,
         top_p: Optional[float] = 0.99,
         top_k: Optional[int] = 50,
@@ -78,6 +79,7 @@ class Completions:
         :param presence_penalty: The presence penalty to use.
         :param stop: The completion stopping criteria.
         :param stream: The stream to use for HTTP requests.
+        :param stream_options: Options to when streaming the API response.
         :param temperature: The sampling temperature to use.
         :param top_p: The nucleus sampling probability to use.
         :param top_k: The Top-K sampling for the model to use.
@@ -102,6 +104,7 @@ class Completions:
             presence_penalty,
             stop,
             stream,
+            stream_options,
             temperature,
             top_p,
             top_k
@@ -125,6 +128,7 @@ class Completions:
         presence_penalty,
         stop,
         stream,
+        stream_options,
         temperature,
         top_p,
         top_k
@@ -201,6 +205,7 @@ class Completions:
             "presence_penalty": presence_penalty,
             "stop": stop,
             "stream": stream,
+            "stream_options": stream_options,
             "temperature": temperature,
             "top_p": top_p,
             "top_k": top_k
