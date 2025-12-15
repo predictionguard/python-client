@@ -65,7 +65,7 @@ class AudioTranscriptions:
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
-        entity_list: Optional[List[str]] = None,
+        entity_list: Optional[List[str]] = "",
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
@@ -139,6 +139,8 @@ class AudioTranscriptions:
             "Injection": str(injection)
         }
 
+        print(headers)
+
         if timestamp_granularities:
             if diarization and "segment" in timestamp_granularities:
                 raise ValueError(
@@ -169,6 +171,8 @@ class AudioTranscriptions:
                 "diarization": str(diarization).lower(),
                 "response_format": response_format,
             }
+
+            print(data)
 
             response = requests.request(
                 "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data, timeout=self.timeout

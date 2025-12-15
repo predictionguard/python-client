@@ -61,7 +61,7 @@ class DocumentsExtract:
         toxicity: Optional[bool] = False,
         pii: Optional[str] = "",
         replace_method: Optional[str] = "",
-        entity_list: Optional[List[str]] = None,
+        entity_list: Optional[List[str]] = "",
         injection: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
