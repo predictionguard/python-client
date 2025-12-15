@@ -28,12 +28,12 @@ Issues = "https://github.com/predictionguard/python-client/issues"
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "ruff",
-    "sphinx",
-    "sphinx-autodoc-typehints",
-    "sphinx_rtd_theme",
-    "black",
+    "pytest>=9.0.2",
+    "ruff>=0.14.9",
+    "sphinx>=9.0.4",
+    "sphinx-autodoc-typehints>=3.6.0",
+    "sphinx_rtd_theme>=0.5.1",
+    "black>=25.12.0",
 ]
 
 [tool.hatch.version]
