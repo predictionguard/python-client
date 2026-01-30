@@ -139,8 +139,6 @@ class AudioTranscriptions:
             "Injection": str(injection)
         }
 
-        print(headers)
-
         if timestamp_granularities:
             if diarization and "segment" in timestamp_granularities:
                 raise ValueError(
@@ -171,8 +169,6 @@ class AudioTranscriptions:
                 "diarization": str(diarization).lower(),
                 "response_format": response_format,
             }
-
-            print(data)
 
             response = requests.request(
                 "POST", self.url + "/audio/transcriptions", headers=headers, files=files, data=data, timeout=self.timeout
