@@ -29,7 +29,7 @@ Issues = "https://github.com/predictionguard/python-client/issues"
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0.2",
-    "ruff>=0.14.14",
+    "ruff>=0.15.1",
     "sphinx==9.1",
     "sphinx-autodoc-typehints==3.6.2",
     "sphinx_rtd_theme>=3.1.0",
