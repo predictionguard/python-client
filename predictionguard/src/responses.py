@@ -8,14 +8,13 @@ from typing import Any, Dict, List, Optional, Union
 import urllib.request
 import urllib.parse
 import uuid
-from warnings import warn
 
 from ..version import __version__
 
 
-class Chat:
+class Responses:
     """
-    Chat generates chat completions based on a conversation history.
+    Responses allows for the usage of LLMs intended for agentic usages.
 
     Usage::
 
@@ -34,7 +33,7 @@ class Chat:
             url="<url>"
         )
 
-        messages = [
+        input = [
             {
                 "role": "system",
                 "content": "You are a helpful assistant that provide clever and sometimes funny responses.",
@@ -53,9 +52,9 @@ class Chat:
             }
         ]
 
-        result = client.chat.completions.create(
-            model="Hermes-3-Llama-3.1-8B",
-            messages=messages
+        result = client.responses.create(
+            model="gpt-oss-120b",
+            input=input
         )
 
         print(json.dumps(
@@ -71,141 +70,91 @@ class Chat:
         self.url = url
         self.timeout = timeout
 
-        self.completions: ChatCompletions = ChatCompletions(self.api_key, self.url, self.timeout)
-
-
-class ChatCompletions:
-    def __init__(self, api_key, url, timeout):
-        self.api_key = api_key
-        self.url = url
-        self.timeout = timeout
-
     def create(
         self,
         model: str,
-        messages: Union[
+        input: Union[
             str, List[
                 Dict[str, Any]
             ]
         ],
-        input: Optional[Dict[str, Any]] = None,
-        output: Optional[Dict[str, Any]] = None,
-        frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[
-            Dict[str, int]
-        ] = None,
-        max_completion_tokens: Optional[int] = 100,
-        max_tokens: Optional[int] = None,
+        max_output_tokens: Optional[int] = None,
+        max_tool_calls: Optional[int] = None,
         parallel_tool_calls: Optional[bool] = None,
-        presence_penalty: Optional[float] = None,
-        reasoning_effort: Optional[str] = None,
-        stop: Optional[
-            Union[
-                str, List[str]
-            ]
-        ] = None,
+        reasoning: Optional[Dict[str, str]] = None,
+        safeguards: Optional[Dict[str, Any]] = None,
         stream: Optional[bool] = False,
-        stream_options: Optional[Dict[str, bool]] = None,
-        temperature: Optional[float] = 1.0,
+        temperature: Optional[float] = None,
         tool_choice: Optional[Union[
             str, Dict[
                 str, Dict[str, str]
             ]
         ]] = None,
         tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
-        top_p: Optional[float] = 0.99,
-        top_k: Optional[float] = 50,
+        top_p: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
 
         :param model: The ID(s) of the model to use.
-        :param messages: The content of the call, an array of dictionaries containing a role and content.
-        :param input: A dictionary containing the PII and injection arguments.
-        :param output: A dictionary containing the factuality, and toxicity arguments.
-        :param frequency_penalty: The frequency penalty to use.
-        :param logit_bias: The logit bias to use.
-        :param max_completion_tokens: The maximum amount of tokens the model should return.
-        :param max_tokens: Deprecated, please use max_completion_tokens instead.
+        :param input: The content of the call, an array of dictionaries containing a role and content.
+        :param max_output_tokens: The maximum amount of tokens the model should return.
+        :param max_tool_calls: The maximum amount of tool calls the model can perform.
         :param parallel_tool_calls: The parallel tool calls to use.
-        :param presence_penalty: The presence penalty to use.
-        :param reasoning_effort: How much effort for model to use for reasoning. Only supported by reasoning models.
-        :param stop: The completion stopping criteria.
+        :param reasoning: How much effort for model to use for reasoning. Only supported by reasoning models.
+        :param safeguards: A dictionary containing the PII, injection, factuality, and toxicity arguments.
         :param stream: Option to stream the API response
-        :param stream_options: Options to when streaming the API response.
         :param temperature: The consistency of the model responses to the same prompt. The higher it is set, the more consistent.
         :param tool_choice: The tool choice to use.
         :param tools: Options to pass to the tool choice.
         :param top_p: The sampling for the model to use.
-        :param top_k: The Top-K sampling for the model to use.
-        :return: A dictionary containing the chat response.
+        :return: A dictionary containing the responses response.
         """
 
-        # Handling max_tokens and returning deprecation message
-        if max_tokens is not None:
-            max_completion_tokens = max_tokens
-            warn("""
-            The max_tokens argument is deprecated. 
-            Please use max_completion_tokens instead.
-            """, DeprecationWarning, stacklevel=2
-            )
-
         # Create a list of tuples, each containing all the parameters for
-        # a call to _generate_chat
+        # a call to _generate_response
         args = (
             model,
-            messages,
             input,
-            output,
-            frequency_penalty,
-            logit_bias,
-            max_completion_tokens,
+            max_output_tokens,
+            max_tool_calls,
             parallel_tool_calls,
-            presence_penalty,
-            reasoning_effort,
-            stop,
+            reasoning,
+            safeguards,
             stream,
-            stream_options,
             temperature,
             tool_choice,
             tools,
             top_p,
-            top_k
         )
 
-        # Run _generate_chat
-        choices = self._generate_chat(*args)
+        # Run _generate_response
+        output = self._generate_response(*args)
 
-        return choices
+        return output
 
-    def _generate_chat(
+    def _generate_response(
         self,
         model,
-        messages,
         input,
-        output,
-        frequency_penalty,
-        logit_bias,
-        max_completion_tokens,
+        max_output_tokens,
+        max_tool_calls,
         parallel_tool_calls,
-        presence_penalty,
-        reasoning_effort,
-        stop,
+        reasoning,
+        safeguards,
         stream,
-        stream_options,
         temperature,
         tool_choice,
         tools,
         top_p,
-        top_k,
     ):
         """
-        Function to generate a single chat response.
+        Function to generate a single responses response.
         """
 
         def return_dict(url, headers, payload, timeout):
             response = requests.request(
-                "POST", url + "/chat/completions", headers=headers, data=payload, timeout=timeout
+                "POST", url + "/responses", headers=headers, data=payload, timeout=timeout
             )
             # If the request was successful, print the proxies.
             if response.status_code == 200:
@@ -217,8 +166,8 @@ class ChatCompletions:
                     "Too many requests, rate limit or quota exceeded."
             )
             else:
-                # Check if there is a json body in the response. Read that in,
-                # then print out the error field in the json body, and raise an exception.
+                # Check if there is a JSON body in the response. Read that in,
+                # then print out the error field in the JSON body, and raise an exception.
                 err = ""
                 try:
                     err = response.json()["error"]
@@ -228,7 +177,7 @@ class ChatCompletions:
 
         def stream_generator(url, headers, payload, stream, timeout):
             with requests.post(
-                url + "/chat/completions",
+                url + "/responses",
                 headers=headers,
                 data=payload,
                 stream=stream,
@@ -260,12 +209,12 @@ class ChatCompletions:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        if type(messages) is list:
-            for message in messages:
-                if type(message["content"]) is list:
-                    for entry in message["content"]:
-                        if entry["type"] == "image_url":
-                            image_data = entry["image_url"]["url"]
+        if type(input) is list:
+            for inpt in input:
+                if type(inpt["content"]) is list:
+                    for entry in inpt["content"]:
+                        if entry["type"] == "input_image":
+                            image_data = entry["image_url"]
                             if stream:
                                 raise ValueError(
                                     "Streaming is not currently supported when using vision."
@@ -316,38 +265,24 @@ class ChatCompletions:
                                         "Please enter a valid base64 encoded image, image file, image URL, or data URI."
                                     )
 
-                                entry["image_url"]["url"] = image_data_uri
-                        elif entry["type"] == "text":
+                                entry["image_url"] = image_data_uri
+                        elif entry["type"] == "input_text":
                             continue
 
         payload_dict = {
             "model": model,
-            "messages": messages,
-            "frequency_penalty": frequency_penalty,
-            "logit_bias": logit_bias,
-            "max_completion_tokens": max_completion_tokens,
+            "input": input,
+            "max_output_tokens": max_output_tokens,
+            "max_tool_calls": max_tool_calls,
             "parallel_tool_calls": parallel_tool_calls,
-            "presence_penalty": presence_penalty,
-            "reasoning_effort": reasoning_effort,
-            "stop": stop,
+            "reasoning": reasoning,
+            "safeguards": safeguards,
             "stream": stream,
-            "stream_options": stream_options,
             "temperature": temperature,
             "tool_choice": tool_choice,
             "tools": tools,
             "top_p": top_p,
-            "top_k": top_k,
         }
-
-        if input:
-            payload_dict["input"] = input
-        if output:
-            if stream:
-                raise ValueError(
-                    "Factuality and toxicity checks are not supported when streaming is enabled."
-                )
-            else:
-                payload_dict["output"] = output
 
         payload = json.dumps(payload_dict)
 
@@ -357,7 +292,7 @@ class ChatCompletions:
         else:
             return return_dict(self.url, headers, payload, self.timeout)
 
-    def list_models(self, capability: Optional[str] = "chat-completion") -> List[str]:
+    def list_models(self, capability: Optional[str] = "responses") -> List[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",
@@ -365,9 +300,9 @@ class ChatCompletions:
                 "User-Agent": "Prediction Guard Python Client: " + __version__
                 }
 
-        if capability != "chat-completion" and capability != "chat-with-image":
+        if capability != "responses" and capability != "responses-with-image":
             raise ValueError(
-                "Please enter a valid model type (chat-completion or chat-with-image)."
+                "Please enter a valid model type (responses or responses-with-image)."
             )
         else:
             model_path = "/models/" + capability
