@@ -71,7 +71,7 @@ class Completions:
         :param model: The ID(s) of the model to use.
         :param prompt: The prompt(s) to generate completions for.
         :param input: A dictionary containing the PII and injection arguments.
-        :param output: A dictionary containing the consistency, factuality, and toxicity arguments.
+        :param output: A dictionary containing the factuality, and toxicity arguments.
         :param echo: A boolean indicating whether to echo the prompt(s) to the output.
         :param frequency_penalty: The frequency penalty to use.
         :param logit_bias: The logit bias to use.

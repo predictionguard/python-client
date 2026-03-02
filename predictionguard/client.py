@@ -4,6 +4,7 @@ import requests
 from typing import Optional, Union
 
 from .src.audio import Audio
+from .src.responses import Responses
 from .src.chat import Chat
 from .src.completions import Completions
 from .src.detokenize import Detokenize
@@ -16,13 +17,15 @@ from .src.factuality import Factuality
 from .src.toxicity import Toxicity
 from .src.pii import Pii
 from .src.injection import Injection
+from .src.mcp_servers import MCPServers
+from .src.mcp_tools import MCPTools
 from .src.models import Models
 from .version import __version__
 
 __all__ = [
-    "PredictionGuard", "Chat", "Completions", "Embeddings",
-    "Audio", "Documents", "Rerank", "Tokenize", "Translate",
-    "Detokenize", "Factuality", "Toxicity", "Pii", "Injection",
+    "PredictionGuard", "Responses", "Chat", "Completions", "Embeddings",
+    "Audio", "Documents", "Rerank", "Tokenize", "Translate", "Detokenize",
+    "Factuality", "Toxicity", "Pii", "Injection", "MCPServers", "MCPTools",
     "Models"
 ]
 
@@ -81,11 +84,14 @@ class PredictionGuard:
         self._connect_client()
 
         # Pass Prediction Guard class variables to inner classes
+        self.responses: Responses = Responses(self.api_key, self.url, self.timeout)
+        """Responses allows for the usage of LLMs intended for agentic usages."""
+
         self.chat: Chat = Chat(self.api_key, self.url, self.timeout)
-        """Chat generates chat completions based on a conversation history"""
+        """Chat generates chat completions based on a conversation history."""
 
         self.completions: Completions = Completions(self.api_key, self.url, self.timeout)
-        """Completions generates text completions based on the provided input"""
+        """Completions generates text completions based on the provided input."""
 
         self.embeddings: Embeddings = Embeddings(self.api_key, self.url, self.timeout)
         """Embedding generates chat completions based on a conversation history."""
@@ -119,6 +125,12 @@ class PredictionGuard:
 
         self.detokenize: Detokenize = Detokenize(self.api_key, self.url, self.timeout)
         """Detokenizes generates text for input tokens."""
+
+        self.mcp_servers: MCPServers = MCPServers(self.api_key, self.url, self.timeout)
+        """MCPServers lists all the MCP servers available in the Prediction Guard API."""
+
+        self.mcp_tools: MCPTools = MCPTools(self.api_key, self.url, self.timeout)
+        """MCPTools lists all the MCP tools available in the Prediction Guard API."""
 
         self.models: Models = Models(self.api_key, self.url, self.timeout)
         """Models lists all of the models available in the Prediction Guard API."""

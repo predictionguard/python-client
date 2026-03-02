@@ -4,9 +4,9 @@ from typing import Any, Dict, Optional
 from ..version import __version__
 
 
-class Models:
+class MCPTools:
     """
-    Models lists all the models available in the Prediction Guard Platform.
+    MCPTools lists all the MCP tools available in the Prediction Guard API.
 
     Usage::
 
@@ -25,7 +25,7 @@ class Models:
             url="<url>"
         )
 
-        response = client.models.list()
+        response = client.mcp_tools.list()
 
         print(json.dumps(
             response,
@@ -40,27 +40,21 @@ class Models:
         self.url = url
         self.timeout = timeout
 
-    def list(self, capability: Optional[str] = "") -> Dict[str, Any]:
+    def list(self) -> Dict[str, Any]:
         """
-        Creates a models list request in the Prediction Guard REST API.
+        Creates a mcp_tools list request in the Prediction Guard REST API.
 
-        :param capability: The capability of models to list.
-        :return: A dictionary containing the metadata of all the models.
+        :return: A dictionary containing the metadata of all the MCP tools.
         """
 
-        # Run _list_models
-        choices = self._list_models(capability)
+        # Run _list_mcp_tools
+        choices = self._list_mcp_tools()
         return choices
 
-    def _list_models(self, capability):
+    def _list_mcp_tools(self):
         """
-        Function to list available models.
+        Function to list available MCP tools.
         """
-
-        capabilities = [
-            "chat-completion", "chat-with-image", "completion",
-            "embedding", "embedding-with-image", "tokenize"
-        ]
 
         headers = {
             "Content-Type": "application/json",
@@ -68,18 +62,8 @@ class Models:
             "User-Agent": "Prediction Guard Python Client: " + __version__,
         }
 
-        models_path = "/models"
-        if capability != "":
-            if capability not in capabilities:
-                raise ValueError(
-                    "If specifying a capability, please use one of the following: "
-                    + ", ".join(capabilities)
-                )
-            else:
-                models_path += "/" + capability
-
         response = requests.request(
-            "GET", self.url + models_path, headers=headers, timeout=self.timeout
+            "GET", self.url + "/mcp_tools", headers=headers, timeout=self.timeout
         )
 
         if response.status_code == 200:
@@ -91,8 +75,8 @@ class Models:
                 "Too many requests, rate limit or quota exceeded."
             )
         else:
-            # Check if there is a json body in the response. Read that in,
-            # print out the error field in the json body, and raise an exception.
+            # Check if there is a JSON body in the response. Read that in,
+            # print out the error field in the JSON body, and raise an exception.
             err = ""
             try:
                 err = response.json()["error"]
