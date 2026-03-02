@@ -4,7 +4,7 @@ import os
 import base64
 
 import requests
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 import urllib.request
 import urllib.parse
 import uuid
@@ -86,9 +86,8 @@ class Responses:
         stream: Optional[bool] = False,
         temperature: Optional[float] = None,
         tool_choice: Optional[Union[
-            str, Dict[
-                str, Dict[str, str]
-            ]
+            Literal["auto", "required", "none"],
+            Dict[str, Union[str, Dict[str, str]]]
         ]] = None,
         tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
         top_p: Optional[float] = None,
@@ -103,7 +102,7 @@ class Responses:
         :param parallel_tool_calls: The parallel tool calls to use.
         :param reasoning: How much effort for model to use for reasoning. Only supported by reasoning models.
         :param safeguards: A dictionary containing the PII, injection, factuality, and toxicity arguments.
-        :param stream: Option to stream the API response
+        :param stream: Option to stream the API response. Not currently supported.
         :param temperature: The consistency of the model responses to the same prompt. The higher it is set, the more consistent.
         :param tool_choice: The tool choice to use.
         :param tools: Options to pass to the tool choice.
