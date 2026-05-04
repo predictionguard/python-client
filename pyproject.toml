@@ -16,9 +16,15 @@ license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version"]
 dependencies = [
-    "tabulate>=0.10.0",
-    "requests>=2.32.5",
+    "tabulate==0.10.0",
+    "requests==2.33.1",
 ]
+
+[tool.uv]
+exclude-newer = "2026-04-16T12:33:43.000+00:00"
+
+[tool.uv.pip]
+require-hashes = true
 
 [project.urls]
 Homepage = "https://predictionguard.com"
@@ -28,10 +34,10 @@ Issues = "https://github.com/predictionguard/python-client/issues"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=9.0.2",
-    "ruff==0.15.6",
+    "pytest==9.0.3",
+    "ruff==0.15.10",
     "sphinx==9.1",
-    "sphinx-autodoc-typehints==3.9.8",
+    "sphinx-autodoc-typehints==3.10.2",
     "sphinx_rtd_theme>=3.1.0",
     "black>=26.3.1",
 ]
