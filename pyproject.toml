@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.uv]
-exclude-newer = "2026-04-16T12:33:43.000+00:00"
+exclude-newer = "2026-05-08T12:33:43.000+00:00"
 
 [tool.uv.pip]
 require-hashes = true
@@ -35,11 +35,11 @@ Issues = "https://github.com/predictionguard/python-client/issues"
 [project.optional-dependencies]
 dev = [
     "pytest==9.0.3",
-    "ruff==0.15.10",
+    "ruff==0.15.12",
     "sphinx==9.1",
     "sphinx-autodoc-typehints==3.10.2",
-    "sphinx_rtd_theme>=3.1.0",
-    "black>=26.3.1",
+    "sphinx_rtd_theme==3.1.0",
+    "black==26.3.1",
 ]
 
 [tool.hatch.version]
