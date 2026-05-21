@@ -22,6 +22,7 @@ dependencies = [
 
 [tool.uv]
 exclude-newer = "2026-05-08T12:33:43.000+00:00"
+exclude-newer-package = { idna = "2026-05-13T19:45:44.44Z", markupsafe = false }
 
 [tool.uv.pip]
 require-hashes = true
