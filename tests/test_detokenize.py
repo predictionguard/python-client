@@ -7,7 +7,7 @@ def test_detokenize_create():
     test_client = PredictionGuard()
 
     response = test_client.detokenize.create(
-        model=os.environ["TEST_CHAT_MODEL"],
+        model=os.environ["TEST_COMPLETIONS_MODEL"],
         tokens=[896, 686, 77651, 419, 914, 13]
     )
 
