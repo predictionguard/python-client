@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict
 
 from ..version import __version__
 
@@ -46,7 +47,7 @@ class Factuality:
         self.url = url
         self.timeout = timeout
 
-    def check(self, reference: str, text: str) -> Dict[str, Any]:
+    def check(self, reference: str, text: str) -> dict[str, Any]:
         """
         Creates a factuality checking request for the Prediction Guard /factuality API.
 
@@ -89,8 +90,6 @@ class Factuality:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check factuality. " + err)

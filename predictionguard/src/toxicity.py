@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict
 
 from ..version import __version__
 
@@ -43,7 +44,7 @@ class Toxicity:
         self.url = url
         self.timeout = timeout
 
-    def check(self, text: str) -> Dict[str, Any]:
+    def check(self, text: str) -> dict[str, Any]:
         """
         Creates a toxicity checking request for the Prediction Guard /toxicity API.
 
@@ -85,8 +86,6 @@ class Toxicity:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check toxicity. " + err)

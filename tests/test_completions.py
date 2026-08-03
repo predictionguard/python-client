@@ -40,13 +40,13 @@ def test_completions_list_models():
 def test_completions_create_stream():
     test_client = PredictionGuard()
 
-    response_list = []
-    for res in test_client.completions.create(
-        model=os.environ["TEST_COMPLETIONS_MODEL"],
-        prompt="Tell me a joke.",
-        stream=True,
-    ):
-        response_list.append(res)
+    response_list = list(
+        test_client.completions.create(
+            model=os.environ["TEST_COMPLETIONS_MODEL"],
+            prompt="Tell me a joke.",
+            stream=True,
+        )
+    )
 
     assert len(response_list) > 1
 
@@ -58,12 +58,12 @@ def test_completions_create_stream_output_fail():
         "\n", ""
     )
 
-    response_list = []
     with pytest.raises(ValueError, match=streaming_error):
-        for res in test_client.completions.create(
-            model=os.environ["TEST_COMPLETIONS_MODEL"],
-            prompt="Tell me a joke.",
-            stream=True,
-            output={"toxicity": True},
-        ):
-            response_list.append(res)
+        list(
+            test_client.completions.create(
+                model=os.environ["TEST_COMPLETIONS_MODEL"],
+                prompt="Tell me a joke.",
+                stream=True,
+                output={"toxicity": True},
+            )
+        )

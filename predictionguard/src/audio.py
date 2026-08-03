@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Optional
+import contextlib
+from typing import Any
 
 import requests
 
@@ -56,18 +57,18 @@ class AudioTranscriptions:
         self,
         model: str,
         file: str,
-        language: Optional[str] = "auto",
-        temperature: Optional[float] = 0.0,
-        prompt: Optional[str] = "",
-        timestamp_granularities: Optional[List[str]] = None,
-        diarization: Optional[bool] = False,
-        response_format: Optional[str] = "json",
-        toxicity: Optional[bool] = False,
-        pii: Optional[str] = "",
-        replace_method: Optional[str] = "",
-        entity_list: Optional[List[str]] = "",
-        injection: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        language: str | None = "auto",
+        temperature: float | None = 0.0,
+        prompt: str | None = "",
+        timestamp_granularities: list[str] | None = None,
+        diarization: bool | None = False,
+        response_format: str | None = "json",
+        toxicity: bool | None = False,
+        pii: str | None = "",
+        replace_method: str | None = "",
+        entity_list: list[str] | None = "",
+        injection: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Creates an audio transcription request to the Prediction Guard /audio/transcriptions API
 
@@ -187,8 +188,6 @@ class AudioTranscriptions:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not transcribe the audio file. " + err)

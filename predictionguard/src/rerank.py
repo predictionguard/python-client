@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict, List, Optional
 
 from ..version import __version__
 
@@ -55,9 +56,9 @@ class Rerank:
             self,
             model: str,
             query: str,
-            documents: List[str],
-            return_documents: Optional[bool] = True
-    ) -> Dict[str, Any]:
+            documents: list[str],
+            return_documents: bool | None = True
+    ) -> dict[str, Any]:
         """
         Creates a rerank request in the Prediction Guard /rerank API.
 
@@ -108,10 +109,8 @@ class Rerank:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not rank documents. " + err)
 
     def list_models(self):

@@ -1,32 +1,45 @@
 import os
 
 import requests
-from typing import Optional, Union
 
 from .src.audio import Audio
-from .src.responses import Responses
 from .src.chat import Chat
 from .src.completions import Completions
 from .src.detokenize import Detokenize
 from .src.documents import Documents
 from .src.embeddings import Embeddings
-from .src.rerank import Rerank
-from .src.tokenize import Tokenize
-from .src.translate import Translate
 from .src.factuality import Factuality
-from .src.toxicity import Toxicity
-from .src.pii import Pii
 from .src.injection import Injection
 from .src.mcp_servers import MCPServers
 from .src.mcp_tools import MCPTools
 from .src.models import Models
+from .src.pii import Pii
+from .src.rerank import Rerank
+from .src.responses import Responses
+from .src.tokenize import Tokenize
+from .src.toxicity import Toxicity
+from .src.translate import Translate
 from .version import __version__
 
 __all__ = [
-    "PredictionGuard", "Responses", "Chat", "Completions", "Embeddings",
-    "Audio", "Documents", "Rerank", "Tokenize", "Translate", "Detokenize",
-    "Factuality", "Toxicity", "Pii", "Injection", "MCPServers", "MCPTools",
-    "Models"
+    "Audio",
+    "Chat",
+    "Completions",
+    "Detokenize",
+    "Documents",
+    "Embeddings",
+    "Factuality",
+    "Injection",
+    "MCPServers",
+    "MCPTools",
+    "Models",
+    "Pii",
+    "PredictionGuard",
+    "Rerank",
+    "Responses",
+    "Tokenize",
+    "Toxicity",
+    "Translate"
 ]
 
 class PredictionGuard:
@@ -34,9 +47,9 @@ class PredictionGuard:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        url: Optional[str] = None,
-        timeout: Optional[Union[int, float]] = None
+        api_key: str | None = None,
+        url: str | None = None,
+        timeout: float | None = None
     ) -> None:
         """
         :param api_key: api_key represents PG api key.
@@ -72,11 +85,11 @@ class PredictionGuard:
                 timeout = float(timeout)
             except ValueError:
                 raise ValueError(
-                    "Timeout must be of type integer or float, not %s." % (type(timeout).__name__,)
+                    f"Timeout must be of type integer or float, not {type(timeout).__name__}."
                 )
             except TypeError:
                 raise TypeError(
-                    "Timeout should be of type integer or float, not %s." % (type(timeout).__name__,)
+                    f"Timeout must be of type integer or float, not {type(timeout).__name__}."
                 )
         self.timeout = timeout
 

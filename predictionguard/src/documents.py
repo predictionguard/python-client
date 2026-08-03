@@ -1,5 +1,7 @@
+import contextlib
+from typing import Any
+
 import requests
-from typing import Any, Dict, List, Optional
 
 from ..version import __version__
 
@@ -53,17 +55,17 @@ class DocumentsExtract:
     def create(
         self,
         file: str,
-        embed_images: Optional[bool] = False,
-        output_format: Optional[str] = None,
-        chunk_document: Optional[bool] = False,
-        chunk_size: Optional[int] = None,
-        enable_ocr: Optional[bool] = True,
-        toxicity: Optional[bool] = False,
-        pii: Optional[str] = "",
-        replace_method: Optional[str] = "",
-        entity_list: Optional[List[str]] = "",
-        injection: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        embed_images: bool | None = False,
+        output_format: str | None = None,
+        chunk_document: bool | None = False,
+        chunk_size: int | None = None,
+        enable_ocr: bool | None = True,
+        toxicity: bool | None = False,
+        pii: str | None = "",
+        replace_method: str | None = "",
+        entity_list: list[str] | None = "",
+        injection: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Creates a documents request to the Prediction Guard /documents/extract API
 
@@ -138,8 +140,6 @@ class DocumentsExtract:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not extract document. " + err)

@@ -1,13 +1,14 @@
-import re
+import base64
+import contextlib
 import json
 import os
-import base64
+import re
+import urllib.parse
+import urllib.request
+import uuid
+from typing import Any
 
 import requests
-from typing import Any, Dict, List, Union, Optional
-import urllib.request
-import urllib.parse
-import uuid
 
 from ..version import __version__
 
@@ -54,19 +55,10 @@ class Embeddings:
     def create(
         self,
         model: str,
-        input: Union[
-            str,
-            List[Union[
-                str,
-                int,
-                List[int],
-                Dict[str, str]
-                ]
-            ]
-        ],
+        input: str | list[str | int | list[int] | dict[str, str]],
         truncate: bool = False,
         truncation_direction: str = "right",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Creates an embeddings request to the Prediction Guard /embeddings API
 
@@ -100,9 +92,9 @@ class Embeddings:
             inputs = []
             for item in input:
                 item_dict = {}
-                if "text" in item.keys():
+                if "text" in item:
                     item_dict["text"] = item["text"]
-                if "image" in item.keys():
+                if "image" in item:
                     image_url_check = urllib.parse.urlparse(item["image"])
                     data_uri_pattern = re.compile(
                         r'^data:([a-zA-Z0-9!#$&-^_]+/[a-zA-Z0-9!#$&-^_]+)?(;base64)?,.*$'
@@ -183,13 +175,11 @@ class Embeddings:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not generate embeddings. " + err)
 
-    def list_models(self, capability: Optional[str] = "embedding") -> List[str]:
+    def list_models(self, capability: str | None = "embedding") -> list[str]:
         # Get the list of current models.
         headers = {
             "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class Translate:
@@ -11,11 +11,11 @@ class Translate:
 
     def create(
             self,
-            text: Optional[str],
-            source_lang: Optional[str],
-            target_lang: Optional[str],
-            use_third_party_engine: Optional[bool] = False
-        ) -> Dict[str, Any]:
+            text: str | None,
+            source_lang: str | None,
+            target_lang: str | None,
+            use_third_party_engine: bool | None = False
+        ) -> dict[str, Any]:
         """
         No longer supported
         """

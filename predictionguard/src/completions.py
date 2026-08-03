@@ -1,8 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict, List, Optional, Union
-from warnings import warn
 
 from ..version import __version__
 
@@ -49,22 +49,22 @@ class Completions:
     def create(
         self,
         model: str,
-        prompt: Union[str, List[str]],
-        input: Optional[Dict[str, Any]] = None,
-        output: Optional[Dict[str, Any]] = None,
-        echo: Optional[bool] = None,
-        frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[Dict[str, int]] = None,
-        max_tokens: Optional[int] = None,
-        presence_penalty: Optional[float] = None,
-        stop: Optional[Union[str, List[str]]] = None,
-        stream: Optional[bool] = False,
-        stream_options: Optional[Dict[str, bool]] = None,
-        temperature: Optional[float] = 1.0,
-        top_p: Optional[float] = 0.99,
-        top_k: Optional[int] = 50,
-        max_completion_tokens: Optional[int] = None
-    ) -> Dict[str, Any]:
+        prompt: str | list[str],
+        input: dict[str, Any] | None = None,
+        output: dict[str, Any] | None = None,
+        echo: bool | None = None,
+        frequency_penalty: float | None = None,
+        logit_bias: dict[str, int] | None = None,
+        max_tokens: int | None = None,
+        presence_penalty: float | None = None,
+        stop: str | list[str] | None = None,
+        stream: bool | None = False,
+        stream_options: dict[str, bool] | None = None,
+        temperature: float | None = 1.0,
+        top_p: float | None = 0.99,
+        top_k: int | None = 50,
+        max_completion_tokens: int | None = None
+    ) -> dict[str, Any]:
         """
         Creates a completion request for the Prediction Guard /completions API.
 
@@ -154,10 +154,8 @@ class Completions:
                 # Check if there is a json body in the response. Read that in,
                 # then print out the error field in the json body, and raise an exception.
                 err = ""
-                try:
+                with contextlib.suppress(Exception):
                     err = response.json()["error"]
-                except Exception:
-                    pass
                 raise ValueError("Could not make prediction. " + err)
 
         def stream_generator(url, headers, payload, stream, timeout):
@@ -227,7 +225,7 @@ class Completions:
         else:
             return return_dict(self.url, headers, payload, self.timeout)
 
-    def list_models(self) -> List[str]:
+    def list_models(self) -> list[str]:
         # Get the list of current models.
         headers = {
             "Content-Type": "application/json",

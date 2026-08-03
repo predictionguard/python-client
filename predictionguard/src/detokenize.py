@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict, List
 
 from ..version import __version__
 
@@ -46,7 +47,7 @@ class Detokenize:
         self.url = url
         self.timeout = timeout
 
-    def create(self, model: str, tokens: List[int]) -> Dict[str, Any]:
+    def create(self, model: str, tokens: list[int]) -> dict[str, Any]:
         """
         Creates a tokenization request in the Prediction Guard /tokenize API.
 
@@ -63,7 +64,7 @@ class Detokenize:
                 model == "multilingual-e5-large-instruct"
         ):
             raise ValueError(
-                "Model %s is not supported by this endpoint." % model
+                f"Model {model} is not supported by this endpoint."
             )
 
         # Run _create_tokens
@@ -101,10 +102,8 @@ class Detokenize:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not generate text. " + err)
 
     def list_models(self):

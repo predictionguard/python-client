@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict
 
 from ..version import __version__
 
@@ -46,7 +47,7 @@ class Tokenize:
         self.url = url
         self.timeout = timeout
 
-    def create(self, model: str, input: str) -> Dict[str, Any]:
+    def create(self, model: str, input: str) -> dict[str, Any]:
         """
         Creates a tokenization request in the Prediction Guard /tokenize API.
 
@@ -58,7 +59,7 @@ class Tokenize:
         # Validate models
         if model == "llava-1.5-7b-hf" or model == "bridgetower-large-itm-mlm-itc":
             raise ValueError(
-                "Model %s is not supported by this endpoint." % model
+                f"Model {model} is not supported by this endpoint."
             )
 
         # Run _create_tokens
@@ -96,10 +97,8 @@ class Tokenize:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not generate tokens. " + err)
 
     def list_models(self):
