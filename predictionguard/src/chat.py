@@ -1,14 +1,15 @@
-import re
+import base64
+import contextlib
 import json
 import os
-import base64
+import re
+import urllib.parse
+import urllib.request
+import uuid
+from typing import Any
+from warnings import warn
 
 import requests
-from typing import Any, Dict, List, Optional, Union
-import urllib.request
-import urllib.parse
-import uuid
-from warnings import warn
 
 from ..version import __version__
 
@@ -83,39 +84,25 @@ class ChatCompletions:
     def create(
         self,
         model: str,
-        messages: Union[
-            str, List[
-                Dict[str, Any]
-            ]
-        ],
-        input: Optional[Dict[str, Any]] = None,
-        output: Optional[Dict[str, Any]] = None,
-        frequency_penalty: Optional[float] = None,
-        logit_bias: Optional[
-            Dict[str, int]
-        ] = None,
-        max_completion_tokens: Optional[int] = 100,
-        max_tokens: Optional[int] = None,
-        parallel_tool_calls: Optional[bool] = None,
-        presence_penalty: Optional[float] = None,
-        reasoning_effort: Optional[str] = None,
-        stop: Optional[
-            Union[
-                str, List[str]
-            ]
-        ] = None,
-        stream: Optional[bool] = False,
-        stream_options: Optional[Dict[str, bool]] = None,
-        temperature: Optional[float] = 1.0,
-        tool_choice: Optional[Union[
-            str, Dict[
-                str, Dict[str, str]
-            ]
-        ]] = None,
-        tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
-        top_p: Optional[float] = 0.99,
-        top_k: Optional[float] = 50,
-    ) -> Dict[str, Any]:
+        messages: str | list[dict[str, Any]],
+        input: dict[str, Any] | None = None,
+        output: dict[str, Any] | None = None,
+        frequency_penalty: float | None = None,
+        logit_bias: dict[str, int] | None = None,
+        max_completion_tokens: int | None = 100,
+        max_tokens: int | None = None,
+        parallel_tool_calls: bool | None = None,
+        presence_penalty: float | None = None,
+        reasoning_effort: str | None = None,
+        stop: str | list[str] | None = None,
+        stream: bool | None = False,
+        stream_options: dict[str, bool] | None = None,
+        temperature: float | None = 1.0,
+        tool_choice: str | dict[str, dict[str, str]] | None = None,
+        tools: list[dict[str, str | dict[str, str]]] | None = None,
+        top_p: float | None = 0.99,
+        top_k: float | None = 50,
+    ) -> dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
 
@@ -220,10 +207,8 @@ class ChatCompletions:
                 # Check if there is a json body in the response. Read that in,
                 # then print out the error field in the json body, and raise an exception.
                 err = ""
-                try:
+                with contextlib.suppress(Exception):
                     err = response.json()["error"]
-                except Exception:
-                    pass
                 raise ValueError("Could not make prediction. " + err)
 
         def stream_generator(url, headers, payload, stream, timeout):
@@ -357,7 +342,7 @@ class ChatCompletions:
         else:
             return return_dict(self.url, headers, payload, self.timeout)
 
-    def list_models(self, capability: Optional[str] = "chat-completion") -> List[str]:
+    def list_models(self, capability: str | None = "chat-completion") -> list[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",

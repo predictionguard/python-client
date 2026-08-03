@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict, List, Optional, Union
 
 from ..version import __version__
 
@@ -47,9 +48,9 @@ class Injection:
 
     def check(
             self,
-            prompt: Union[str, List[str]],
-            detect: Optional[bool] = False
-    ) -> Dict[str, Any]:
+            prompt: str | list[str],
+            detect: bool | None = False
+    ) -> dict[str, Any]:
         """
         Creates a prompt injection check request in the Prediction Guard /injection API.
 
@@ -93,8 +94,6 @@ class Injection:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check for injection. " + err)

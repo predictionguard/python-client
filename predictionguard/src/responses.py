@@ -1,13 +1,14 @@
-import re
+import base64
+import contextlib
 import json
 import os
-import base64
+import re
+import urllib.parse
+import urllib.request
+import uuid
+from typing import Any, Literal
 
 import requests
-from typing import Any, Dict, List, Literal, Optional, Union
-import urllib.request
-import urllib.parse
-import uuid
 
 from ..version import __version__
 
@@ -73,25 +74,18 @@ class Responses:
     def create(
         self,
         model: str,
-        input: Union[
-            str, List[
-                Dict[str, Any]
-            ]
-        ],
-        max_output_tokens: Optional[int] = None,
-        max_tool_calls: Optional[int] = None,
-        parallel_tool_calls: Optional[bool] = None,
-        reasoning: Optional[Dict[str, str]] = None,
-        safeguards: Optional[Dict[str, Any]] = None,
-        stream: Optional[bool] = False,
-        temperature: Optional[float] = None,
-        tool_choice: Optional[Union[
-            Literal["auto", "required", "none"],
-            Dict[str, Union[str, Dict[str, str]]]
-        ]] = None,
-        tools: Optional[List[Dict[str, Union[str, Dict[str, str]]]]] = None,
-        top_p: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        input: str | list[dict[str, Any]],
+        max_output_tokens: int | None = None,
+        max_tool_calls: int | None = None,
+        parallel_tool_calls: bool | None = None,
+        reasoning: dict[str, str] | None = None,
+        safeguards: dict[str, Any] | None = None,
+        stream: bool | None = False,
+        temperature: float | None = None,
+        tool_choice: Literal["auto", "required", "none"] | dict[str, str | dict[str, str]] | None = None,
+        tools: list[dict[str, str | dict[str, str]]] | None = None,
+        top_p: float | None = None,
+    ) -> dict[str, Any]:
         """
         Creates a chat request for the Prediction Guard /chat API.
 
@@ -168,10 +162,8 @@ class Responses:
                 # Check if there is a JSON body in the response. Read that in,
                 # then print out the error field in the JSON body, and raise an exception.
                 err = ""
-                try:
+                with contextlib.suppress(Exception):
                     err = response.json()["error"]
-                except Exception:
-                    pass
                 raise ValueError("Could not make prediction. " + err)
 
         def stream_generator(url, headers, payload, stream, timeout):
@@ -291,7 +283,7 @@ class Responses:
         else:
             return return_dict(self.url, headers, payload, self.timeout)
 
-    def list_models(self, capability: Optional[str] = "responses") -> List[str]:
+    def list_models(self, capability: str | None = "responses") -> list[str]:
         # Get the list of current models.
         headers = {
                 "Content-Type": "application/json",

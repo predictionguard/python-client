@@ -1,5 +1,5 @@
-import os
 import base64
+import os
 
 import pytest
 
@@ -34,16 +34,16 @@ def test_chat_completions_create_string():
 def test_chat_completions_create_stream():
     test_client = PredictionGuard()
 
-    response_list = []
-    for res in test_client.chat.completions.create(
-        model=os.environ["TEST_CHAT_MODEL"],
-        messages=[
-            {"role": "system", "content": "You are a helpful chatbot."},
-            {"role": "user", "content": "Tell me a joke."},
-        ],
-        stream=True,
-    ):
-        response_list.append(res)
+    response_list = list(
+        test_client.chat.completions.create(
+            model=os.environ["TEST_CHAT_MODEL"],
+            messages=[
+                {"role": "system", "content": "You are a helpful chatbot."},
+                {"role": "user", "content": "Tell me a joke."},
+            ],
+            stream=True,
+        )
+    )
 
     assert len(response_list) > 1
 
@@ -55,18 +55,18 @@ def test_chat_completions_create_stream_output_fail():
         "\n", ""
     )
 
-    response_list = []
     with pytest.raises(ValueError, match=streaming_error):
-        for res in test_client.chat.completions.create(
-            model=os.environ["TEST_CHAT_MODEL"],
-            messages=[
-                {"role": "system", "content": "You are a helpful chatbot."},
-                {"role": "user", "content": "Tell me a joke."},
-            ],
-            stream=True,
-            output={"toxicity": True},
-        ):
-            response_list.append(res)
+        list(
+            test_client.chat.completions.create(
+                model=os.environ["TEST_CHAT_MODEL"],
+                messages=[
+                    {"role": "system", "content": "You are a helpful chatbot."},
+                    {"role": "user", "content": "Tell me a joke."},
+                ],
+                stream=True,
+                output={"toxicity": True},
+            )
+        )
 
 
 def test_chat_completions_create_vision_image_file():
@@ -166,25 +166,25 @@ def test_chat_completions_create_vision_stream_fail():
 
     streaming_error = "Streaming is not currently supported when using vision."
 
-    response_list = []
     with pytest.raises(ValueError, match=streaming_error):
-        for res in test_client.chat.completions.create(
-            model=os.environ["TEST_VISION_MODEL"],
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "What is in this image?"},
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": "fixtures/test_image1.jpeg"},
-                        },
-                    ],
-                }
-            ],
-            stream=True,
-        ):
-            response_list.append(res)
+        list(
+            test_client.chat.completions.create(
+                model=os.environ["TEST_VISION_MODEL"],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": "What is in this image?"},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": "fixtures/test_image1.jpeg"},
+                            },
+                        ],
+                    }
+                ],
+                stream=True,
+            )
+        )
 
 
 def test_chat_completions_create_tool_call():

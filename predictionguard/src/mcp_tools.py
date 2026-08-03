@@ -1,5 +1,7 @@
+import contextlib
+from typing import Any
+
 import requests
-from typing import Any, Dict, Optional
 
 from ..version import __version__
 
@@ -40,7 +42,7 @@ class MCPTools:
         self.url = url
         self.timeout = timeout
 
-    def list(self) -> Dict[str, Any]:
+    def list(self) -> dict[str, Any]:
         """
         Creates a mcp_tools list request in the Prediction Guard REST API.
 
@@ -78,8 +80,6 @@ class MCPTools:
             # Check if there is a JSON body in the response. Read that in,
             # print out the error field in the JSON body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check for injection. " + err)

@@ -1,4 +1,3 @@
-import os
 
 from predictionguard import PredictionGuard
 

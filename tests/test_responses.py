@@ -1,7 +1,4 @@
 import os
-import base64
-
-import pytest
 
 from predictionguard import PredictionGuard
 

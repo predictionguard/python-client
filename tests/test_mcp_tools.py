@@ -17,5 +17,5 @@ def test_mcp_tools_list():
         warnings.warn(pytest.PytestWarning("No tools available — data is empty, skipping content checks"))
         return
 
-    first_key = list(response["data"].keys())[0]
+    first_key = next(iter(response["data"].keys()))
     assert type(response["data"][first_key][0]["id"]) is str

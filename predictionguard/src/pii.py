@@ -1,7 +1,8 @@
+import contextlib
 import json
+from typing import Any
 
 import requests
-from typing import Any, Dict, List, Optional, Union
 
 from ..version import __version__
 
@@ -48,11 +49,11 @@ class Pii:
 
     def check(
         self,
-        prompt: Union[str, List[str]],
+        prompt: str | list[str],
         replace: bool,
         replace_method: str = "random",
-        entity_list: Optional[list] = None
-    ) -> Dict[str, Any]:
+        entity_list: list | None = None
+    ) -> dict[str, Any]:
         """Creates a PII checking request for the Prediction Guard /PII API.
 
         :param prompt: The prompt to check for PII.
@@ -99,8 +100,6 @@ class Pii:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check PII. " + err)

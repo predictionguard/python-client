@@ -1,5 +1,7 @@
+import contextlib
+from typing import Any
+
 import requests
-from typing import Any, Dict, Optional
 
 from ..version import __version__
 
@@ -40,7 +42,7 @@ class Models:
         self.url = url
         self.timeout = timeout
 
-    def list(self, capability: Optional[str] = "") -> Dict[str, Any]:
+    def list(self, capability: str | None = "") -> dict[str, Any]:
         """
         Creates a models list request in the Prediction Guard REST API.
 
@@ -94,8 +96,6 @@ class Models:
             # Check if there is a json body in the response. Read that in,
             # print out the error field in the json body, and raise an exception.
             err = ""
-            try:
+            with contextlib.suppress(Exception):
                 err = response.json()["error"]
-            except Exception:
-                pass
             raise ValueError("Could not check for injection. " + err)
