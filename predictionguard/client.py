@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import requests
 
@@ -56,6 +57,16 @@ class PredictionGuard:
         :param url: url represents the transport and domain:port
         :param timeout: request timeout in seconds.
         """
+
+        warnings.warn(
+            "The predictionguard SDK is deprecated and no longer maintained. "
+            "Some features may be broken or missing. Use an OpenAI-compatible "
+            "or Anthropic-compatible SDK pointed at the Prediction Guard API "
+            "instead. See https://github.com/predictionguard/python-client#readme "
+            "for migration details.",
+            FutureWarning,
+            stacklevel=2,
+        )
 
         # Get the access api_key.
         if not api_key:
