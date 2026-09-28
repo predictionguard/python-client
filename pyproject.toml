@@ -8,12 +8,15 @@ authors = [
     {name = "Jacob Mansdorfer", email = "jacob@predictionguard.com"},
     {name = "Daniel Whitenack", email = "dan@predictionguard.com"}
     ]
-description = "The official Prediction Guard Python SDK"
+description = "[DEPRECATED] The Prediction Guard Python SDK. No longer maintained; use an OpenAI- or Anthropic-compatible SDK instead."
 description-file = "README.md"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {file = "LICENSE"}
-classifiers = ["License :: OSI Approved :: MIT License"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 7 - Inactive",
+]
 dynamic = ["version"]
 dependencies = [
     "tabulate>=0.10.0,<1",
